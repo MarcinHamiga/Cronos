@@ -18,11 +18,17 @@ class Layer:
         self._MAP_H = height
         self._NAME = layer_name
     
-    def generate_layer(self):
-        for y in range(self._MAP_H):
-            self._TILEMAP.append([])
-            for x in range(self._MAP_W):
-                self._TILEMAP[y].append(random.randint(0, 2))
+    def generate_layer(self, beginning = 0, end = 2):
+        if beginning == end:
+            for y in range(self._MAP_H):
+                self._TILEMAP.append([])
+                for x in range(self._MAP_W):
+                    self._TILEMAP[y].append(beginning)
+        else:
+            for y in range(self._MAP_H):
+                self._TILEMAP.append([])
+                for x in range(self._MAP_W):
+                    self._TILEMAP[y].append(random.randint(beginning, end))
 
     def fill_layer(self, texture_db):
         px = py = 16
@@ -54,12 +60,15 @@ class Map:
     def __init__(self, height: int, width: int, texture_db: dict):
         ground, mid, top = Layer("GROUND", width, height), Layer("MID", width, height), Layer("TOP", width, height)
         self._LAYERS = [ground, mid, top]
-        self._generate_ground_layer(height, width)
+        self._generate_ground_layer()
+        self._generate_mid_layer()
         self._fill_map(texture_db)
 
-    def _generate_ground_layer(self, height, width, data = None):
+    def _generate_ground_layer(self, data = None):
         self._LAYERS[0].generate_layer()
 
+    def _generate_mid_layer(self, data = None):
+        self._LAYERS[1].generate_layer(3, 3)
 
     def _fill_map(self, texture_db: dict):
         for layer in self._LAYERS:
@@ -67,6 +76,7 @@ class Map:
                 layer.fill_layer(texture_db)
 
     def draw_map(self, surface: pygame.display):
+        print(self._LAYERS[1].get_tilemap())
         for layer in self._LAYERS:
             if layer.get_tilemap() != []:
                 layer.draw_layer(surface)
