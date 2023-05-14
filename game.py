@@ -25,8 +25,10 @@ class Game:
         counter = 0    
         for key in self.ASSETS.keys():
             self.ASSET_CODES[counter] = self.ASSETS[key]
+            print(f"{key} - {counter}")
+            counter += 1
             
-        self.MAP = map.Map(24, 24, self.ASSET_CODES)
+        self.MAP = map.Map(34, 64, self.ASSET_CODES)
     
     def main(self):
         pygame.init()
@@ -46,3 +48,4 @@ class Game:
             # Draw
             self.MAP.draw_map(self.screen)
             pygame.display.flip()
+            
