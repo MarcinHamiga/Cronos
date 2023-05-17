@@ -76,7 +76,6 @@ class Map:
                 layer.fill_layer(texture_db)
 
     def draw_map(self, surface: pygame.display):
-        print(self._LAYERS[1].get_tilemap())
         for layer in self._LAYERS:
             if layer.get_tilemap() != []:
                 layer.draw_layer(surface)

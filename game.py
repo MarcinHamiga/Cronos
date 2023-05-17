@@ -16,11 +16,11 @@ class Game:
         self.CLOCK = pygame.time.Clock()
         self.ASSETS = {}
         self.ASSET_CODES = {}
-        self.PATH = os.path.join(os.pardir, "assets")
-        self.filenames = sorted(os.listdir("C:/Users/marci/Documents/GitHub/Cronos/assets"))
+        self.PATH = os.path.join(os.path.dirname(os.pardir), "map_assets")
+        self.filenames = sorted(os.listdir(self.PATH))
         for filename in self.filenames:
             asset_name = filename[:-4].upper()
-            self.ASSETS[asset_name] = pygame.image.load(os.path.join("C:/Users/marci/Documents/GitHub/Cronos/assets", filename)).convert_alpha()
+            self.ASSETS[asset_name] = pygame.image.load(os.path.join(self.PATH, filename)).convert_alpha()
         
         counter = 0    
         for key in self.ASSETS.keys():
@@ -46,6 +46,6 @@ class Game:
                 sys.exit(0)
                 
             # Draw
-            self.MAP.draw_map(self.screen)
+            self.MAP.draw_map(self.SCREEN)
             pygame.display.flip()
             
