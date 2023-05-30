@@ -46,6 +46,6 @@ class Game:
                 sys.exit(0)
                 
             # Draw
-            self.MAP.draw_map(self.screen)
+            self.MAP.draw_map(self.SCREEN)
             pygame.display.flip()
             
