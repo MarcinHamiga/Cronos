@@ -1,8 +1,7 @@
-import pygame
 import random
 
 class Tile:
-    def __init__(self, texture: pygame.image, px: int, py: int):
+    def __init__(self, texture, px: int, py: int):
         self.texture = texture
         self.rect = self.texture.get_rect()
         self.rect.center = px, py
@@ -74,8 +73,11 @@ class Map:
         for layer in self._LAYERS:
             if layer.get_tilemap() != []:
                 layer.fill_layer(texture_db)
-
-    def draw_map(self, surface: pygame.display):
-        for layer in self._LAYERS:
-            if layer.get_tilemap() != []:
-                layer.draw_layer(surface)
+    def draw_first_layer(self, surface):
+        self._LAYERS[0].draw_layer(surface)
+        
+    def draw_second_layer(self, surface):
+        self._LAYERS[1].draw_layer(surface)
+        
+    def draw_third_layer(self, surface):
+        self._LAYERS[2].draw_layer(surface)
