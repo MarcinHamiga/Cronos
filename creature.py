@@ -1,33 +1,33 @@
 from random import randint
 
+
 class Creature:
     def __init__(self, level, health, action_points, attack, defense):
-        self._is_down = False
-        self._is_defending = False
-        self._level = level
+        self._is_down = False   # Zmienna oznaczająca że stworek jest niezdatny do walki
+        self._is_defending = False  # Zmienna określająca czy w danej turze stworek broni się zwiększając swoją obronę
+        self._level = level # Poziom stworka
         self._health = health
         self._max_health = health
         self._action_points = action_points
         self._attack = attack
         self._defense = defense
         self._guard_bonus = int(defense * 0.2)
-        self._statuses = []
-        self._moves = []
-        self._hidden_moves = []
+        self._statuses = []   # Lista zawierająca wszystkie nałożone na stworka statusy
+        self._moves = []    # Lista ruchów dostępnych dla stworka
+        self._hidden_moves = None # Lista ruchów które stworek odblokuje na kolejnych poziomach
 
     def attack(self, target):
         target_def = target.get_defense()
-        target_agi = target.get_agility()
+        # Jeżeli atak stworka jest większy niż obrona celu, ilość obrażeń losowana jest z pełnego przedziału od 0 do wartości ataku,
+        # natomiast jeżeli atak stworka jest mniejszy niż obrona celu, obrażenia zostają zredukowane do 25% pierwotnej wartości
+        damage = randint(0, self._attack)
         if self._attack > target_def:
-            return target.take_damage(randint(0, self._attack))
-        elif self._attack < target_def:
-            damage = self._attack - target_def
-            if damage < 0:
-                damage = 0
-            return target.take_damage(randint(self._attack - target_def))
+            return target.take_damage(damage), damage
+        else:
+            return target.take_damage(damage) // 4, damage
     
     def use_skill(self, skill, target):
-        skill.
+        skill.use(target)
             
     def guard(self):
         self._defense += self._guard_bonus
