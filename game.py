@@ -16,11 +16,8 @@ class Game:
         self.SCR_HEIGHT = screen_info.current_h
         self.SCREEN = pygame.display.set_mode((self.SCR_WIDTH, self.SCR_HEIGHT)) 
         self._running = True
-        
-        self.SCALE = min(self.SCR_WIDTH // 32, self.SCR_HEIGHT // 32)
-        self.SURFACE = pygame.Surface((32*32, 32*32))
-        self.SCALED_GAME_SURFACE = pygame.transform.scale(self.SURFACE, (self.SCALE * 32, self.SCALE * 32))
-        self.SCALED_DISPLAY = pygame.Surface((self.SCR_WIDTH, self.SCR_HEIGHT))
+                
+        self.SCALE = 2
                 
         self.game_state = "MENU"
         self.STATE_MANAGER = statemanager.State_manager(self)
@@ -32,9 +29,9 @@ class Game:
             filename = asset.name[:-4]
             print(filename)
             self.ASSETS[filename.upper()] = pygame.image.load(asset).convert_alpha()
-            self.ASSETS[filename.upper()] = pygame.transform.scale(self.ASSETS[filename.upper()], (128, 128))
+            self.ASSETS[filename.upper()] = pygame.transform.scale(self.ASSETS[filename.upper()], (32 * self.SCALE, 32 * self.SCALE))
             
-        self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], 64, 64, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"]])
+        self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"]])
         
         self.NUMBERED_ASSETS = {}
         count = 0
@@ -44,8 +41,7 @@ class Game:
 
 
         
-        self.camera_pos = self.PLAYER.get_pos()
-        self.MAP = map.Map("testmap.pkl", self.PLAYER, self.NUMBERED_ASSETS)
+        self.MAP = map.Map(self.PLAYER, "testmap.tmx")
         self.main()
             
     def main(self):
@@ -62,8 +58,8 @@ class Game:
             self.PLAYER.update(keys)
                 
             # Draw
-            self.PLAYER.draw(self.SCREEN)
-            self.SCREEN.blit(self.MAP)
+            self.SCREEN.fill((0,0,0))
+            self.MAP.draw_map(self.SCREEN)
             pygame.display.flip()
             self.CLOCK.tick(60)
             

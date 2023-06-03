@@ -1,0 +1,41 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "testmap.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "": {
+            "scaleInEditor": 1
+        },
+        "#global_tileset": {
+            "dynamicWrapping": true
+        },
+        "testmap.tmx": {
+            "scale": 1.1202083333333333,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 382.0717872419565,
+                "y": 243.7046680305003
+            }
+        },
+        "testmap.tmx#global_tileset": {
+            "scaleInDock": 1
+        }
+    },
+    "last.imagePath": "C:/Users/marci/Documents/GitHub/Cronos/assets",
+    "map.lastUsedFormat": "tmx",
+    "openFiles": [
+        "testmap.tmx"
+    ],
+    "project": "cronos.tiled_project.tiled-project",
+    "property.type": "bool",
+    "recentFiles": [
+        "testmap.tmx"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.type": 1
+}

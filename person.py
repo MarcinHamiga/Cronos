@@ -31,6 +31,8 @@ class Player(Person):
         super().__init__(body_texture, px, py, accessories)
         self._movement_speed = 3
         self._movement_speed_multiplier = 1.0
+        self.pos_x = 0
+        self.pos_y = 0
         
     def _start_sprint(self):
         self._movement_speed_multiplier = 1.5
@@ -44,21 +46,20 @@ class Player(Person):
             self._start_sprint()
         movement = int(self._movement_speed * self._movement_speed_multiplier)
         if keys_pressed[pygame.K_LEFT]:
-            for rect in self._rectangles:
-                rect.move_ip([int(-movement), 0])
+            self.pos_x -= movement
         if keys_pressed[pygame.K_RIGHT]:
-            for rect in self._rectangles:
-                rect.move_ip([movement, 0])
+            self.pos_x += movement
         if keys_pressed[pygame.K_UP]:
-            for rect in self._rectangles:
-                rect.move_ip([0, -movement])
+            self.pos_y -= movement
         if keys_pressed[pygame.K_DOWN]:
-            for rect in self._rectangles:
-                rect.move_ip([0, movement])
+            self.pos_y += movement
         self._stop_sprint()
             
     def update(self, keys_pressed):
         self._handle_events(keys_pressed)
         
     def get_pos(self):
-        return (self._rectangles[0].x, self._rectangles[0].y)
+        return self.pos_x, self.pos_y
+
+    def set_pos(self, coordinates: tuple):
+        self.pos_x, self.pos_y = coordinates
