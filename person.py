@@ -59,3 +59,6 @@ class Player(Person):
             
     def update(self, keys_pressed):
         self._handle_events(keys_pressed)
+        
+    def get_pos(self):
+        return (self._rectangles[0].x, self._rectangles[0].y)

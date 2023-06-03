@@ -22,9 +22,9 @@ class Creature:
         # natomiast jeżeli atak stworka jest mniejszy niż obrona celu, obrażenia zostają zredukowane do 25% pierwotnej wartości
         damage = randint(0, self._attack)
         if self._attack > target_def:
-            return target.take_damage(damage), damage
+            return target.take_damage(damage)
         else:
-            return target.take_damage(damage) // 4, damage
+            return target.take_damage(damage // 4), damage
     
     def use_skill(self, skill, target):
         skill.use(target)
