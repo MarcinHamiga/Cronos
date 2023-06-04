@@ -33,6 +33,7 @@ class Player(Person):
         self._movement_speed_multiplier = 1.0
         self.pos_x = 0
         self.pos_y = 0
+
         
     def _start_sprint(self):
         self._movement_speed_multiplier = 1.5
@@ -41,25 +42,42 @@ class Player(Person):
         self._movement_speed_multiplier = 1.0
             
     
-    def _handle_events(self, keys_pressed):
+    def _handle_events(self, keys_pressed, map_width, map_height):
         if keys_pressed[pygame.K_LSHIFT] or keys_pressed[pygame.K_RSHIFT]:
             self._start_sprint()
         movement = int(self._movement_speed * self._movement_speed_multiplier)
         if keys_pressed[pygame.K_LEFT]:
             self.pos_x -= movement
+            if self.pos_x < -16:
+                self.pos_x = -16
         if keys_pressed[pygame.K_RIGHT]:
             self.pos_x += movement
+            if self.pos_x > map_width - 16:
+                self.pos_x = map_width - 16
         if keys_pressed[pygame.K_UP]:
             self.pos_y -= movement
+            if self.pos_y < -16:
+                self.pos_y = -16
         if keys_pressed[pygame.K_DOWN]:
             self.pos_y += movement
+            if self.pos_y > map_height - 16:
+                self.pos_y = map_height - 16
         self._stop_sprint()
+        print(self.pos_x, self.pos_y)
             
-    def update(self, keys_pressed):
-        self._handle_events(keys_pressed)
+    def update(self, keys_pressed, map_width, map_height):
+        self._handle_events(keys_pressed, map_width, map_height)
         
     def get_pos(self):
         return self.pos_x, self.pos_y
 
     def set_pos(self, coordinates: tuple):
         self.pos_x, self.pos_y = coordinates
+        
+    def get_tile_at_player_position(self, map):
+        # for layer in map.
+        pass
+        
+    def detect_impassable(self, tile):
+        # if self.
+        pass

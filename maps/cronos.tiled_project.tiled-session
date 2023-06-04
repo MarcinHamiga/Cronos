@@ -15,19 +15,22 @@
             "dynamicWrapping": true
         },
         "testmap.tmx": {
-            "scale": 1.1202083333333333,
-            "selectedLayer": 1,
+            "scale": 1.5,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 382.0717872419565,
-                "y": 243.7046680305003
+                "x": 614.6666666666667,
+                "y": 394.6666666666667
             }
         },
         "testmap.tmx#global_tileset": {
+            "dynamicWrapping": true,
             "scaleInDock": 1
         }
     },
     "last.imagePath": "C:/Users/marci/Documents/GitHub/Cronos/assets",
     "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 48,
+    "map.tileWidth": 48,
     "openFiles": [
         "testmap.tmx"
     ],
@@ -36,6 +39,7 @@
     "recentFiles": [
         "testmap.tmx"
     ],
-    "tileset.embedInMap": true,
+    "tileset.embedInMap": false,
+    "tileset.lastUsedFormat": "tsx",
     "tileset.type": 1
 }

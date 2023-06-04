@@ -5,7 +5,7 @@ class State_manager:
             0 : "TEST",
             1 : "MENU",
             2 : "INVENTORY",
-            3 : "GAME"
+            3 : "MAP"
         }
         
     def change_state(self, state: str or int):
