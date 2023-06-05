@@ -14,12 +14,17 @@
         "#global_tileset": {
             "dynamicWrapping": true
         },
+        "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "testmap.tmx": {
-            "scale": 1.5,
+            "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 614.6666666666667,
-                "y": 394.6666666666667
+                "x": 772,
+                "y": 711
             }
         },
         "testmap.tmx#global_tileset": {
@@ -32,11 +37,13 @@
     "map.tileHeight": 48,
     "map.tileWidth": 48,
     "openFiles": [
-        "testmap.tmx"
+        "testmap.tmx",
+        "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx"
     ],
     "project": "cronos.tiled_project.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx",
         "testmap.tmx"
     ],
     "tileset.embedInMap": false,

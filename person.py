@@ -23,6 +23,9 @@ class Person(pygame.sprite.Sprite):
     def draw(self, surface):
         for texture, rect in zip(self._body_textures, self._rectangles):
             surface.blit(texture, rect)
+            
+    def update(self):
+        pass
         
         
         
@@ -31,8 +34,13 @@ class Player(Person):
         super().__init__(body_texture, px, py, accessories)
         self._movement_speed = 3
         self._movement_speed_multiplier = 1.0
-        self.pos_x = 0
-        self.pos_y = 0
+        
+        self.moving = {
+            "top": False,
+            "bottom" : False,
+            "right" : False,
+            "left" : False,
+        }
 
         
     def _start_sprint(self):
@@ -42,42 +50,96 @@ class Player(Person):
         self._movement_speed_multiplier = 1.0
             
     
-    def _handle_events(self, keys_pressed, map_width, map_height):
+    def _handle_events(self, keys_pressed, layers):
         if keys_pressed[pygame.K_LSHIFT] or keys_pressed[pygame.K_RSHIFT]:
             self._start_sprint()
-        movement = int(self._movement_speed * self._movement_speed_multiplier)
-        if keys_pressed[pygame.K_LEFT]:
-            self.pos_x -= movement
-            if self.pos_x < -16:
-                self.pos_x = -16
-        if keys_pressed[pygame.K_RIGHT]:
-            self.pos_x += movement
-            if self.pos_x > map_width - 16:
-                self.pos_x = map_width - 16
-        if keys_pressed[pygame.K_UP]:
-            self.pos_y -= movement
-            if self.pos_y < -16:
-                self.pos_y = -16
-        if keys_pressed[pygame.K_DOWN]:
-            self.pos_y += movement
-            if self.pos_y > map_height - 16:
-                self.pos_y = map_height - 16
-        self._stop_sprint()
-        print(self.pos_x, self.pos_y)
             
-    def update(self, keys_pressed, map_width, map_height):
-        self._handle_events(keys_pressed, map_width, map_height)
+        movement = int(self._movement_speed * self._movement_speed_multiplier)
+        
+        if keys_pressed[pygame.K_LEFT]:
+            for rect in self._rectangles:
+                rect.x -= movement * self.scale
+            self.moving["left"] = True
+            
+        if keys_pressed[pygame.K_RIGHT]:
+            for rect in self._rectangles:
+                rect.x += movement * self.scale
+            self.moving["right"] = True
+            
+        if keys_pressed[pygame.K_UP]:
+            for rect in self._rectangles:
+                rect.y -= movement * self.scale
+            self.moving["top"] = True
+            
+        if keys_pressed[pygame.K_DOWN]:
+            for rect in self._rectangles:
+                rect.y += movement * self.scale
+            self.moving["bottom"] = True
+        
+        self.check_collision(layers)
+                        
+        self.moving["left"] = False
+        self.moving["right"] = False
+        self.moving["top"] = False
+        self.moving["bottom"] = False
+        
+        self.check_boundaries(layers)
+        
+        self._stop_sprint()
+            
+    def check_boundaries(self, layers):
+        for tile in layers[0]:
+            x, y = 0, 0
+            if tile.x > x:
+                x += tile.x
+            if tile.y > y:
+                y += tile.y
+
+        for rect in self._rectangles:
+            if rect.x > (x - 2) * 48 * self.scale:
+                rect.x = (x - 2) * 48 * self.scale
+            if rect.x < 0:
+                rect.x = 0
+            if rect.y > (y - 2) * 48 * self.scale:
+                rect.y = (y - 2) * 48 * self.scale
+            if rect.y < 0:
+                rect.y = 0        
+            
+    def update(self, keys_pressed, layers):
+        self._handle_events(keys_pressed, layers)
         
     def get_pos(self):
-        return self.pos_x, self.pos_y
+        return self._rectangles[0].center
 
     def set_pos(self, coordinates: tuple):
-        self.pos_x, self.pos_y = coordinates
-        
-    def get_tile_at_player_position(self, map):
-        # for layer in map.
-        pass
-        
-    def detect_impassable(self, tile):
-        # if self.
-        pass
+        pos_x, pos_y = coordinates
+        for rect in self._rectangles:
+            rect.center = pos_x, pos_y
+
+    def reverse_movement(self):
+        movement = int(self._movement_speed * self._movement_speed_multiplier)
+        if self.moving["left"]:
+            for rect in self._rectangles:
+                rect.x += movement * self.scale
+            self.moving["left"] = False
+        if self.moving["right"]:
+            for rect in self._rectangles:
+                rect.x -= movement * self.scale
+            self.moving["right"] = False
+        if self.moving["top"]:
+            for rect in self._rectangles:
+                rect.y += movement * self.scale
+            self.moving["top"] = False
+        if self.moving["bottom"]:
+            for rect in self._rectangles:
+                rect.y -= movement * self.scale
+            self.moving["bottom"] = False
+
+    def check_collision(self, layers):
+        for layer in layers:
+            for tile in layer:
+                if tile.rect.colliderect(self._rectangles[0]) and tile.impassable == True:
+                    self.reverse_movement()
+                    
+    def read_scale(self, scale):
+        self.scale = scale

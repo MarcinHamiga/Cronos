@@ -13,14 +13,19 @@ class Game:
         pygame.init()
         self.CLOCK = pygame.time.Clock()
         screen_info = pygame.display.get_desktop_sizes()
-        self.SCR_WIDTH, self.SCR_HEIGHT = screen_info[1][0], screen_info[1][1]
+        self.SCR_WIDTH, self.SCR_HEIGHT = screen_info[0][0], screen_info[0][1]
         self.SCREEN = pygame.display.set_mode((self.SCR_WIDTH, self.SCR_HEIGHT)) 
         self._running = True
                 
         self.game_state = "MENU"
         self.STATE_MANAGER = statemanager.State_manager(self)
         self.STATE_MANAGER.change_state(0)
+        
         self.CURRENT_MAP = "testmap"
+        self.SCALE = 1
+        self.map_surface = pygame.Surface((1, 1))
+        self.MAP = map.Map(self.SCALE)
+        self.MAP.load_map(self.CURRENT_MAP)
         
         self.ASSETS = {}
         self.PATH_TO_ASSETS = Path(Path.cwd()) / Path("assets")
@@ -31,6 +36,7 @@ class Game:
                 self.ASSETS[filename.upper()] = pygame.image.load(asset).convert_alpha()
             
         self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"]])
+        self.PLAYER.read_scale(self.SCALE)
         
         self.NUMBERED_ASSETS = {}
         count = 0
@@ -38,9 +44,8 @@ class Game:
             self.NUMBERED_ASSETS[count] = asset
             count += 1
 
-        self.MAP = map.Map(self.SCR_WIDTH, self.SCR_HEIGHT)
-        self.MAP.load_map(self.CURRENT_MAP)
-        self.PLAYER.set_pos((32, 0))
+
+        self.PLAYER.set_pos((48, 192))
         self.main()
 
             
@@ -73,12 +78,13 @@ class Game:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_ESCAPE]:
                 pygame.quit()
-            map_width, map_height = self.MAP.get_map_size()
-            self.PLAYER.update(keys, map_width, map_height)
+            self.PLAYER.update(keys, self.MAP.get_layers())
+            self.MAP.update(keys)
                 
             # Draw
+            self.map_surface.fill((0,0,0))
             self.SCREEN.fill((0,0,0))
-            self.MAP.draw_map(self.SCREEN, self.PLAYER)
+            self.MAP.draw_map(self.map_surface, self.SCREEN, self.PLAYER)
             pygame.display.flip()
             self.CLOCK.tick(60)
             
