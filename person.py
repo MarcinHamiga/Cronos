@@ -1,5 +1,5 @@
 import pygame
-        
+
 class Person(pygame.sprite.Sprite):
     def __init__(self, body_textures: list, px, py, accessories = []):
         super().__init__()
@@ -33,6 +33,7 @@ class Player(Person):
         self._movement_speed = 3
         self._movement_speed_multiplier = 1.0
         self.creatures = []
+        self.items = []
         
         self.moving = {
             "top": False,
@@ -43,7 +44,7 @@ class Player(Person):
 
         
     def _start_sprint(self):
-        self._movement_speed_multiplier = 1.5
+        self._movement_speed_multiplier = 2.0
     
     def _stop_sprint(self):
         self._movement_speed_multiplier = 1.0
@@ -148,3 +149,4 @@ class Player(Person):
                     
     def read_scale(self, scale):
         self.scale = scale
+        
