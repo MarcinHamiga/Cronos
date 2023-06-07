@@ -12,8 +12,6 @@ class Person(pygame.sprite.Sprite):
         for accessory in accessories:
             self._body_textures.append(accessory)
         
-        # 0 - postać jest przodem do gracza, 1 - postać jest tyłem do gracza
-        # 2 - postać jest zwrócona lewą stroną do gracza, 3 - postać jest zwrócona prawą stroną do gracza
         self._rectangles = []
         for x in self._body_textures:
             rectangle = x.get_rect()
@@ -34,6 +32,7 @@ class Player(Person):
         super().__init__(body_texture, px, py, accessories)
         self._movement_speed = 3
         self._movement_speed_multiplier = 1.0
+        self.creatures = []
         
         self.moving = {
             "top": False,
@@ -60,23 +59,29 @@ class Player(Person):
             for rect in self._rectangles:
                 rect.x -= movement * self.scale
             self.moving["left"] = True
+            self.check_collision(layers)
+
             
         if keys_pressed[pygame.K_RIGHT]:
             for rect in self._rectangles:
                 rect.x += movement * self.scale
             self.moving["right"] = True
+            self.check_collision(layers)
+            
             
         if keys_pressed[pygame.K_UP]:
             for rect in self._rectangles:
                 rect.y -= movement * self.scale
             self.moving["top"] = True
+            self.check_collision(layers)
+            
             
         if keys_pressed[pygame.K_DOWN]:
             for rect in self._rectangles:
                 rect.y += movement * self.scale
             self.moving["bottom"] = True
-        
-        self.check_collision(layers)
+            self.check_collision(layers)
+            
                         
         self.moving["left"] = False
         self.moving["right"] = False
@@ -96,12 +101,12 @@ class Player(Person):
                 y += tile.y
 
         for rect in self._rectangles:
-            if rect.x > (x - 2) * 48 * self.scale:
-                rect.x = (x - 2) * 48 * self.scale
+            if rect.x > (x - 1) * 48 * self.scale:
+                rect.x = (x - 1) * 48 * self.scale
             if rect.x < 0:
                 rect.x = 0
-            if rect.y > (y - 2) * 48 * self.scale:
-                rect.y = (y - 2) * 48 * self.scale
+            if rect.y > (y - 1) * 48 * self.scale:
+                rect.y = (y - 1) * 48 * self.scale
             if rect.y < 0:
                 rect.y = 0        
             

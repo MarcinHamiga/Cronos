@@ -1,8 +1,11 @@
 from random import randint
+import pygame
 
-
-class Creature:
-    def __init__(self, level, health, action_points, attack, defense):
+class Creature(pygame.sprite.Sprite):
+    def __init__(self, level, health, action_points, attack, defense, name):
+        self._image = None
+        self._rect = None
+        self._name = name
         self._is_down = False   # Zmienna oznaczająca że stworek jest niezdatny do walki
         self._is_defending = False  # Zmienna określająca czy w danej turze stworek broni się zwiększając swoją obronę
         self._level = level # Poziom stworka
@@ -53,9 +56,16 @@ class Creature:
         self.check_if_down()
         return 1
         
-        
+    def set_image(self, image):
+        self._image = image
+        self._set_rectangle()
+    
+    def _set_rectangle(self):
+        self._rect = self._image.get_rect()
+        self._rect.center = 24, 24
 
 class Flametorch(Creature):
-    def __init__(self, level, health, action_points, attack, defense, hidden_moves):
-        super().__init__(level, health, action_points, attack, defense)
+    def __init__(self, level, health, action_points, attack, defense, hidden_moves, name, image):
+        super().__init__(level, health, action_points, attack, defense, name)
         self._hidden_moves = hidden_moves
+        self.set_image(image)

@@ -9,7 +9,7 @@ class Tile:
         self.size = size
         self.x = x + 1
         self.y = y + 1
-        self.rect.center = x * self.size[0], y * self.size[1]
+        self.rect.center = x * self.size[0] + 24, y * self.size[1] + 24
         self.impassable = impassable
         self.width_pos = (self.rect.x - (self.size[0] // 2), self.rect.x + (self.size[0] // 2))
         self.height_pos = (self.rect.y - (self.size[1] // 2), self.rect.y + (self.size[1] // 2))
@@ -39,8 +39,8 @@ class Map:
                 
                 for x, y, gid in layer:
                     image = self.tmx_map_data.get_tile_image_by_gid(gid)
-                    impassable = self.tmx_map_data.get_tile_properties_by_gid(gid)["impassable"]
                     if image is not None:
+                        impassable = self.tmx_map_data.get_tile_properties_by_gid(gid)["impassable"]
                         rect = image.get_rect()
                         tile = Tile(image, rect, impassable, (self.tmx_map_data.tilewidth, self.tmx_map_data.tileheight), x ,y)
                         self.layers[layer_num].append(tile)
@@ -48,7 +48,7 @@ class Map:
             layer_num += 1
         
     def _handle_input(self, keys_pressed):
-        if keys_pressed[pygame.K_1] and self.scale < 5:
+        if keys_pressed[pygame.K_1] and self.scale < 4:
             self.scale += 1
         if keys_pressed[pygame.K_2] and self.scale > 1:
             self.scale -= 1
@@ -58,8 +58,7 @@ class Map:
     
     def draw_map(self, surface, screen, player):
         layer_num = 1
-        surface = pygame.Surface(((self.tmx_map_data.width - 1) * self.tmx_map_data.tilewidth, (self.tmx_map_data.height - 1) * self.tmx_map_data.tileheight))
-        print(surface.get_width(), surface.get_height())
+        surface = pygame.Surface((self.tmx_map_data.width * self.tmx_map_data.tilewidth, self.tmx_map_data.height * self.tmx_map_data.tileheight))
         for layer in self.layers:
             
             for tile in layer:
@@ -73,7 +72,9 @@ class Map:
         surface = pygame.transform.scale(surface, (surface.get_width() * self.scale, surface.get_height() * self.scale))
         pos_x, pos_y = player.get_pos()
         scr_sizes = pygame.display.get_desktop_sizes()
-        screen.blit(surface, (scr_sizes[0][0] // 2 - pos_x * self.scale, scr_sizes[0][1] // 2 - pos_y * self.scale))
+        map_offset_x = (scr_sizes[0][0] // 2) - (pos_x * self.scale)
+        map_offset_y = (scr_sizes[0][1] // 2) - (pos_y * self.scale)
+        screen.blit(surface, (map_offset_x, map_offset_y))
                         
     def get_layers(self):
         return self.layers

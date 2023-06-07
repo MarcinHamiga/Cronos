@@ -1,6 +1,7 @@
 import pygame
 from pathlib import Path
 from math import ceil
+from time import time
 
 # Custom made modules
 import map 
@@ -19,14 +20,19 @@ class Game:
                 
         self.game_state = "MENU"
         self.STATE_MANAGER = statemanager.State_manager(self)
-        self.STATE_MANAGER.change_state(0)
+        self.STATE_MANAGER.change_state(3)
         
+        
+        self.FUNC_KEY_COOLDOWN = 0.2
+        self.func_key_used = time()
+        self.current_time = self.func_key_used
         self.CURRENT_MAP = "testmap"
         self.SCALE = 1
         self.map_surface = pygame.Surface((1, 1))
         self.MAP = map.Map(self.SCALE)
         self.MAP.load_map(self.CURRENT_MAP)
         
+        self.FONT = pygame.freetype.Font(Path.cwd() / Path("fonts") / Path ("VCR_OSD_MONO_1.001.ttf"), 48)
         self.ASSETS = {}
         self.PATH_TO_ASSETS = Path(Path.cwd()) / Path("assets")
         for asset in self.PATH_TO_ASSETS.iterdir():
@@ -55,7 +61,8 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.exit
-
+            
+            
             match (self.game_state):
                 
                 case "TEST":
@@ -72,24 +79,43 @@ class Game:
                     
                 case _:
                     self.map_state()
+            
+            self.flip_n_tick()
     
     def map_state(self):
-            # Input
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_ESCAPE]:
-                pygame.quit()
-            self.PLAYER.update(keys, self.MAP.get_layers())
-            self.MAP.update(keys)
+        # Input
+        self.current_time = time()
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
+            pygame.quit()
+            self.func_key_used = self.current_time
+        if keys[pygame.K_i] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
+            self.STATE_MANAGER.change_state(2)
+            self.func_key_used = self.current_time
+        self.PLAYER.update(keys, self.MAP.get_layers())
+        self.MAP.update(keys)
                 
-            # Draw
-            self.map_surface.fill((0,0,0))
-            self.SCREEN.fill((0,0,0))
-            self.MAP.draw_map(self.map_surface, self.SCREEN, self.PLAYER)
-            pygame.display.flip()
-            self.CLOCK.tick(60)
+        # Draw
+        self.map_surface.fill((0,0,0))
+        self.SCREEN.fill((0,0,0))
+        self.MAP.draw_map(self.map_surface, self.SCREEN, self.PLAYER)
             
     def inventory_state(self):
-        pass
+        # Input
+        self.current_time = time()
+        keys = pygame.key.get_pressed()    
+        if keys[pygame.K_i] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
+                self.STATE_MANAGER.change_state(3)
+                self.func_key_used = self.current_time
+        # Draw    
+        self.map_surface.fill((0,0,0))
+        self.SCREEN.fill((0,0,0))
+        self.map_surface, rect = self.FONT.render("Hello there my friend", (255, 255, 255))
+        self.SCREEN.blit(self.map_surface, self.map_surface.get_rect())
     
     def menu_state(self):
         pass
+    
+    def flip_n_tick(self, fps = 60):
+        pygame.display.flip()
+        self.CLOCK.tick(fps)
