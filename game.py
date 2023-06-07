@@ -45,9 +45,11 @@ class Game:
         self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"]])
         self.PLAYER.read_scale(self.SCALE)
         
-        self.INVENTORY = inventory.Inventory(self.PLAYER, 48)
+        self.INVENTORY = inventory.Inventory(self.PLAYER)
         
         self.INVENTORY.add_item("Candy", self.ASSETS["ITEM_CANDY"], 1)
+        self.INVENTORY.add_item("HP Restore", None, 1)
+        self.INVENTORY.add_item("SP Restore", None, 1)
         
         self.NUMBERED_ASSETS = {}
         count = 0
@@ -108,13 +110,14 @@ class Game:
     def inventory_state(self):
         # Input
         self.current_time = time()
-        self.SCREEN.fill((0,0,0))
         keys = pygame.key.get_pressed()    
         if keys[pygame.K_i] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN or keys[pygame.K_ESCAPE] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
                 self.STATE_MANAGER.change_state(3)
                 self.func_key_used = self.current_time
+        self.INVENTORY.update(keys)
         # Draw    
-        self.INVENTORY.draw(self.FONT, self.SCREEN, self.SCALE)
+        self.SCREEN.fill((0,0,0))
+        self.INVENTORY.draw(self.FONT, self.SCREEN)
     
     def menu_state(self):
         pass
