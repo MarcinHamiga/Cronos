@@ -45,11 +45,11 @@ class Game:
         self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"]])
         self.PLAYER.read_scale(self.SCALE)
         
-        self.INVENTORY = inventory.Inventory(self.PLAYER)
+        self.INVENTORY = inventory.Inventory(self.PLAYER, self.ASSETS)
         
-        self.INVENTORY.add_item("Candy", self.ASSETS["ITEM_CANDY"], 1)
-        self.INVENTORY.add_item("HP Restore", None, 1)
-        self.INVENTORY.add_item("SP Restore", None, 1)
+        self.INVENTORY.add_item("Candy")
+        self.INVENTORY.add_item("Small HP Restore")
+        self.INVENTORY.add_item("Small SP Restore")
         
         self.NUMBERED_ASSETS = {}
         count = 0

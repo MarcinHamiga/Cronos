@@ -41,17 +41,19 @@ class Item_card:
 
 class Inventory:
     
-    def __init__(self, player):
+    def __init__(self, player, assets):
         py = 48
-        
+    
         self._player = player
+        self.item_dict = items.Item_dict(assets)
+        
         self.item_cards = []
         self.surface = pygame.Surface((192, py * 5))
        
         self.current_item = 0
         self.click_cooldown = 0.15
         self.last_click = 0
-        self.offset = 0
+        self.offset = 0 # Offset używany jest w funkcji draw() podczas przesuwania ekwipunku. Modyfikowany jest przez funkcję update()
        
         py //= 2
         
@@ -60,6 +62,7 @@ class Inventory:
             py += 48
         
     def draw(self, font, screen):
+        
         self.surface.fill((120,120,120))
         
         try:
@@ -82,26 +85,47 @@ class Inventory:
         except IndexError:
             pass
         
-    def add_item(self, name, icon, amount):
+    def add_item(self, name, amount = 1):
+        """Dodaje wybrany przedmiot do ekwipunku"""
+        
+        # Rozpakowuje zwracane przez check_for_item() wartości
         exists, item = self.check_for_item(name)
-        print(exists, item)
+        
+        # Jeżeli sprawdzenie zwróciło prawdę, to zamiast tworzyć nowy obiekt typu item, 
+        # zwyczajnie zwiększamy ilość istniejącego już przedmiotu o zadaną wartość amount
         if exists:
             item.amount += amount
+        # W przeciwnym wypadku, dodajemy nowy obiekt typu Item do listy z ustawioną wartością
+        # zmiennej amount na wskazaną przez nas ilość
         else:
-            item = items.Item(name, icon, amount)
-            self._player.items.append(item)
+            self._player.items.append(self.item_dict.item_dict[name.upper()])
+            
+            # Aby uniknąć problemów, lista kart przedmiotów jest zerowana i zapełniana na nowo, kiedy
+            # w ekwipunku pojawia się całkiem nowy przedmiot
             self.item_cards = []
             
             for item in self._player.items:
                 self.item_cards.append(Item_card(item))
     
     def check_for_item(self, name):
+        """Sprawdza czy przedmiot już istnieje w ekwipunku"""
+        
+        # Jeżeli gracz posiada jakieś przedmioty, to funkcja iteruje po nich
+        # i porównuje ich nazwę do tej, której szukamy
         if len(self._player.items) != 0:
+            
             for item in self._player.items:
-                print(item)
+                # Jeżeli przedmiot zostanie odnaleziony, to zwracana jest wartość
+                # True oraz sam przedmiot, aby móc łatwo zmienić wartość jego 
+                # parametru amount
                 if item.name == name:
                     return True, item
+                
+            # Jeżeli poszukiwany przedmiot nie zostanie odnaleziony, to funkcja zwraca wartość
+            # False i None
             return False, None
+        
+        # Jeżeli lista jest pusta, to funkcja zwraca wartości domyślne False i None
         else:
             return False, None
     
@@ -109,17 +133,21 @@ class Inventory:
         time_now = time()
         
         if keys[pygame.K_DOWN] and self.current_item < len(self.item_cards) - 1 and time_now - self.last_click > self.click_cooldown:
+            
             self.current_item += 1
             self.last_click = time_now
+            
             if self.current_item % 5 == 0:
                 self.offset += 1
         
         if keys[pygame.K_UP] and self.current_item > 0 and time_now - self.last_click > self.click_cooldown:
+            
             self.current_item -= 1 
             self.last_click = time_now
+           
             if self.current_item % 5 == 4:
                 self.offset -= 1
                 
         if keys[pygame.K_c]:
-            self.add_item(self._player.items[self.current_item].name, None, 1)
+            self.add_item(self._player.items[self.current_item].name)
             print(self._player.items[self.current_item].name)
