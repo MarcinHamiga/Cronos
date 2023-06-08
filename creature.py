@@ -2,16 +2,17 @@ from random import randint
 import pygame
 
 class Creature(pygame.sprite.Sprite):
-    def __init__(self, level, health, action_points, attack, defense, name):
-        self._image = None
-        self._rect = None
-        self._name = name
+    def __init__(self, level, health, special_points, attack, defense, name):
+        self.image = None
+        self.rect = None
+        self.name = name
         self._is_down = False   # Zmienna oznaczająca że stworek jest niezdatny do walki
         self._is_defending = False  # Zmienna określająca czy w danej turze stworek broni się zwiększając swoją obronę
         self._level = level # Poziom stworka
         self._health = health
         self._max_health = health
-        self._action_points = action_points
+        self._special_points = special_points
+        self._max_special_points = special_points
         self._attack = attack
         self._defense = defense
         self._guard_bonus = int(defense * 0.2)
@@ -63,6 +64,28 @@ class Creature(pygame.sprite.Sprite):
     def _set_rectangle(self):
         self._rect = self._image.get_rect()
         self._rect.center = 24, 24
+    
+    def set_max_health(self, amount: int):
+        self._max_health = amount
+        
+    def set_health(self, amount):
+        if amount > self._max_health:
+            self.health = self._max_health
+        else:
+            self.health = amount
+    
+    def get_health(self):
+        return self._health
+    
+    def get_complete_health(self):
+        return f"{self._health}/{self._max_health}"
+    
+    def get_sp(self):
+        return self._special_points
+    
+    def get_complete_sp(self):
+        return f"{self._special_points}/{self._max_special_points}"
+    
 
 class Flametorch(Creature):
     def __init__(self, level, health, action_points, attack, defense, hidden_moves, name, image):

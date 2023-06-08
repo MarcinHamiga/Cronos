@@ -111,7 +111,7 @@ class Game:
         # Input
         self.current_time = time()
         keys = pygame.key.get_pressed()    
-        if keys[pygame.K_i] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN or keys[pygame.K_ESCAPE] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
+        if (keys[pygame.K_i] or keys[pygame.K_ESCAPE]) and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
                 self.STATE_MANAGER.change_state(3)
                 self.func_key_used = self.current_time
         self.INVENTORY.update(keys)
