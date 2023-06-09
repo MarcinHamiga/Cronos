@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx",
+    "activeFile": "testmap2.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -23,28 +23,39 @@
             "scale": 1,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 768,
-                "y": 462
+                "x": 125,
+                "y": 456.5
             }
         },
         "testmap.tmx#global_tileset": {
             "dynamicWrapping": true,
             "scaleInDock": 1
+        },
+        "testmap2.tmx": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 124,
+                "y": 475.5
+            }
         }
     },
     "last.imagePath": "C:/Users/marci/Documents/GitHub/Cronos/assets",
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 48,
     "map.tileWidth": 48,
+    "map.width": 20,
     "openFiles": [
         "testmap.tmx",
-        "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx"
+        "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx",
+        "testmap2.tmx"
     ],
     "project": "cronos.tiled_project.tiled-project",
     "property.type": "bool",
     "recentFiles": [
         "testmap.tmx",
-        "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx"
+        "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx",
+        "testmap2.tmx"
     ],
     "tileset.embedInMap": false,
     "tileset.lastUsedFormat": "tsx",

@@ -209,6 +209,7 @@ class Inventory:
     
     def update(self, keys):
         time_now = time()
+        
         if self.choosing_target is False:
             if keys[pygame.K_DOWN] and self.current_item < len(self.item_cards) - 1 and time_now - self.last_click > self.click_cooldown:
                 
@@ -232,6 +233,7 @@ class Inventory:
                 
             if keys[pygame.K_e] or keys[pygame.K_RIGHT]:
                 self.choosing_target = True
+        
         else:
             if keys[pygame.K_DOWN] and self.current_target < len(self.creature_cards) - 1 and time_now - self.last_click > self.click_cooldown:
                 

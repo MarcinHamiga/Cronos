@@ -27,12 +27,9 @@ class Game:
         self.FUNC_KEY_COOLDOWN = 0.2
         self.func_key_used = time()
         self.current_time = self.func_key_used
-        self.CURRENT_MAP = "testmap"
-        self.SCALE = 1
+        self.scale = 1
         self.map_surface = pygame.Surface((1, 1))
-        self.MAP = map.Map(self.SCALE)
-        self.MAP.load_map(self.CURRENT_MAP)
-        
+        self.map = map.Test_map() 
         self.FONT = pygame.freetype.Font(Path.cwd() / Path("fonts") / Path ("VCR_OSD_MONO_1.001.ttf"), 16)
         self.ASSETS = {}
         self.PATH_TO_ASSETS = Path(Path.cwd()) / Path("assets")
@@ -43,7 +40,7 @@ class Game:
                 self.ASSETS[filename.upper()] = pygame.image.load(asset).convert_alpha()
             
         self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"]])
-        self.PLAYER.read_scale(self.SCALE)
+        self.PLAYER.read_scale(self.scale)
         
         self.INVENTORY = inventory.Inventory(self.PLAYER, self.ASSETS)
         
@@ -91,6 +88,8 @@ class Game:
     
     def map_state(self):
         # Input
+        if not self.map.baked:
+            self.map.bake_events()
         self.current_time = time()
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
@@ -99,13 +98,12 @@ class Game:
         if keys[pygame.K_i] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
             self.STATE_MANAGER.change_state(2)
             self.func_key_used = self.current_time
-        self.PLAYER.update(keys, self.MAP.get_layers())
-        self.MAP.update(keys)
-                
+        self.PLAYER.update(keys, self)
+        self.map.update(keys, self)
         # Draw
         self.map_surface.fill((0,0,0))
         self.SCREEN.fill((0,0,0))
-        self.MAP.draw_map(self.map_surface, self.SCREEN, self.PLAYER)
+        self.map.draw_map(self)
             
     def inventory_state(self):
         # Input
@@ -118,6 +116,7 @@ class Game:
         # Draw    
         self.SCREEN.fill((0,0,0))
         self.INVENTORY.draw(self.FONT, self.SCREEN)
+
     
     def menu_state(self):
         pass

@@ -1,18 +1,26 @@
 import pygame
 
 class Person(pygame.sprite.Sprite):
+    
     def __init__(self, body_textures: list, px, py, accessories = []):
+        
         super().__init__()
+        
+        self.rotation = 0 # 0 - w dół, 1 - w lewo, 2 - w górę , 3 - w prawo
+        
         if not isinstance(body_textures, (list, tuple)):
             body_textures = [body_textures]
         # Tekstury używane w zależności od obecnej orientacji postaci na mapie.
         self._body_textures = []
+       
         for texture in body_textures:
             self._body_textures.append(texture)
+        
         for accessory in accessories:
             self._body_textures.append(accessory)
         
         self._rectangles = []
+        
         for x in self._body_textures:
             rectangle = x.get_rect()
             rectangle.center = px, py
@@ -28,6 +36,7 @@ class Person(pygame.sprite.Sprite):
         
         
 class Player(Person):
+    
     def __init__(self, body_texture: list, px, py, accessories = []):
         super().__init__(body_texture, px, py, accessories)
         self._movement_speed = 3
@@ -41,15 +50,13 @@ class Player(Person):
             "right" : False,
             "left" : False,
         }
-
-        
+     
     def _start_sprint(self):
         self._movement_speed_multiplier = 2.0
     
     def _stop_sprint(self):
         self._movement_speed_multiplier = 1.0
             
-    
     def _handle_events(self, keys_pressed, layers):
         if keys_pressed[pygame.K_LSHIFT] or keys_pressed[pygame.K_RSHIFT]:
             self._start_sprint()
@@ -61,6 +68,7 @@ class Player(Person):
                 rect.x -= movement * self.scale
             self.moving["left"] = True
             self.check_collision(layers)
+            self.moving["left"] = False
 
             
         if keys_pressed[pygame.K_RIGHT]:
@@ -68,6 +76,7 @@ class Player(Person):
                 rect.x += movement * self.scale
             self.moving["right"] = True
             self.check_collision(layers)
+            self.moving["right"] = False
             
             
         if keys_pressed[pygame.K_UP]:
@@ -75,6 +84,7 @@ class Player(Person):
                 rect.y -= movement * self.scale
             self.moving["top"] = True
             self.check_collision(layers)
+            self.moving["top"] = False
             
             
         if keys_pressed[pygame.K_DOWN]:
@@ -82,19 +92,15 @@ class Player(Person):
                 rect.y += movement * self.scale
             self.moving["bottom"] = True
             self.check_collision(layers)
-            
-                        
-        self.moving["left"] = False
-        self.moving["right"] = False
-        self.moving["top"] = False
-        self.moving["bottom"] = False
+            self.moving["bottom"] = False
         
         self.check_boundaries(layers)
         
         self._stop_sprint()
             
-    def check_boundaries(self, layers):
-        for tile in layers[0]:
+    def check_boundaries(self, game):
+        
+        for tile in game.map.layers[0]:
             x, y = 0, 0
             if tile.x > x:
                 x += tile.x
@@ -141,12 +147,22 @@ class Player(Person):
                 rect.y -= movement * self.scale
             self.moving["bottom"] = False
 
-    def check_collision(self, layers):
-        for layer in layers:
+    def check_collision(self, game):
+        for layer in game.map.layers:
             for tile in layer:
                 if tile.rect.colliderect(self._rectangles[0]) and tile.impassable == True:
                     self.reverse_movement()
+                if len(tile.events) != 0:
+                    for event in tile.events:
+                        event.check_stepped_on(game)
+                        event.check_interact(game)
                     
     def read_scale(self, scale):
         self.scale = scale
+        
+    def get_rectangles(self):
+        return self._rectangles
+    
+    def get_rectangle(self):
+        return self._rectangles[0]
         
