@@ -3,6 +3,9 @@ import pytmx
 from pathlib import Path
 from time import time
 
+import person
+import creature
+
 class Event:
     
     def __init__(self, cx, cy, w = 48, h = 48, img = None):
@@ -41,7 +44,9 @@ class Teleport(Event):
             self.teleport(game)
             
 class Dialogue(Event):
-    pass
+    
+    def __init__(self, dictionary):
+        self.DIALOGUE_DICT = dictionary
 
 class Fight(Event):
     pass

@@ -1,4 +1,5 @@
 import pygame
+from random import randint
 
 class Person(pygame.sprite.Sprite):
     
@@ -32,6 +33,13 @@ class Person(pygame.sprite.Sprite):
             
     def update(self):
         pass
+    
+    def get_dialogue_window(self, game):
+        surface = pygame.Surface((game.SCR_WIDTH, game.SCR_HEIGHT))
+        surface.fill((128, 0, 32))
+        surface_rect = surface.get_rect()
+        
+        return surface, surface_rect
         
         
         
@@ -165,4 +173,24 @@ class Player(Person):
     
     def get_rectangle(self):
         return self._rectangles[0]
+        
+        
+class Brigitte(Person):
+    
+    def __init__(self, body_textures: list, px, py, accessories=[]):
+        super().__init__(body_textures, px, py, accessories)
+        self.player_greet = False
+        self.DIALOGUE_DICT = {
+            "GREETING_1" : "Hejka! Nazywam się Brigitte!",
+            "GREETING_2" :  "Mam nadzieję, że dobrze się bawisz w naszym urokliwym miasteczku!",
+            "GREETING_3" : "No nic, pora wracać do swoich zajęć. Papatki!",
+            "BANTER_1" : "*Nuci*",
+            "BANTER_2" : "Eh, gdzie się podziały te stworki...",
+            "BANTER_3" : "Ale nudy..."
+        }
+        
+class Thomas(Person):
+    def __init__(self, body_textures: list, px, py, accessories=[]):
+        super().__init__(body_textures, px, py, accessories)
+        
         

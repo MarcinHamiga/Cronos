@@ -31,6 +31,15 @@ class Small_hp_restore(Item):
         
     def use(self, target):
         pass
+    
+class Small_sp_restore(Item):
+    
+    def __init__(self, name, icon, amount = 1):
+        super().__init__(name, icon, amount)
+        
+    def use(self, target):
+        pass
+    
 class Item_dict:
     def __init__(self, assets):
         self.item_dict = {
