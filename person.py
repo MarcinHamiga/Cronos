@@ -27,6 +27,8 @@ class Person(pygame.sprite.Sprite):
             rectangle.center = px, py
             self._rectangles.append(rectangle)
         
+        self.dialogue_event = None
+        
     def draw(self, surface):
         for texture, rect in zip(self._body_textures, self._rectangles):
             surface.blit(texture, rect)
@@ -40,6 +42,9 @@ class Person(pygame.sprite.Sprite):
         surface_rect = surface.get_rect()
         
         return surface, surface_rect
+    
+    def set_dialogue(self, dialogue):
+        self.dialogue_event = dialogue
         
         
         
@@ -189,8 +194,22 @@ class Brigitte(Person):
             "BANTER_3" : "Ale nudy..."
         }
         
+        
+    
+        
 class Thomas(Person):
+    
     def __init__(self, body_textures: list, px, py, accessories=[]):
         super().__init__(body_textures, px, py, accessories)
+        self.player_greet = False
+        self.DIALOGUE_DICT = {
+            "GREETING_1" : "Cześć.",
+            "GREETING_2" : "Mam nadzieję, że podoba Ci się tutaj.",
+            "GREETING_3" : "Przepraszam, muszę wracać do pracy. Trzymaj się!",
+            "BANTER_1" : "Praca, praca.",
+            "BANTER_2" : "Hejka. Niestety, ale nie mam czasu...",
+            "BANTER_3" : "Jak leci?"
+        }
         
         
+    

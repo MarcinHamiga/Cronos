@@ -11,7 +11,9 @@ import inventory
 
 
 class Game:
+    
     def __init__(self):
+        
         pygame.init()
         self.CLOCK = pygame.time.Clock()
         screen_info = pygame.display.get_desktop_sizes()
@@ -33,6 +35,7 @@ class Game:
         self.FONT = pygame.freetype.Font(Path.cwd() / Path("fonts") / Path ("VCR_OSD_MONO_1.001.ttf"), 16)
         self.ASSETS = {}
         self.PATH_TO_ASSETS = Path(Path.cwd()) / Path("assets")
+        
         for asset in self.PATH_TO_ASSETS.iterdir():
             if asset.is_file():
                 filename = asset.name[:-4]
@@ -50,6 +53,7 @@ class Game:
         
         self.NUMBERED_ASSETS = {}
         count = 0
+        
         for asset in self.ASSETS.values():
             self.NUMBERED_ASSETS[count] = asset
             count += 1
@@ -60,6 +64,7 @@ class Game:
 
             
     def main(self):
+        
         while self._running:
             # Handle events
             for event in pygame.event.get():
@@ -87,32 +92,41 @@ class Game:
             self.flip_n_tick()
     
     def map_state(self):
+        
         # Input
         if not self.map.baked:
             self.map.bake_events()
+        
         self.current_time = time()
         keys = pygame.key.get_pressed()
+        
         if keys[pygame.K_ESCAPE] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
             pygame.quit()
             self.func_key_used = self.current_time
+        
         if keys[pygame.K_i] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
             self.STATE_MANAGER.change_state(2)
             self.func_key_used = self.current_time
+        
         self.PLAYER.update(keys, self)
         self.map.update(keys, self)
+        
         # Draw
         self.map_surface.fill((0,0,0))
         self.SCREEN.fill((0,0,0))
         self.map.draw_map(self)
             
     def inventory_state(self):
+        
         # Input
         self.current_time = time()
         keys = pygame.key.get_pressed()    
+        
         if (keys[pygame.K_i] or keys[pygame.K_ESCAPE]) and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
                 self.STATE_MANAGER.change_state(3)
                 self.func_key_used = self.current_time
         self.INVENTORY.update(keys)
+        
         # Draw    
         self.SCREEN.fill((0,0,0))
         self.INVENTORY.draw(self.FONT, self.SCREEN)
