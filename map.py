@@ -8,12 +8,14 @@ import creature
 
 class Event:
     
-    def __init__(self, coords: tuple, w=48, h=48, img=None):
+    def __init__(self, coords: tuple, img=None):
         if img is not None:
             self.image = img
+            self.rect = self.image.get_rect()
         else:
-            self.image = pygame.Surface((w, h))
-        self.rect = self.image.get_rect()
+            self.image = None
+            self.rect = pygame.Rect(0, 0, 48, 48)
+
         x, y = coords
         self.rect.center = x, y
         
@@ -24,6 +26,12 @@ class Event:
     def check_interact(self, game, tile):
         pass
 
+    def draw(self, tile):
+        if self.image is not None:
+            image_rect = self.image.get_rect()
+            image_rect.center = 24, 24
+            tile.image.blit(self.image, image_rect)
+
 
 class Teleport(Event):
     
@@ -33,6 +41,7 @@ class Teleport(Event):
         self.map_coords = place_on_map
 
     def teleport(self, game):
+        """Teleportuje gracza na wybrane koordynaty na wybranej mapie"""
         game.PLAYER.set_pos(self.map_coords)
         print(f"Teleported player to {self.map_coords}")
         if self.dest_map is not None:
@@ -139,6 +148,7 @@ class Tile:
         return self.rect.center
 
 
+
 class Map:
     def __init__(self, game):
 
@@ -222,6 +232,9 @@ class Map:
             
             for tile in layer:
                 self.game.map_surface.blit(tile.image, tile.rect)
+                for event in tile.events:
+                    if event.image is not None:
+                        self.game.map_surface.blit(event.image, tile.rect)
                 
             if layer_num == 1:
                 self.game.PLAYER.draw(self.game.map_surface)
@@ -268,9 +281,9 @@ class Map:
         event = Teleport((cx, cy), place_on_map, mapname)
         self.add_event(tile, event)
 
-    def add_dialogue(self, tile, npc=None):
+    def add_dialogue(self, tile, img=None, npc=None):
         cx, cy = self.get_tile_center(tile)
-        event = Dialogue((cx, cy), npc=npc)
+        event = Dialogue((cx, cy), img=img, npc=npc)
         self.add_event(tile, event)
         tile.impassable = True
     def get_neighbours(self, tile):
@@ -318,7 +331,7 @@ class TestMap(Map):
         tile = self.get_tile(0, 0, 19)
         self.add_teleport(tile, (0, 72), TestMap2(self.game))
         tile = self.get_tile(0, 2, 2)
-        self.add_dialogue(tile, npc=self.game.BRIGITTE)
+        self.add_dialogue(tile, img=self.game.BRIGITTE.body_textures[0], npc=self.game.BRIGITTE)
         self.baked = 1
 
 

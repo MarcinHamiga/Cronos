@@ -1,5 +1,4 @@
 import pygame
-from random import randint
 
 import dialogue
 
@@ -31,7 +30,6 @@ class Person(pygame.sprite.Sprite):
             rectangle.center = px, py
             self._rectangles.append(rectangle)
 
-        
     def draw(self, surface):
         for texture, rect in zip(self._body_textures, self._rectangles):
             surface.blit(texture, rect)
@@ -114,12 +112,12 @@ class Player(Person):
                 y += tile.y
 
         for rect in self._rectangles:
-            if rect.x > (x - 1) * 48 * game.scale:
-                rect.x = (x - 1) * 48 * game.scale
+            if rect.x > x * 48 * game.scale:
+                rect.x = x * 48 * game.scale
             if rect.x < 0:
                 rect.x = 0
-            if rect.y > (y - 1) * 48 * game.scale:
-                rect.y = (y - 1) * 48 * game.scale
+            if rect.y > y * 48 * game.scale:
+                rect.y = y * 48 * game.scale
             if rect.y < 0:
                 rect.y = 0        
             
@@ -174,11 +172,29 @@ class Player(Person):
     def get_rectangle(self):
         return self._rectangles[0]
         
-        
-class Brigitte:
+
+
+class NPC:
+    def __init__(self, body_textures: list, accessories=[]):
+        if not isinstance(body_textures, list):
+            body_textures = [body_textures]
+        self.body_textures = body_textures
+        self.rectangles = []
+        for texture in self.body_textures:
+            rect = texture.get_rect()
+            rect.center = 24, 24
+            self.rectangles.append(rect)
+        self.accessories = accessories
+        for accessory in self.accessories:
+            rect = accessory.get_rect()
+            rect.center = 24, 24
+            self.rectangles.append(rect)
+
+
+class Brigitte(NPC):
     
     def __init__(self, body_textures: list, accessories=[]):
-
+        super().__init__(body_textures, accessories)
         greeting_1 = dialogue.DialogueLine("Hello! My name's Brigitte!", None)
         greeting_2 = dialogue.DialogueLine("I hope you are having fun in our little town!", None)
         greeting_3 = dialogue.DialogueLine("Alright then, time to go back to work. It was a pleasure!", None)
@@ -188,11 +204,14 @@ class Brigitte:
 
         greeting_tree = dialogue.DialogueTree("GREETING", greeting_1)
 
-        banter_1 = dialogue.DialogueLine("*Nuci*", None)
-        banter_2 = dialogue.DialogueLine("Eh, gdzie się podziały te stworki...", None)
-        banter_3 = dialogue.DialogueLine("Ale nudy...", None)
+        banter_1 = dialogue.DialogueLine("*Humming*", None)
+        banter_2 = dialogue.DialogueLine("Huh, where did these Creatures go...?", None)
+        banter_3 = dialogue.DialogueLine("I'm so bored...", None)
+        banter_4 = dialogue.DialogueLine("I hope my shift ends soon enough...", None)
+        banter_5 = dialogue.DialogueLine("Oh, hello there. Sorry, I gotta go.", None)
 
-        banter_tree = dialogue.RadiantTree("BANTER", [banter_1, banter_2, banter_3])
+        banter_tree = dialogue.RadiantTree("BANTER", [banter_1, banter_2, banter_3,
+                                                      banter_4, banter_5])
 
         self.player_greet = False
 
@@ -213,20 +232,21 @@ class Brigitte:
         else:
             return self.DIALOGUE_DICT["BANTER"]
 
-        
 
-class Thomas:
+class Thomas(NPC):
     
     def __init__(self, body_textures: list, accessories=[]):
 
+        super().__init__(body_textures, accessories)
+
         self.player_greet = False
         self.DIALOGUE_DICT = {
-            "GREETING_1" : "Cześć.",
-            "GREETING_2" : "Mam nadzieję, że podoba Ci się tutaj.",
-            "GREETING_3" : "Przepraszam, muszę wracać do pracy. Trzymaj się!",
-            "BANTER_1" : "Praca, praca.",
-            "BANTER_2" : "Hejka. Niestety, ale nie mam czasu...",
-            "BANTER_3" : "Jak leci?"
+            "GREETING_1": "Cześć.",
+            "GREETING_2": "Mam nadzieję, że podoba Ci się tutaj.",
+            "GREETING_3": "Przepraszam, muszę wracać do pracy. Trzymaj się!",
+            "BANTER_1": "Praca, praca.",
+            "BANTER_2": "Hejka. Niestety, ale nie mam czasu...",
+            "BANTER_3": "Jak leci?"
         }
 
     def get_dialogue(self, key):
