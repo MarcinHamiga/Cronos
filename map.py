@@ -148,7 +148,6 @@ class Tile:
         return self.rect.center
 
 
-
 class Map:
     def __init__(self, game):
 
@@ -201,6 +200,7 @@ class Map:
         if keys_pressed[pygame.K_2] and game.scale > 1 and cur_time - self.last_press > self.cooldown:
             game.scale -= 1
             self.last_press = cur_time
+
         if keys_pressed[pygame.K_e] and not self.in_dialogue and cur_time - self.last_press > 0.5:
             for layer in self.layers:
                 for tile in layer:
@@ -213,6 +213,8 @@ class Map:
         elif keys_pressed[pygame.K_SPACE] and self.in_dialogue and cur_time - self.last_press > 0.5:
             self.current_dialogue.current_tree.flip_go_to_next()
             self.last_press = cur_time
+
+
 
     def update(self, keys_pressed, game):
         if self.in_dialogue:

@@ -1,12 +1,16 @@
 import pygame
 from pathlib import Path
 from time import time
+import pickle
+
 
 # Custom made modules
 import map 
 import person
 import statemanager
 import inventory
+import creature
+import fight
 
 
 class Game:
@@ -51,12 +55,16 @@ class Game:
 
         self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"]])
         self.PLAYER.read_scale(self.scale)
+        self.PLAYER.add_creature(creature.Flametorch(1, 100, 40, 24, 12, [], None, self.ASSETS["ITEM_SP_RESTORE"]))
+        self.PLAYER.set_designated_creature(0)
         
         self.INVENTORY = inventory.Inventory(self.PLAYER, self.ASSETS)
         
         self.INVENTORY.add_item("Candy")
         self.INVENTORY.add_item("Small HP Restore")
         self.INVENTORY.add_item("Small SP Restore")
+
+        self.FIGHTSCREEN = fight.FightScreen(self)
         
         self.NUMBERED_ASSETS = {}
         count = 0
@@ -67,6 +75,8 @@ class Game:
 
         self.PLAYER.set_pos((48, 192))
         self.main()
+
+        self.FIGTHSCREEN = fight.FightScreen(self)
 
     def main(self):
         
@@ -89,7 +99,10 @@ class Game:
                     
                 case "MAP":
                     self.map_state()
-                    
+
+                case "FIGHT":
+                    self.fight_state()
+
                 case _:
                     self.map_state()
             
@@ -111,6 +124,11 @@ class Game:
         if keys[pygame.K_i] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
             self.STATE_MANAGER.change_state(2)
             self.func_key_used = self.current_time
+
+        if keys[pygame.K_f] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
+            self.STATE_MANAGER.change_state(5)
+            self.func_key_used = self.current_time
+            print("Fight state on")
 
         if not self.map.in_dialogue:
             self.PLAYER.update(keys, self)
@@ -135,6 +153,20 @@ class Game:
         # Draw    
         self.SCREEN.fill((0, 0, 0))
         self.INVENTORY.draw(self.FONT, self.SCREEN)
+
+    def fight_state(self):
+        self.current_time = time()
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_f] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
+            self.game_state = self.STATE_MANAGER.change_state(3)
+            self.func_key_used = self.current_time
+
+        # Input
+        self.FIGHTSCREEN.update(keys)
+
+        # Draw
+        self.FIGHTSCREEN.draw()
 
     def menu_state(self):
         pass

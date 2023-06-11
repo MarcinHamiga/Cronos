@@ -32,11 +32,11 @@
             "scaleInDock": 1
         },
         "testmap2.tmx": {
-            "scale": 1,
+            "scale": 0.75,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 444,
-                "y": 127
+                "x": 482.6666666666665,
+                "y": 482.6666666666666
             }
         }
     },

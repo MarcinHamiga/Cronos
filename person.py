@@ -172,9 +172,15 @@ class Player(Person):
     
     def get_rectangle(self):
         return self._rectangles[0]
-        
 
+    def add_creature(self, creature):
+        self.creatures.append(creature)
 
+    def set_designated_creature(self, num):
+        if num <= len(self.creatures):
+            self.designated_creature = num
+        else:
+            self.designated_creature = None
 class NPC:
     def __init__(self, body_textures: list, accessories=[]):
         if not isinstance(body_textures, list):
