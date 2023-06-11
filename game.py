@@ -31,23 +31,24 @@ class Game:
         self.scale = 1
 
         self.map_surface = pygame.Surface((1, 1))
-        self.map = map.Test_map(self)
+        self.map = map.TestMap(self)
 
         self.FONT = pygame.freetype.Font(Path.cwd() / Path("fonts") / Path ("VCR_OSD_MONO_1.001.ttf"), 16)
         self.ASSETS = {}
         self.PATH_TO_ASSETS = Path(Path.cwd()) / Path("assets")
 
-        self.NPCS = {
-            "BRIGITTE": person.Brigitte,
-            "THOMAS": person.Thomas
-        }
+
+
         
         for asset in self.PATH_TO_ASSETS.iterdir():
             if asset.is_file():
                 filename = asset.name[:-4]
                 print(filename)
                 self.ASSETS[filename.upper()] = pygame.image.load(asset).convert_alpha()
-            
+
+        self.BRIGITTE = person.Brigitte(self.ASSETS["CHAR_BLUE_EYES_PERSON"])
+        self.THOMAS = person.Thomas(self.ASSETS["CHAR_BLUE_EYES_PERSON"])
+
         self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"]])
         self.PLAYER.read_scale(self.scale)
         
@@ -110,8 +111,9 @@ class Game:
         if keys[pygame.K_i] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
             self.STATE_MANAGER.change_state(2)
             self.func_key_used = self.current_time
-        
-        self.PLAYER.update(keys, self)
+
+        if not self.map.in_dialogue:
+            self.PLAYER.update(keys, self)
         self.map.update(keys, self)
         
         # Draw

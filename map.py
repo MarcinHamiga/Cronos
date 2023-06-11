@@ -50,16 +50,68 @@ class Dialogue(Event):
     def __init__(self, coords, img=None, npc=None):
         super().__init__(coords, img=img)
         self.NPC = npc
+        self.NPC_NAME = self.NPC.__class__.__name__
+        self.current_tree = None
+        self.radiant_selected = False
 
     def check_interact(self, game, tile):
         if game.map.check_if_looking_at(tile):
-            print("Looking at and interacting")
-            # self.start_dialogue(game)
+            if self.NPC.is_available() is not None:
+                self.dialogue(game)
+            else:
+                pass
         else:
             pass
 
-    # def start_dialogue(self, game):
+    def dialogue(self, game):
 
+        if self.current_tree is None:
+            self.current_tree = self.NPC.get_dialogue()
+
+        if self.current_tree.__class__.__name__ == "RadiantTree" and not self.radiant_selected:
+            self.current_tree.choose_random()
+            self.radiant_selected = True
+
+        game.map.in_dialogue = True
+
+        if self.current_tree.get_current_line() is not None:
+            game.map.current_dialogue = self
+            name_tag, name_tag_rect = self.create_name_tag(game)
+
+            content_tag, content_tag_rect = self.create_content_tag(game)
+            content_tag.fill((128, 0, 32))
+
+            npc_name, npc_name_rect = game.FONT.render(self.NPC_NAME, size=36, fgcolor=(255,255,255))
+            npc_name_rect.center = name_tag_rect.w // 2, name_tag_rect.h // 2
+            name_tag.blit(npc_name, npc_name_rect)
+
+            content = self.current_tree.get_content()
+            content, content_rect = game.FONT.render(content, size=24, fgcolor=(255,255,255))
+            content_tag.blit(content, content_rect)
+
+            game.map.dialogue_card.blit(npc_name, npc_name_rect)
+            game.map.dialogue_card.blit(content_tag, content_tag_rect)
+            self.current_tree.go_to_next()
+
+        else:
+            game.map.current_dialogue = None
+            game.map.in_dialogue = False
+            self.current_tree = None
+            self.radiant_selected = False
+
+        print(game.map.in_dialogue)
+
+    def create_name_tag(self, game):
+        name_tag = pygame.Surface((game.map.dialogue_card_rect.w // 6, game.map.dialogue_card_rect.h // 3))
+        name_tag_rect = name_tag.get_rect()
+        name_tag_rect.center = name_tag_rect.w // 2, game.map.dialogue_card_rect.h // 6
+        return name_tag, name_tag_rect
+
+    def create_content_tag(self, game):
+        content_tag = pygame.Surface((game.map.dialogue_card_rect.w, 2 * game.map.dialogue_card_rect.h // 3))
+        content_tag_rect = content_tag.get_rect()
+        content_tag_rect.center = content_tag_rect.w // 2, 2 * game.map.dialogue_card_rect.h // 3
+        return content_tag, content_tag_rect
 
 
 class Fight(Event):
@@ -99,9 +151,11 @@ class Map:
         self.cooldown = 0.25
         self.baked = 0
         self.scale = 1
+        self.in_dialogue = False
+        self.current_dialogue = None
         self.dialogue_card = pygame.Surface((self.game.SCR_WIDTH, self.game.SCR_HEIGHT // 4))
         self.dialogue_card_rect = self.dialogue_card.get_rect()
-        self.dialogue_card_rect.center = self.game.SCR_WIDTH // 2, self.game.SCR_HEIGHT // 8
+        self.dialogue_card_rect.center = self.game.SCR_WIDTH // 2,  7 * (self.game.SCR_HEIGHT // 8)
 
     def load_map(self, mapname):
         
@@ -137,16 +191,24 @@ class Map:
         if keys_pressed[pygame.K_2] and game.scale > 1 and cur_time - self.last_press > self.cooldown:
             game.scale -= 1
             self.last_press = cur_time
-        if keys_pressed[pygame.K_e]:
+        if keys_pressed[pygame.K_e] and not self.in_dialogue and cur_time - self.last_press > 0.5:
             for layer in self.layers:
                 for tile in layer:
                     if len(tile.events) != 0:
                         for event in tile.events:
                             print(tile.x, tile.y, tile.events)
                             event.check_interact(game, tile)
+                            self.last_press = cur_time
+
+        elif keys_pressed[pygame.K_SPACE] and self.in_dialogue and cur_time - self.last_press > 0.5:
+            self.current_dialogue.current_tree.flip_go_to_next()
+            self.last_press = cur_time
 
     def update(self, keys_pressed, game):
+        if self.in_dialogue:
+            self.current_dialogue.dialogue(self.game)
         self._handle_input(keys_pressed, game)
+
     
     def draw_map(self):
         # Ustawienie warsty na pierwszą warstwę
@@ -179,7 +241,16 @@ class Map:
         
         # Wyrysowanie powierzchni na ekranie
         self.game.SCREEN.blit(self.game.map_surface, (map_offset_x, map_offset_y))
-                        
+
+        if self.in_dialogue:
+            self.game.SCREEN.blit(self.dialogue_card, self.dialogue_card_rect)
+
+
+    def clear_dialogue_card(self):
+        self.dialogue_card = pygame.Surface((self.game.SCR_WIDTH, self.game.SCR_HEIGHT // 4))
+        self.dialogue_card_rect = self.dialogue_card.get_rect()
+        self.dialogue_card_rect.center = self.game.SCR_WIDTH // 2, self.game.SCR_HEIGHT // 8
+
     def get_layers(self):
         return self.layers
 
@@ -199,7 +270,7 @@ class Map:
 
     def add_dialogue(self, tile, npc=None):
         cx, cy = self.get_tile_center(tile)
-        event = Dialogue((cx, cy))
+        event = Dialogue((cx, cy), npc=npc)
         self.add_event(tile, event)
         tile.impassable = True
     def get_neighbours(self, tile):
@@ -236,7 +307,7 @@ class Map:
         if right.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 3:
             return True
         return False
-class Test_map(Map):
+class TestMap(Map):
 
     def __init__(self, game):
         super().__init__(game)
@@ -245,13 +316,13 @@ class Test_map(Map):
 
     def bake_events(self):
         tile = self.get_tile(0, 0, 19)
-        self.add_teleport(tile, (0, 72), Test_map_2(self.game))
+        self.add_teleport(tile, (0, 72), TestMap2(self.game))
         tile = self.get_tile(0, 2, 2)
-        self.add_dialogue(tile)
+        self.add_dialogue(tile, npc=self.game.BRIGITTE)
         self.baked = 1
 
 
-class Test_map_2(Map):
+class TestMap2(Map):
 
     def __init__(self, game):
         super().__init__(game)
@@ -259,5 +330,5 @@ class Test_map_2(Map):
     
     def bake_events(self):
         tile = self.get_tile(0, 0, 0)
-        self.add_teleport(tile, (24, 888), Test_map(self.game))
+        self.add_teleport(tile, (24, 888), TestMap(self.game))
         self.baked = 1

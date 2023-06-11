@@ -1,9 +1,12 @@
 import pygame
 from random import randint
 
+import dialogue
+
+
 class Person(pygame.sprite.Sprite):
     
-    def __init__(self, body_textures: list, px, py, accessories=[]):
+    def __init__(self, body_textures: list, px=24, py=24, accessories=[]):
         
         super().__init__()
         
@@ -27,8 +30,7 @@ class Person(pygame.sprite.Sprite):
             rectangle = x.get_rect()
             rectangle.center = px, py
             self._rectangles.append(rectangle)
-        
-        self.dialogue_event = None
+
         
     def draw(self, surface):
         for texture, rect in zip(self._body_textures, self._rectangles):
@@ -173,25 +175,50 @@ class Player(Person):
         return self._rectangles[0]
         
         
-class Brigitte(Person):
+class Brigitte:
     
     def __init__(self, body_textures: list, accessories=[]):
-        super().__init__(body_textures, accessories)
+
+        greeting_1 = dialogue.DialogueLine("Hello! My name's Brigitte!", None)
+        greeting_2 = dialogue.DialogueLine("I hope you are having fun in our little town!", None)
+        greeting_3 = dialogue.DialogueLine("Alright then, time to go back to work. It was a pleasure!", None)
+
+        greeting_1.set_next(greeting_2)
+        greeting_2.set_next(greeting_3)
+
+        greeting_tree = dialogue.DialogueTree("GREETING", greeting_1)
+
+        banter_1 = dialogue.DialogueLine("*Nuci*", None)
+        banter_2 = dialogue.DialogueLine("Eh, gdzie się podziały te stworki...", None)
+        banter_3 = dialogue.DialogueLine("Ale nudy...", None)
+
+        banter_tree = dialogue.RadiantTree("BANTER", [banter_1, banter_2, banter_3])
+
         self.player_greet = False
+
         self.DIALOGUE_DICT = {
-            "GREETING_1" : "Hejka! Nazywam się Brigitte!",
-            "GREETING_2" :  "Mam nadzieję, że dobrze się bawisz w naszym urokliwym miasteczku!",
-            "GREETING_3" : "No nic, pora wracać do swoich zajęć. Papatki!",
-            "BANTER_1" : "*Nuci*",
-            "BANTER_2" : "Eh, gdzie się podziały te stworki...",
-            "BANTER_3" : "Ale nudy..."
+            "GREETING": greeting_tree,
+            "BANTER": banter_tree
         }
+
+    def get_dialogue(self):
+        if not self.player_greet:
+            self.player_greet = True
+            return self.DIALOGUE_DICT["GREETING"]
+        return self.DIALOGUE_DICT["BANTER"]
+
+    def is_available(self):
+        if not self.player_greet:
+            return self.DIALOGUE_DICT["GREETING"]
+        else:
+            return self.DIALOGUE_DICT["BANTER"]
+
         
 
-class Thomas(Person):
+class Thomas:
     
     def __init__(self, body_textures: list, accessories=[]):
-        super().__init__(body_textures, accessories)
+
         self.player_greet = False
         self.DIALOGUE_DICT = {
             "GREETING_1" : "Cześć.",
@@ -201,6 +228,8 @@ class Thomas(Person):
             "BANTER_2" : "Hejka. Niestety, ale nie mam czasu...",
             "BANTER_3" : "Jak leci?"
         }
-        
-        
+
+    def get_dialogue(self, key):
+        if not self.player_greet:
+            return self.DIALOGUE_DICT[key]
     
