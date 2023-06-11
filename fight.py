@@ -7,6 +7,9 @@ class FightScreen:
 
     def _handle_input(self, keys):
         if keys[pygame.K_DOWN] and self.current_command < 4:
+            self.current_command += 1
+        if keys[pygame.K_UP] and self.current_command > 0:
+            self.current_command -= 1
     def update(self, keys):
 
 
