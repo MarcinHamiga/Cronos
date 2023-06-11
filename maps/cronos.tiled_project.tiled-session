@@ -23,8 +23,8 @@
             "scale": 1,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 125,
-                "y": 456.5
+                "x": 720,
+                "y": 479.5
             }
         },
         "testmap.tmx#global_tileset": {
@@ -35,8 +35,8 @@
             "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 124,
-                "y": 475.5
+                "x": 444,
+                "y": 127
             }
         }
     },

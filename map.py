@@ -3,31 +3,32 @@ import pytmx
 from pathlib import Path
 from time import time
 
-import person
 import creature
+
 
 class Event:
     
-    def __init__(self, cx, cy, w = 48, h = 48, img = None):
+    def __init__(self, coords: tuple, w=48, h=48, img=None):
         if img is not None:
             self.image = img
         else:
             self.image = pygame.Surface((w, h))
         self.rect = self.image.get_rect()
-        self.rect.center = cx, cy
+        x, y = coords
+        self.rect.center = x, y
         
     # Wszystkie poniższe funkcje powinny, ale nie muszą zostać przeciążone 
     def check_stepped_on(self, game):
         pass
     
-    def check_interact(self, game):
+    def check_interact(self, game, tile):
         pass
 
 
 class Teleport(Event):
     
-    def __init__(self, cx, cy, place_on_map: tuple, map = None, img = None):
-        super().__init__(cx, cy, img=img)
+    def __init__(self, coords, place_on_map: tuple, map = None, img = None):
+        super().__init__(coords, img=img)
         self.dest_map = map
         self.map_coords = place_on_map
 
@@ -42,43 +43,66 @@ class Teleport(Event):
         # self.
         if self.rect.colliderect(game.PLAYER.get_rectangle()):
             self.teleport(game)
+     
             
 class Dialogue(Event):
-    
-    def __init__(self, dictionary):
-        self.DIALOGUE_DICT = dictionary
+
+    def __init__(self, coords, img=None, npc=None):
+        super().__init__(coords, img=img)
+        self.NPC = npc
+
+    def check_interact(self, game, tile):
+        if game.map.check_if_looking_at(tile):
+            print("Looking at and interacting")
+            # self.start_dialogue(game)
+        else:
+            pass
+
+    # def start_dialogue(self, game):
+
+
 
 class Fight(Event):
     pass
 
         
 class Tile:
-    def __init__(self, image, rect, impassable, size, x, y):
+    def __init__(self, image, rect, impassable, size, x, y, layer):
         self.image = image
         self.rect = rect
         self.size = size
-        self.x = x + 1
-        self.y = y + 1
+        self.x = x
+        self.y = y
+        self.layer = layer
         self.rect.center = x * self.size[0] + 24, y * self.size[1] + 24
         self.impassable = impassable
-        self.width_pos = (self.rect.x - (self.size[0] // 2), self.rect.x + (self.size[0] // 2))
-        self.height_pos = (self.rect.y - (self.size[1] // 2), self.rect.y + (self.size[1] // 2))
+        self.width_pos = ((self.rect.x + 1) - (self.size[0] // 2), self.rect.x + (self.size[0] // 2))
+        self.height_pos = ((self.rect.y + 1) - (self.size[1] // 2), self.rect.y + (self.size[1] // 2))
         self.events = []
         
     def add_event(self, event):
         self.events.append(event)
 
+    def get_center(self):
+        return self.rect.center
+
 
 class Map:
-    def __init__(self):
+    def __init__(self, game):
+
+        self.game = game
         self.tmx_map_data = None
+        self.layers = []
         self.map_width = None
         self.map_height = None
         self.last_press = time()
         self.cooldown = 0.25
         self.baked = 0
         self.scale = 1
-        
+        self.dialogue_card = pygame.Surface((self.game.SCR_WIDTH, self.game.SCR_HEIGHT // 4))
+        self.dialogue_card_rect = self.dialogue_card.get_rect()
+        self.dialogue_card_rect.center = self.game.SCR_WIDTH // 2, self.game.SCR_HEIGHT // 8
+
     def load_map(self, mapname):
         
         if mapname[:-4] != ".tmx":
@@ -87,7 +111,6 @@ class Map:
         map_path = Path.cwd()
         map_path /= Path(f"maps/{mapname.lower()}")
         self.tmx_map_data = pytmx.load_pygame(map_path)
-        self.layers = []
         layer_num = 0
         
         for layer in self.tmx_map_data:
@@ -100,7 +123,8 @@ class Map:
                     if image is not None:
                         impassable = self.tmx_map_data.get_tile_properties_by_gid(gid)["impassable"]
                         rect = image.get_rect()
-                        tile = Tile(image, rect, impassable, (self.tmx_map_data.tilewidth, self.tmx_map_data.tileheight), x ,y)
+                        tile = Tile(image, rect, impassable, (self.tmx_map_data.tilewidth,
+                                                              self.tmx_map_data.tileheight), x, y, layer_num)
                         self.layers[layer_num].append(tile)
                         
             layer_num += 1
@@ -113,62 +137,127 @@ class Map:
         if keys_pressed[pygame.K_2] and game.scale > 1 and cur_time - self.last_press > self.cooldown:
             game.scale -= 1
             self.last_press = cur_time
-                
+        if keys_pressed[pygame.K_e]:
+            for layer in self.layers:
+                for tile in layer:
+                    if len(tile.events) != 0:
+                        for event in tile.events:
+                            print(tile.x, tile.y, tile.events)
+                            event.check_interact(game, tile)
+
     def update(self, keys_pressed, game):
         self._handle_input(keys_pressed, game)
     
-    def draw_map(self, game):
+    def draw_map(self):
         # Ustawienie warsty na pierwszą warstwę
         layer_num = 1
-        self.scale = game.scale
         # Przygotowanie warstwy
-        game.map_surface = pygame.Surface((self.tmx_map_data.width * self.tmx_map_data.tilewidth, self.tmx_map_data.height * self.tmx_map_data.tileheight))
+        self.game.map_surface = pygame.Surface((self.tmx_map_data.width * self.tmx_map_data.tilewidth,
+                                                self.tmx_map_data.height * self.tmx_map_data.tileheight))
         
         # Pętla wyrysowująca kolejne kafelki na powierzchni
         for layer in self.layers:
             
             for tile in layer:
-                game.map_surface.blit(tile.image, tile.rect)
+                self.game.map_surface.blit(tile.image, tile.rect)
                 
             if layer_num == 1:
-                game.PLAYER.draw(game.map_surface)
+                self.game.PLAYER.draw(self.game.map_surface)
                 
             layer_num += 1
         
         # Dostosowanie powierzchni do odpowiedniej skali
-        game.map_surface = pygame.transform.scale(game.map_surface, (game.map_surface.get_width() * game.scale, game.map_surface.get_height() * game.scale))
-        pos_x, pos_y = game.PLAYER.get_pos()
+        self.game.map_surface = pygame.transform.scale(self.game.map_surface,
+                                                       (self.game.map_surface.get_width() * self.game.scale,
+                                                        self.game.map_surface.get_height() * self.game.scale))
+
+        pos_x, pos_y = self.game.PLAYER.get_pos()
         
         # Obliczenie wymaganego offsetu tak, aby ekran był zawsze wycentrowany 
-        scr_sizes = pygame.display.get_desktop_sizes()
-        map_offset_x = (scr_sizes[0][0] // 2) - (pos_x * self.scale)
-        map_offset_y = (scr_sizes[0][1] // 2) - (pos_y * self.scale)
+        map_offset_x = (self.game.SCR_WIDTH // 2) - (pos_x * self.game.scale)
+        map_offset_y = (self.game.SCR_HEIGHT // 2) - (pos_y * self.game.scale)
         
         # Wyrysowanie powierzchni na ekranie
-        game.SCREEN.blit(game.map_surface, (map_offset_x, map_offset_y))
+        self.game.SCREEN.blit(self.game.map_surface, (map_offset_x, map_offset_y))
                         
     def get_layers(self):
         return self.layers
 
-class Test_map(Map):
-    
-    def __init__(self):
-        super().__init__()
-        self.load_map("testmap")
+    def get_tile(self, layer, x, y):
+        return self.layers[layer][x + self.tmx_map_data.width * y]
 
-        
+    def get_tile_center(self, tile):
+        return tuple(tile.rect.center)
+
+    def add_event(self, tile: Tile, event: Event):
+        tile.add_event(event)
+
+    def add_teleport(self, tile: Tile, place_on_map: tuple, mapname: str):
+        cx, cy = self.get_tile_center(tile)
+        event = Teleport((cx, cy), place_on_map, mapname)
+        self.add_event(tile, event)
+
+    def add_dialogue(self, tile, npc=None):
+        cx, cy = self.get_tile_center(tile)
+        event = Dialogue((cx, cy))
+        self.add_event(tile, event)
+        tile.impassable = True
+    def get_neighbours(self, tile):
+        try:
+            top = self.get_tile(tile.layer, tile.x, tile.y - 1)
+        except IndexError:
+            top = None
+
+        try:
+            bottom = self.get_tile(tile.layer, tile.x, tile.y + 1)
+        except IndexError:
+            bottom = None
+
+        try:
+            left = self.get_tile(tile.layer, tile.x - 1, tile.y)
+        except IndexError:
+            left = None
+
+        try:
+            right = self.get_tile(tile.layer, tile.x + 1, tile.y)
+        except IndexError:
+            right = None
+
+        return top, bottom, left, right
+
+    def check_if_looking_at(self, tile):
+        top, bottom, left, right = self.get_neighbours(tile)
+        if top.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 2:
+            return True
+        if bottom.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 0:
+            return True
+        if left.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 1:
+            return True
+        if right.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 3:
+            return True
+        return False
+class Test_map(Map):
+
+    def __init__(self, game):
+        super().__init__(game)
+        self.load_map("testmap")
+        print(self.layers)
+
     def bake_events(self):
-        cx, cy = self.layers[0][0 + 30 * 19].rect.center
-        self.layers[0][0 + 30 * 19].add_event(Teleport(cx, cy, (24, 72), Test_map_2()))
+        tile = self.get_tile(0, 0, 19)
+        self.add_teleport(tile, (0, 72), Test_map_2(self.game))
+        tile = self.get_tile(0, 2, 2)
+        self.add_dialogue(tile)
         self.baked = 1
-        
+
+
 class Test_map_2(Map):
-    
-    def __init__(self):
-        super().__init__()
+
+    def __init__(self, game):
+        super().__init__(game)
         self.load_map("testmap2")
     
     def bake_events(self):
-        cx, cy = self.layers[0][0].rect.center
-        self.layers[0][0].add_event(Teleport(cx, cy, (24, 888), Test_map()))
+        tile = self.get_tile(0, 0, 0)
+        self.add_teleport(tile, (24, 888), Test_map(self.game))
         self.baked = 1

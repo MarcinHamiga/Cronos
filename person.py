@@ -3,7 +3,7 @@ from random import randint
 
 class Person(pygame.sprite.Sprite):
     
-    def __init__(self, body_textures: list, px, py, accessories = []):
+    def __init__(self, body_textures: list, px, py, accessories=[]):
         
         super().__init__()
         
@@ -11,6 +11,7 @@ class Person(pygame.sprite.Sprite):
         
         if not isinstance(body_textures, (list, tuple)):
             body_textures = [body_textures]
+
         # Tekstury używane w zależności od obecnej orientacji postaci na mapie.
         self._body_textures = []
        
@@ -35,27 +36,16 @@ class Person(pygame.sprite.Sprite):
             
     def update(self):
         pass
-    
-    def get_dialogue_window(self, game):
-        surface = pygame.Surface((game.SCR_WIDTH, game.SCR_HEIGHT))
-        surface.fill((128, 0, 32))
-        surface_rect = surface.get_rect()
-        
-        return surface, surface_rect
-    
-    def set_dialogue(self, dialogue):
-        self.dialogue_event = dialogue
-        
-        
-        
+
 class Player(Person):
     
-    def __init__(self, body_texture: list, px, py, accessories = []):
+    def __init__(self, body_texture: list, px, py, accessories=[]):
         super().__init__(body_texture, px, py, accessories)
         self._movement_speed = 3
         self._movement_speed_multiplier = 1.0
         self.creatures = []
         self.items = []
+        self.orientation = 0 # 0 - góra, 1 - prawo, 2 - dół, 3 - lewo
         
         self.moving = {
             "top": False,
@@ -63,7 +53,7 @@ class Player(Person):
             "right" : False,
             "left" : False,
         }
-     
+
     def _start_sprint(self):
         self._movement_speed_multiplier = 2.0
     
@@ -82,30 +72,31 @@ class Player(Person):
             self.moving["left"] = True
             self.check_collision(layers)
             self.moving["left"] = False
+            self.orientation = 3
 
-            
         if keys_pressed[pygame.K_RIGHT]:
             for rect in self._rectangles:
                 rect.x += movement * self.scale
             self.moving["right"] = True
             self.check_collision(layers)
             self.moving["right"] = False
-            
-            
+            self.orientation = 1
+
         if keys_pressed[pygame.K_UP]:
             for rect in self._rectangles:
                 rect.y -= movement * self.scale
             self.moving["top"] = True
             self.check_collision(layers)
             self.moving["top"] = False
-            
-            
+            self.orientation = 0
+
         if keys_pressed[pygame.K_DOWN]:
             for rect in self._rectangles:
                 rect.y += movement * self.scale
             self.moving["bottom"] = True
             self.check_collision(layers)
             self.moving["bottom"] = False
+            self.orientation = 2
         
         self.check_boundaries(layers)
         
@@ -121,12 +112,12 @@ class Player(Person):
                 y += tile.y
 
         for rect in self._rectangles:
-            if rect.x > (x - 1) * 48 * self.scale:
-                rect.x = (x - 1) * 48 * self.scale
+            if rect.x > (x - 1) * 48 * game.scale:
+                rect.x = (x - 1) * 48 * game.scale
             if rect.x < 0:
                 rect.x = 0
-            if rect.y > (y - 1) * 48 * self.scale:
-                rect.y = (y - 1) * 48 * self.scale
+            if rect.y > (y - 1) * 48 * game.scale:
+                rect.y = (y - 1) * 48 * game.scale
             if rect.y < 0:
                 rect.y = 0        
             
@@ -135,6 +126,9 @@ class Player(Person):
         
     def get_pos(self):
         return self._rectangles[0].center
+
+    def get_orient(self):
+        return self.orientation
 
     def set_pos(self, coordinates: tuple):
         pos_x, pos_y = coordinates
@@ -168,7 +162,6 @@ class Player(Person):
                 if len(tile.events) != 0:
                     for event in tile.events:
                         event.check_stepped_on(game)
-                        event.check_interact(game)
                     
     def read_scale(self, scale):
         self.scale = scale
@@ -182,8 +175,8 @@ class Player(Person):
         
 class Brigitte(Person):
     
-    def __init__(self, body_textures: list, px, py, accessories=[]):
-        super().__init__(body_textures, px, py, accessories)
+    def __init__(self, body_textures: list, accessories=[]):
+        super().__init__(body_textures, accessories)
         self.player_greet = False
         self.DIALOGUE_DICT = {
             "GREETING_1" : "Hejka! Nazywam się Brigitte!",
@@ -194,13 +187,11 @@ class Brigitte(Person):
             "BANTER_3" : "Ale nudy..."
         }
         
-        
-    
-        
+
 class Thomas(Person):
     
-    def __init__(self, body_textures: list, px, py, accessories=[]):
-        super().__init__(body_textures, px, py, accessories)
+    def __init__(self, body_textures: list, accessories=[]):
+        super().__init__(body_textures, accessories)
         self.player_greet = False
         self.DIALOGUE_DICT = {
             "GREETING_1" : "Cześć.",
