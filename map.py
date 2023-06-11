@@ -35,7 +35,7 @@ class Event:
 
 class Teleport(Event):
     
-    def __init__(self, coords, place_on_map: tuple, map = None, img = None):
+    def __init__(self, coords, place_on_map: tuple, map=None, img=None):
         super().__init__(coords, img=img)
         self.dest_map = map
         self.map_coords = place_on_map

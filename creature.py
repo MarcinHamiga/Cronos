@@ -77,7 +77,7 @@ class Creature(pygame.sprite.Sprite):
     def get_health(self):
         return self._health
     
-    def get_complete_health(self):
+    def get_complete_hp(self):
         return f"{self._health}/{self._max_health}"
     
     def get_sp(self):

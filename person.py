@@ -44,6 +44,7 @@ class Player(Person):
         self._movement_speed = 3
         self._movement_speed_multiplier = 1.0
         self.creatures = []
+        self.designated_creature = None
         self.items = []
         self.orientation = 0 # 0 - góra, 1 - prawo, 2 - dół, 3 - lewo
         

@@ -74,7 +74,7 @@ class Game:
             # Handle events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.exit
+                    pygame.quit()
 
             match self.game_state:
                 
