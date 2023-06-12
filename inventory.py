@@ -58,19 +58,19 @@ class Creature_card:
             self.card_surface.fill((120, 120, 120))
             
         # Renderowanie tekstu na podstawie nazwy przedmiotu    
-        item_name, name_rect = font.render(f"{self.creature.name}", (255,255,255))
+        item_name, name_rect = font.render(f"{self.creature.__class__.__name__}", (255,255,255))
         name_rect.center = name_rect.w // 2 + 48, 12
         
         # Renderowanie tekstu na podstawie ilości przedmiotu
-        item_amount, amount_rect = font.render(f"HP: {self.creature.h}", (255,255,255))
+        item_amount, amount_rect = font.render(f"HP: {self.creature.get_complete_hp()}", (255,255,255))
         amount_rect.center = amount_rect.w // 2 + 48, 36
         
         # Uzyskanie obrazu ikony przedmiotu oraz wytworzenie na jej podstawie prostokąta oraz
         # wyrysowanie go na powierzchni karty przedmiotu
-        if self.item.icon is not None:
-            icon_rect = self.item.icon.get_rect()
+        if self.creature.image is not None:
+            icon_rect = self.creature.image.get_rect()
             icon_rect.center = 24, 24
-            self.card_surface.blit(self.item.icon, icon_rect)
+            self.card_surface.blit(self.creature.image, icon_rect)
         
         # Wyrysowanie obu tekstów na karcie przedmiotu
         self.card_surface.blit(item_name, name_rect)

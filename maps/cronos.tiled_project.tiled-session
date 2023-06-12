@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "testmap2.tmx",
+    "activeFile": "testmap.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -23,8 +23,8 @@
             "scale": 1,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 720,
-                "y": 479.5
+                "x": 795,
+                "y": 512
             }
         },
         "testmap.tmx#global_tileset": {
@@ -53,9 +53,9 @@
     "project": "cronos.tiled_project.tiled-project",
     "property.type": "bool",
     "recentFiles": [
-        "testmap.tmx",
+        "testmap2.tmx",
         "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx",
-        "testmap2.tmx"
+        "testmap.tmx"
     ],
     "tileset.embedInMap": false,
     "tileset.lastUsedFormat": "tsx",
