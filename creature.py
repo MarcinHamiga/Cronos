@@ -22,6 +22,25 @@ class Creature(pygame.sprite.Sprite):
         self._statuses = []   # Lista zawierająca wszystkie nałożone na stworka statusy
         self._moves = []    # Lista ruchów dostępnych dla stworka
 
+    def apply_status(self, applied_status):
+
+        for status in self._statuses:
+            if status.__class__.__name__ == applied_status.__class__.__name__:
+                status.extend_status(applied_status.turns_left)
+                return
+
+        self._statuses.append(status)
+
+    def process_statuses(self):
+
+        for idx, status in enumerate(self._statuses):
+            status.take_effect(self)
+            status.decrement_turn()
+            if status.turns_left == 0:
+                status.remove_effects(self)
+                self._statuses.pop(idx)
+
+
     def attack_target(self, target):
         target_def = target.get_defense()
         # Jeżeli atak stworka jest większy niż obrona celu, ilość obrażeń losowana jest z pełnego przedziału od 0 do wartości ataku,
@@ -49,7 +68,7 @@ class Creature(pygame.sprite.Sprite):
             self.is_down = True
         return self.is_down
             
-    def revive(self, revive_health = 1):
+    def revive(self, revive_health=1):
         self.is_down = False
         self.health = revive_health
         
@@ -72,11 +91,23 @@ class Creature(pygame.sprite.Sprite):
         self.max_health = amount
         
     def set_health(self, amount):
-        if amount > self._max_health:
+        if amount > self.max_health:
             self.health = self.max_health
         else:
             self.health = amount
-    
+
+    def set_sp(self, amount):
+        if amount > self.max_special_points:
+            self.special_points = self.max_special_points
+        else:
+            self.special_points = amount
+
+    def heal(self, amount):
+        self.set_health(self.health + amount)
+
+    def recover_sp(self, amount):
+        self.set_sp(self.special_points + amount)
+
     def get_health(self):
         return self.health
     

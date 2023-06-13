@@ -160,6 +160,7 @@ class Game:
         if keys[pygame.K_f] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
             self.game_state = self.STATE_MANAGER.change_state(3)
             self.func_key_used = self.current_time
+            self.FIGHTSCREEN.action_log.clear_log()
 
         # Input
         self.FIGHTSCREEN.update(keys)

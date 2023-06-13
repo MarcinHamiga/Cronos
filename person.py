@@ -180,7 +180,14 @@ class Player(Person):
         if num <= len(self.creatures):
             self.designated_creature = num
         else:
-            self.designated_creature = None
+            self.designated_creature = self.creatures[0]
+
+    def check_inventory(self):
+        for idx, item in enumerate(self.items):
+            if item.amount <= 0:
+                self.items.pop(idx)
+
+
 class NPC:
     def __init__(self, body_textures: list, accessories=[]):
         if not isinstance(body_textures, list):

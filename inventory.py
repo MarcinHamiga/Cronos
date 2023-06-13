@@ -6,10 +6,16 @@ import items
 
 class Item_card:
     
-    def __init__(self, item):
+    def __init__(self, item, w=240, h=48):
+
+        if h < 48:
+            h = 48
+        if w < 180:
+            w = 180
+
         self.item = item
-        self.card_width = 240
-        self.card_height = 48
+        self.card_width = w
+        self.card_height = h
         self.card_surface = pygame.Surface((self.card_width, self.card_height))
         
     def draw_card(self, font, is_current: bool):
@@ -18,7 +24,7 @@ class Item_card:
         if is_current:
             self.card_surface.fill((180,180,180))
         else:
-            self.card_surface.fill((120, 120, 120))
+            self.card_surface.fill((128, 0, 35))
             
         # Renderowanie tekstu na podstawie nazwy przedmiotu    
         item_name, name_rect = font.render(f"{self.item.name}", (255,255,255))
@@ -128,7 +134,7 @@ class Inventory:
                 # Uzyskanie prostokąta na podstawie zwrócnej przez draw_card() karty przedmiotu
                 # i ustawienie jego centrum w odpowiednim miejscu na powierzchni ekwipunku 
                 card_surface_rect = card_surface.get_rect()
-                card_surface_rect.center = 240 // 2, 24 + 48 * x
+                card_surface_rect.center = card_surface_rect.w // 2, 24 + card_surface_rect.h * x
                 
                 # Wyrysowanie karty na powierzchni
                 self.surface.blit(card_surface, card_surface_rect)
