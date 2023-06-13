@@ -113,12 +113,12 @@ class Player(Person):
                 y += tile.y
 
         for rect in self._rectangles:
-            if rect.x > x * 48 * game.scale:
-                rect.x = x * 48 * game.scale
+            if rect.x > x * 48 * self.scale:
+                rect.x = x * 48 * self.scale
             if rect.x < 0:
                 rect.x = 0
-            if rect.y > y * 48 * game.scale:
-                rect.y = y * 48 * game.scale
+            if rect.y > y * 48 * self.scale:
+                rect.y = y * 48 * self.scale
             if rect.y < 0:
                 rect.y = 0        
             

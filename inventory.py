@@ -3,6 +3,7 @@ from time import time
 
 import items
 
+
 class Item_card:
     
     def __init__(self, item):
@@ -41,6 +42,7 @@ class Item_card:
         # Zwrócenie kompletnej karty przedmiotu
         return self.card_surface
 
+
 class Creature_card:
 
     def __init__(self, creature):
@@ -78,6 +80,7 @@ class Creature_card:
         
         # Zwrócenie kompletnej karty przedmiotu
         return self.card_surface
+
 
 class Inventory:
     
@@ -157,11 +160,6 @@ class Inventory:
                     
         # Wyrysowanie powierzchni na ekranie
         screen.blit(self.surface, pygame.Rect(screen.get_width() // 2 - card_surface_rect.w // 2, screen.get_height() // 2 - self.surface.get_height() // 2, self.surface.get_width(), self.surface.get_height()))
-        
-
-
-    
-    # def get
     
     def add_item(self, name, amount = 1):
         """Dodaje wybrany przedmiot do ekwipunku"""

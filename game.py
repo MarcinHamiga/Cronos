@@ -41,9 +41,6 @@ class Game:
         self.ASSETS = {}
         self.PATH_TO_ASSETS = Path(Path.cwd()) / Path("assets")
 
-
-
-        
         for asset in self.PATH_TO_ASSETS.iterdir():
             if asset.is_file():
                 filename = asset.name[:-4]
@@ -56,6 +53,7 @@ class Game:
         self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"]])
         self.PLAYER.read_scale(self.scale)
         self.PLAYER.add_creature(creature.Flametorch(1, 100, 40, 24, 12, [], None, self.ASSETS["ITEM_SP_RESTORE"]))
+        print(self.PLAYER.creatures)
         self.PLAYER.set_designated_creature(0)
         
         self.INVENTORY = inventory.Inventory(self.PLAYER, self.ASSETS)
@@ -64,14 +62,10 @@ class Game:
         self.INVENTORY.add_item("Small HP Restore")
         self.INVENTORY.add_item("Small SP Restore")
 
+        self.TEST_ENEMY = creature.Flametorch(1, 100, 40, 24, 12, [], None, self.ASSETS["ITEM_SP_RESTORE"])
         self.FIGHTSCREEN = fight.FightScreen(self)
-        
-        self.NUMBERED_ASSETS = {}
+
         count = 0
-        
-        for asset in self.ASSETS.values():
-            self.NUMBERED_ASSETS[count] = asset
-            count += 1
 
         self.PLAYER.set_pos((48, 192))
         self.main()
@@ -101,6 +95,9 @@ class Game:
                     self.map_state()
 
                 case "FIGHT":
+                    if self.FIGHTSCREEN.enemy_creature is None:
+                        self.FIGHTSCREEN.set_enemy(
+                            creature.Flametorch(1, 100, 40, 24, 12, [], None, self.ASSETS["ITEM_SP_RESTORE"]))
                     self.fight_state()
 
                 case _:
@@ -145,7 +142,8 @@ class Game:
         self.current_time = time()
         keys = pygame.key.get_pressed()    
         
-        if (keys[pygame.K_i] or keys[pygame.K_ESCAPE]) and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
+        if (keys[pygame.K_i] or keys[pygame.K_ESCAPE]) and self.current_time - self.func_key_used > \
+                self.FUNC_KEY_COOLDOWN:
             self.STATE_MANAGER.change_state(3)
             self.func_key_used = self.current_time
         self.INVENTORY.update(keys)
@@ -155,6 +153,7 @@ class Game:
         self.INVENTORY.draw(self.FONT, self.SCREEN)
 
     def fight_state(self):
+
         self.current_time = time()
         keys = pygame.key.get_pressed()
 
