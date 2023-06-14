@@ -2,8 +2,7 @@ import pygame
 import pytmx
 from pathlib import Path
 from time import time
-
-import creature
+import pickle
 
 
 class Event:
@@ -200,6 +199,14 @@ class Map:
         if keys_pressed[pygame.K_2] and game.scale > 1 and cur_time - self.last_press > self.cooldown:
             game.scale -= 1
             self.last_press = cur_time
+
+        if keys_pressed[pygame.K_F5] and cur_time - self.last_press > self.cooldown:
+            with open("savepoint.sav", "wb") as file:
+                pickle.dump(self.game.game_state, file)
+                pickle.dump(self.game.map, file)
+                pickle.dump(self.game.INVENTORY, file)
+                pickle.dump(self.game.PLAYER, file)
+                pickle.dump(self.game.FIGHTSCREEN, file)
 
         if keys_pressed[pygame.K_e] and not self.in_dialogue and cur_time - self.last_press > 0.5:
             for layer in self.layers:

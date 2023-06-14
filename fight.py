@@ -1,6 +1,7 @@
 import pygame
 from time import time
 from inventory import Item_card
+from random import randint
 
 
 class FightScreen:
@@ -76,6 +77,15 @@ class FightScreen:
                 self.content_list.current_item = 0
                 self.content_list.offset = 0
                 self.last_key_press = cur_time
+
+    def try_to_run(self):
+        roll = randint(0, 100)
+        if roll < 60:
+            self.game.STATE_MANAGER.change_state(3)
+            self.switch_turns()
+        else:
+            self.switch_turns()
+            return
 
     def update(self, keys):
         if self.player_creature.check_if_down():
@@ -172,6 +182,7 @@ class PlayerCreatureStats:
         self.turn_marker_rect.center = 220, game.SCR_HEIGHT - 170
 
     def draw(self):
+
         self.surface.fill((128, 0, 35))
         crt_name, crt_name_rect = self.game.FONT.render(f"{self.creature.__class__.__name__}", size=40, fgcolor=(255, 255, 255))
         crt_name_rect.center = self.surface_rect.w // 2, 25
@@ -197,7 +208,6 @@ class PlayerCreatureStats:
 class EnemyCreatureStats:
 
     def __init__(self, game, enemy):
-
         self.game = game
         self.creature = enemy
         self.surface = pygame.Surface((240, 150))
@@ -226,7 +236,6 @@ class EnemyCreatureStats:
 class PlayerActionMenu:
 
     def __init__(self, game):
-
         self.game = game
         self.surface = pygame.Surface((200, 200))
         self.activated_color = (255, 255, 255)
@@ -281,13 +290,13 @@ class ActionLog:
         self.surface_rect = self.surface.get_rect()
         self.surface.fill((70, 70, 70))
 
-
     def get_action(self, action, reaction, creature):
         self.action = action
         self.reaction = reaction
         self.creature = creature
 
     def draw(self):
+
         self.surface.fill((70, 70, 70))
         if self.action is not None:
             action, action_rect = self.game.FONT.render(f"{self.creature.__class__.__name__} uses {self.action}...", size=40)
@@ -305,6 +314,7 @@ class ActionLog:
         return self.surface, self.surface_rect
 
     def clear_log(self):
+
         self.action = None
         self.reaction = None
         self.creature = None
@@ -313,6 +323,7 @@ class ActionLog:
 class ContentList:
 
     def __init__(self, game, fightscreen):
+
         self.game = game
         self.fightscreen = fightscreen
         self.items = game.PLAYER.items

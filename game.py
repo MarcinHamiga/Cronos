@@ -21,7 +21,7 @@ class Game:
         pygame.init()
         self.CLOCK = pygame.time.Clock()
         screen_info = pygame.display.get_desktop_sizes()
-        self.SCR_WIDTH, self.SCR_HEIGHT = screen_info[1][0], screen_info[1][1]
+        self.SCR_WIDTH, self.SCR_HEIGHT = screen_info[0][0], screen_info[0][1]
         self.SCREEN = pygame.display.set_mode((self.SCR_WIDTH, self.SCR_HEIGHT)) 
         self._running = True
 
@@ -74,8 +74,6 @@ class Game:
 
         self.PLAYER.set_pos((48, 192))
         self.main()
-
-        self.FIGTHSCREEN = fight.FightScreen(self)
 
     def main(self):
         
@@ -131,6 +129,19 @@ class Game:
             self.STATE_MANAGER.change_state(5)
             self.func_key_used = self.current_time
             print("Fight state on")
+
+        if keys[pygame.K_F9] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
+            try:
+                with open("savepoint.sav", "rb") as file:
+                    self.game_state = pickle.load(file)
+                    self.map = pickle.load(file)
+                    self.INVENTORY = pickle.load(file)
+                    self.PLAYER = pickle.load(file)
+                    self.FIGHTSCREEN = pickle.load(file)
+
+            except FileNotFoundError:
+                pass
+
 
         if not self.map.in_dialogue:
             self.PLAYER.update(keys, self)
