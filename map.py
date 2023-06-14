@@ -288,6 +288,7 @@ class Map:
         event = Dialogue((cx, cy), img=img, npc=npc)
         self.add_event(tile, event)
         tile.impassable = True
+
     def get_neighbours(self, tile):
         try:
             top = self.get_tile(tile.layer, tile.x, tile.y - 1)

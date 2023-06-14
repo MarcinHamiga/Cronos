@@ -11,7 +11,8 @@ import statemanager
 import inventory
 import creature
 import fight
-
+import skills
+from menu import Menu
 
 class Game:
     
@@ -20,13 +21,15 @@ class Game:
         pygame.init()
         self.CLOCK = pygame.time.Clock()
         screen_info = pygame.display.get_desktop_sizes()
-        self.SCR_WIDTH, self.SCR_HEIGHT = screen_info[0][0], screen_info[0][1]
+        self.SCR_WIDTH, self.SCR_HEIGHT = screen_info[1][0], screen_info[1][1]
         self.SCREEN = pygame.display.set_mode((self.SCR_WIDTH, self.SCR_HEIGHT)) 
         self._running = True
-                
+
         self.game_state = "MENU"
         self.STATE_MANAGER = statemanager.State_manager(self)
         self.STATE_MANAGER.change_state(3)
+
+        self.MENU = Menu(self)
 
         self.FUNC_KEY_COOLDOWN = 0.2
         self.func_key_used = time()
@@ -46,6 +49,8 @@ class Game:
                 filename = asset.name[:-4]
                 print(filename)
                 self.ASSETS[filename.upper()] = pygame.image.load(asset).convert_alpha()
+
+        self.SKILLS_DICT = skills.SkillDict(self.ASSETS)
 
         self.BRIGITTE = person.Brigitte(self.ASSETS["CHAR_BLUE_EYES_PERSON"])
         self.THOMAS = person.Thomas(self.ASSETS["CHAR_BLUE_EYES_PERSON"])
@@ -115,7 +120,7 @@ class Game:
         keys = pygame.key.get_pressed()
         
         if keys[pygame.K_ESCAPE] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
-            pygame.quit()
+            self.STATE_MANAGER.change_state(1)
             self.func_key_used = self.current_time
         
         if keys[pygame.K_i] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
@@ -169,8 +174,21 @@ class Game:
         self.FIGHTSCREEN.draw()
 
     def menu_state(self):
-        pass
-    
+
+        self.current_time = time()
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_RETURN] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
+            if self.MENU.current_button == 0:
+                self.STATE_MANAGER.change_state(3)
+            if self.MENU.current_button == 1:
+                self.STATE_MANAGER.change_state(3)
+            if self.MENU.current_button == 2:
+                pygame.quit()
+
+        self.MENU.update(keys)
+
+        self.MENU.draw()
+
     def flip_n_tick(self, fps=60):
         pygame.display.flip()
         self.CLOCK.tick(fps)
