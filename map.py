@@ -129,6 +129,11 @@ class Shop(Event):
     pass
 
 
+class Cure(Dialogue):
+    def __init__(self, coords: tuple, img=None, npc=None):
+        super().__init__(coords, img, npc)
+
+
 class Tile:
     def __init__(self, image, rect, impassable, size, x, y, layer):
         self.image = image

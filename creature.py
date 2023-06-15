@@ -159,7 +159,39 @@ class Flametorch(Creature):
             if move.required_level <= self.level:
                 self.skills.append(self._hidden_skills.pop(idx))
 
+    def check_for_level_up(self):
+        if self.xp >= self.required_xp:
+            self.level_up()
 
     def __str__(self):
         return f"Creature: {self.__class__.__name__}"
 
+
+class Leafwing(Creature):
+    
+    def __init__(self, level, health, action_points, attack, defense, hidden_skills, name, image):
+        super().__init__(level, health, action_points, attack, defense, hidden_skills, name)
+        self.skills = []
+        self.set_image(image)
+        self.required_xp = 50 + (self.level - 1) * 35
+        
+    def level_up(self):
+        self.xp = 0
+        self.level += 1
+        self.required_xp = 50 + (self.level - 1) * 35
+        self.attack += 3
+        self.defense += 1
+        self.max_health += 21
+        self.health = self.max_health
+        self.max_special_points += 7
+        self.special_points = self.max_special_points
+        for move, idx in enumerate(self._hidden_skills):
+            if move.required_level <= self.level:
+                self.skills.append(self._hidden_skills.pop(idx))
+                
+    def check_for_level_up(self):
+        if self.xp >= self.required_xp:
+            self.level_up()
+
+    def __str__(self):
+        return f"Creature: {self.__class__.__name__}"            

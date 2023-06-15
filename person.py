@@ -3,7 +3,7 @@ import pygame
 import dialogue
 
 
-class Person(pygame.sprite.Sprite):
+class Person():
     
     def __init__(self, body_textures: list, px=24, py=24, accessories=[]):
         
@@ -36,6 +36,7 @@ class Person(pygame.sprite.Sprite):
             
     def update(self):
         pass
+
 
 class Player(Person):
     
@@ -269,4 +270,9 @@ class Thomas(NPC):
     def get_dialogue(self, key):
         if not self.player_greet:
             return self.DIALOGUE_DICT[key]
-    
+
+
+class Healer(NPC):
+
+    def __init__(self, body_textures: list, accessories=[]):
+        super().__init__(body_textures, accessories)
