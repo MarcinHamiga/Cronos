@@ -1,10 +1,10 @@
 from random import randint
 import pygame
+import skills
 
 
-class Creature(pygame.sprite.Sprite):
-    def __init__(self, level, health, special_points, attack, defense, name):
-        super().__init__()
+class Creature:
+    def __init__(self, level, health, special_points, attack, defense, hidden_skills, name):
         self.image = None
         self.rect = None
         self.name = name
@@ -20,7 +20,8 @@ class Creature(pygame.sprite.Sprite):
         self.defense = defense
         self._guard_bonus = int(self.defense * 0.2)
         self._statuses = []   # Lista zawierająca wszystkie nałożone na stworka statusy
-        self._moves = []    # Lista ruchów dostępnych dla stworka
+        self.skills = []    # Lista ruchów dostępnych dla stworka
+        self._hidden_skills = hidden_skills
 
     def apply_status(self, applied_status):
 
@@ -29,7 +30,7 @@ class Creature(pygame.sprite.Sprite):
                 status.extend_status(applied_status.turns_left)
                 return
 
-        self._statuses.append(status)
+        self._statuses.append(applied_status)
 
     def process_statuses(self):
 
@@ -37,9 +38,10 @@ class Creature(pygame.sprite.Sprite):
             status.take_effect(self)
             status.decrement_turn()
             if status.turns_left == 0:
-                status.remove_effects(self)
                 self._statuses.pop(idx)
 
+    def clear_statuses(self):
+        self._statuses = []
 
     def attack_target(self, target):
         target_def = target.get_defense()
@@ -52,7 +54,18 @@ class Creature(pygame.sprite.Sprite):
             return target.take_damage(damage // 4)
     
     def use_skill(self, idx, target):
-        self.skill[idx].use(target)
+        skill = self.skills[idx]
+        self.special_points -= skill.sp_cost
+        return self.skills[idx].__class__.__name__, self.skills[idx].use(self, target)
+
+    def add_skill(self, skill):
+        self.skills.append(skill)
+
+    def add_hidden_skill(self, skill):
+        if skill.required_level <= self.level:
+            self.skills.append(skill)
+        else:
+            self._hidden_skills.append(skill)
             
     def guard(self):
         self.defense += self._guard_bonus
@@ -126,21 +139,27 @@ class Creature(pygame.sprite.Sprite):
 
 class Flametorch(Creature):
 
-    def __init__(self, level, health, action_points, attack, defense, hidden_moves, name, image):
-        super().__init__(level, health, action_points, attack, defense, name)
-        self._hidden_moves = hidden_moves
+    def __init__(self, level, health, action_points, attack, defense, hidden_skills, name, image):
+        super().__init__(level, health, action_points, attack, defense, hidden_skills, name)
+        self.skills = []
         self.set_image(image)
         self.required_xp = 50 + (self.level - 1) * 50
 
     def level_up(self):
         self.xp = 0
-        self._level += 1
+        self.level += 1
         self.required_xp = 50 + (self.level - 1) * 50
         self.attack += 4
         self.defense += 2
-        for move, idx in enumerate(self._hidden_moves):
+        self.max_health += 15
+        self.health = self.max_health
+        self.max_special_points += 5
+        self.special_points = self.max_special_points
+        for move, idx in enumerate(self._hidden_skills):
             if move.required_level <= self.level:
-                self.moves.append(self._hidden_moves.pop(idx))
+                self.skills.append(self._hidden_skills.pop(idx))
+
 
     def __str__(self):
         return f"Creature: {self.__class__.__name__}"
+

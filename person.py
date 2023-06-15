@@ -61,13 +61,13 @@ class Player(Person):
     def _stop_sprint(self):
         self._movement_speed_multiplier = 1.0
             
-    def _handle_events(self, keys_pressed, layers):
-        if keys_pressed[pygame.K_LSHIFT] or keys_pressed[pygame.K_RSHIFT]:
+    def _handle_events(self, keys, layers):
+        if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
             self._start_sprint()
             
         movement = int(self._movement_speed * self._movement_speed_multiplier)
         
-        if keys_pressed[pygame.K_LEFT]:
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             for rect in self._rectangles:
                 rect.x -= movement * self.scale
             self.moving["left"] = True
@@ -75,7 +75,7 @@ class Player(Person):
             self.moving["left"] = False
             self.orientation = 3
 
-        if keys_pressed[pygame.K_RIGHT]:
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             for rect in self._rectangles:
                 rect.x += movement * self.scale
             self.moving["right"] = True
@@ -83,7 +83,7 @@ class Player(Person):
             self.moving["right"] = False
             self.orientation = 1
 
-        if keys_pressed[pygame.K_UP]:
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
             for rect in self._rectangles:
                 rect.y -= movement * self.scale
             self.moving["top"] = True
@@ -91,7 +91,7 @@ class Player(Person):
             self.moving["top"] = False
             self.orientation = 0
 
-        if keys_pressed[pygame.K_DOWN]:
+        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
             for rect in self._rectangles:
                 rect.y += movement * self.scale
             self.moving["bottom"] = True
@@ -122,8 +122,8 @@ class Player(Person):
             if rect.y < 0:
                 rect.y = 0        
             
-    def update(self, keys_pressed, layers):
-        self._handle_events(keys_pressed, layers)
+    def update(self, keys, layers):
+        self._handle_events(keys, layers)
         
     def get_pos(self):
         return self._rectangles[0].center

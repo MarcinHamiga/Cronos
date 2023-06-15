@@ -5,7 +5,8 @@ import pickle
 
 
 # Custom made modules
-import map 
+import map
+import menu
 import person
 import statemanager
 import inventory
@@ -13,6 +14,7 @@ import creature
 import fight
 import skills
 from menu import Menu
+
 
 class Game:
     
@@ -57,7 +59,7 @@ class Game:
 
         self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"]])
         self.PLAYER.read_scale(self.scale)
-        self.PLAYER.add_creature(creature.Flametorch(1, 100, 40, 24, 12, [], None, self.ASSETS["ITEM_SP_RESTORE"]))
+        self.PLAYER.add_creature(self.spawn_flametorch(2))
         print(self.PLAYER.creatures)
         self.PLAYER.set_designated_creature(0)
         
@@ -66,6 +68,8 @@ class Game:
         self.INVENTORY.add_item("Candy")
         self.INVENTORY.add_item("Small HP Restore")
         self.INVENTORY.add_item("Small SP Restore")
+        self.INVENTORY.add_item("HP restore")
+        self.INVENTORY.add_item("SP restore")
 
         self.TEST_ENEMY = creature.Flametorch(1, 100, 40, 24, 12, [], None, self.ASSETS["ITEM_SP_RESTORE"])
         self.FIGHTSCREEN = fight.FightScreen(self)
@@ -73,6 +77,9 @@ class Game:
         count = 0
 
         self.PLAYER.set_pos((48, 192))
+
+        self.SETTINGS = menu.Settings(self)
+
         self.main()
 
     def main(self):
@@ -103,6 +110,9 @@ class Game:
                             creature.Flametorch(1, 100, 40, 24, 12, [], None, self.ASSETS["ITEM_SP_RESTORE"]))
                     self.fight_state()
 
+                case "SETTINGS":
+                    self.settings_state()
+
                 case _:
                     self.map_state()
             
@@ -116,35 +126,10 @@ class Game:
         
         self.current_time = time()
         keys = pygame.key.get_pressed()
-        
-        if keys[pygame.K_ESCAPE] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
-            self.STATE_MANAGER.change_state(1)
-            self.func_key_used = self.current_time
-        
-        if keys[pygame.K_i] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
-            self.STATE_MANAGER.change_state(2)
-            self.func_key_used = self.current_time
-
-        if keys[pygame.K_f] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
-            self.STATE_MANAGER.change_state(5)
-            self.func_key_used = self.current_time
-            print("Fight state on")
-
-        if keys[pygame.K_F9] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
-            try:
-                with open("savepoint.sav", "rb") as file:
-                    self.game_state = pickle.load(file)
-                    self.map = pickle.load(file)
-                    self.INVENTORY = pickle.load(file)
-                    self.PLAYER = pickle.load(file)
-                    self.FIGHTSCREEN = pickle.load(file)
-
-            except FileNotFoundError:
-                pass
-
 
         if not self.map.in_dialogue:
             self.PLAYER.update(keys, self)
+
         self.map.update(keys, self)
         
         # Draw
@@ -188,18 +173,37 @@ class Game:
 
         self.current_time = time()
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_RETURN] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
-            if self.MENU.current_button == 0:
-                self.STATE_MANAGER.change_state(3)
-            if self.MENU.current_button == 1:
-                self.STATE_MANAGER.change_state(3)
-            if self.MENU.current_button == 2:
-                pygame.quit()
 
         self.MENU.update(keys)
 
         self.MENU.draw()
 
+    def settings_state(self):
+
+        self.current_time = time()
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_ESCAPE] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
+            self.STATE_MANAGER.change_state("MENU")
+            self.func_key_used = self.current_time
+
+        self.SETTINGS.update(keys)
+
+        self.SETTINGS.draw()
+        
     def flip_n_tick(self, fps=60):
         pygame.display.flip()
         self.CLOCK.tick(fps)
+
+
+    # Funkcje do zarządzania contentem
+
+    def spawn_flametorch(self, level=1):
+        creature_ = creature.Flametorch(1, 100, 40, 24, 10, [], None, self.ASSETS["ITEM_SP_RESTORE"])
+        creature_.add_skill(self.SKILLS_DICT.get_skill("FIREBREATH"))
+        if level > 1:
+            for x in range(level - 1):
+                creature_.level_up()
+        return creature_
+
+    # def spawn

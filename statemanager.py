@@ -1,12 +1,14 @@
 class State_manager:
+
     def __init__(self, game):
         self._game = game
         self._game_states = {
             1: "MENU",
             2: "INVENTORY",
             3: "MAP",
-            4: "PAUSE",
+            4: "SETTINGS",
             5: "FIGHT"
+
         }
         
     def change_state(self, state: str or int):

@@ -122,10 +122,16 @@ class Dialogue(Event):
         return content_tag, content_tag_rect
 
 
+# TODO
 class Fight(Event):
     pass
 
-        
+
+# TODO
+class Shop(Event):
+    pass
+
+
 class Tile:
     def __init__(self, image, rect, impassable, size, x, y, layer):
         self.image = image
@@ -192,22 +198,8 @@ class Map:
             layer_num += 1
         
     def _handle_input(self, keys_pressed, game):
+
         cur_time = time()
-        if keys_pressed[pygame.K_1] and game.scale < 4 and cur_time - self.last_press > self.cooldown:
-            game.scale += 1
-            self.last_press = cur_time
-        if keys_pressed[pygame.K_2] and game.scale > 1 and cur_time - self.last_press > self.cooldown:
-            game.scale -= 1
-            self.last_press = cur_time
-
-        if keys_pressed[pygame.K_F5] and cur_time - self.last_press > self.cooldown:
-            with open("savepoint.sav", "wb") as file:
-                pickle.dump(self.game.game_state, file)
-                pickle.dump(self.game.map, file)
-                pickle.dump(self.game.INVENTORY, file)
-                pickle.dump(self.game.PLAYER, file)
-                pickle.dump(self.game.FIGHTSCREEN, file)
-
         if keys_pressed[pygame.K_e] and not self.in_dialogue and cur_time - self.last_press > 0.5:
             for layer in self.layers:
                 for tile in layer:
@@ -217,10 +209,24 @@ class Map:
                             event.check_interact(game, tile)
                             self.last_press = cur_time
 
-        elif keys_pressed[pygame.K_SPACE] and self.in_dialogue and cur_time - self.last_press > 0.5:
+        elif (keys_pressed[pygame.K_SPACE] or keys_pressed[pygame.K_e] or keys_pressed[pygame.K_RETURN]) and self.in_dialogue and cur_time - self.last_press > self.cooldown:
             self.current_dialogue.current_tree.flip_go_to_next()
             self.last_press = cur_time
 
+        if keys_pressed[pygame.K_ESCAPE] and cur_time - self.last_press > self.cooldown and cur_time - self.game.func_key_used > self.cooldown:
+            self.game.STATE_MANAGER.change_state(1)
+            self.last_press = cur_time
+            self.game.func_key_used = cur_time
+
+        if keys_pressed[pygame.K_i] and cur_time - self.last_press > self.cooldown and cur_time - self.game.func_key_used > self.cooldown:
+            self.game.STATE_MANAGER.change_state(2)
+            self.last_press = cur_time
+            self.game.func_key_used = cur_time
+
+        if keys_pressed[pygame.K_f] and cur_time - self.last_press > self.cooldown and cur_time - self.game.func_key_used > self.cooldown:
+            self.game.STATE_MANAGER.change_state(5)
+            self.last_press = cur_time
+            self.game.func_key_used = cur_time
 
 
     def update(self, keys_pressed, game):
@@ -230,9 +236,9 @@ class Map:
 
     
     def draw_map(self):
-        # Ustawienie warsty na pierwszą warstwę
+        # Ustawienie warstwy na pierwszą warstwę
         layer_num = 1
-        # Przygotowanie warstwy
+        # Przygotowanie powierzchni
         self.game.map_surface = pygame.Surface((self.tmx_map_data.width * self.tmx_map_data.tilewidth,
                                                 self.tmx_map_data.height * self.tmx_map_data.tileheight))
         
@@ -320,6 +326,7 @@ class Map:
         return top, bottom, left, right
 
     def check_if_looking_at(self, tile):
+
         top, bottom, left, right = self.get_neighbours(tile)
         if top.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 2:
             return True
@@ -330,6 +337,8 @@ class Map:
         if right.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 3:
             return True
         return False
+
+
 class TestMap(Map):
 
     def __init__(self, game):

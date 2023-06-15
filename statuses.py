@@ -14,8 +14,6 @@ class Status:
     def take_effect(self, host):
         pass
 
-    def remove_effect(self, host):
-        pass
     
     
 class Sleep(Status):

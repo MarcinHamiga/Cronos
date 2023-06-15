@@ -4,7 +4,7 @@ from time import time
 import items
 
 
-class Item_card:
+class ItemCard:
     
     def __init__(self, item, w=240, h=48):
 
@@ -111,7 +111,7 @@ class Inventory:
         py //= 2
         
         for item in self._player.items:
-            self.item_cards.append(Item_card(item, py))
+            self.item_cards.append(ItemCard(item, py))
             py += 48
         
     def draw(self, font, screen):
@@ -187,7 +187,7 @@ class Inventory:
             self.item_cards = []
             
             for item in self._player.items:
-                self.item_cards.append(Item_card(item))
+                self.item_cards.append(ItemCard(item))
     
     def check_for_item(self, name):
         """Sprawdza czy przedmiot już istnieje w ekwipunku"""

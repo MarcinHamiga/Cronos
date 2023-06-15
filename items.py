@@ -22,7 +22,7 @@ class Candy(Item):
             self.amount -= 1
 
     
-class Small_hp_restore(Item):
+class SmallHPRestore(Item):
     
     def __init__(self, icon, amount=1):
         super().__init__("Small HP restore", icon, amount)
@@ -31,8 +31,18 @@ class Small_hp_restore(Item):
         target.heal(50)
         self.amount -= 1
 
-    
-class Small_sp_restore(Item):
+
+class HPRestore(Item):
+
+    def __init__(self, icon, amount=1):
+        super().__init__("HP restore", icon, amount)
+
+    def use(self, target):
+        target.heal(100)
+        self.amount -= 1
+
+
+class SmallSPRestore(Item):
     
     def __init__(self, icon, amount=1):
         super().__init__("Small SP restore", icon, amount)
@@ -42,10 +52,21 @@ class Small_sp_restore(Item):
         self.amount -= 1
 
 
+class SPRestore(Item):
+
+    def __init__(self, icon, amount=1):
+        super().__init__("SP Restore", icon, amount)
+
+    def use(self, target):
+        target.recover_sp(25)
+        self.amount -= 1
+
 class Item_dict:
     def __init__(self, assets):
         self.item_dict = {
             "CANDY": Candy(assets["ITEM_CANDY"]),
-            "SMALL HP RESTORE": Small_hp_restore(assets["ITEM_SMALL_HP_RESTORE"]),
-            "SMALL SP RESTORE": Small_sp_restore(assets["ITEM_SMALL_SP_RESTORE"])
+            "SMALL HP RESTORE": SmallHPRestore(assets["ITEM_SMALL_HP_RESTORE"]),
+            "SMALL SP RESTORE": SmallSPRestore(assets["ITEM_SMALL_SP_RESTORE"]),
+            "HP RESTORE": HPRestore(assets["ITEM_HP_RESTORE"]),
+            "SP RESTORE": SPRestore(assets["ITEM_SP_RESTORE"])
         }

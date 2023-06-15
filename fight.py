@@ -1,8 +1,8 @@
 import pygame
 from time import time
-from inventory import Item_card
+from inventory import ItemCard
 from random import randint
-
+from skills import SkillCard
 
 class FightScreen:
     def __init__(self, game):
@@ -21,6 +21,7 @@ class FightScreen:
 
         self.last_key_press = time()
         self.choosing = False
+        self.choosing_items = False
         self.cooldown = 0.1
 
         self.player_turn = True
@@ -46,37 +47,71 @@ class FightScreen:
                 case 1:
                     self.turn()
                 case 2:
-                    pass
+                    self.choosing = True
+                    self.choosing_items = False
                 case 3:
                     self.choosing = True
+                    self.choosing_items = True
                 case 4:
                     self.try_to_run()
 
             self.last_key_press = cur_time
 
         if self.choosing:
-            if keys[pygame.K_UP] and cur_time - self.last_key_press > self.cooldown:
-                self.content_list.move_up()
-                self.last_key_press = cur_time
+            match self.choosing_items:
+                case True:
+                    self.choosing_items_f(keys, cur_time)
+                case False:
+                    self.choosing_skills(keys, cur_time)
 
-            if keys[pygame.K_DOWN] and cur_time - self.last_key_press > self.cooldown:
-                self.content_list.move_down()
-                self.last_key_press = cur_time
+    def choosing_items_f(self, keys, cur_time):
+        if keys[pygame.K_UP] and  cur_time - self.last_key_press > self.cooldown:
+            self.content_list.move_up()
+            self.last_key_press = cur_time
 
-            if keys[pygame.K_RETURN] and cur_time - self.last_key_press > self.cooldown:
-                self.game.PLAYER.items[self.content_list.current_item].use(self.player_creature)
-                self.game.PLAYER.check_inventory()
+        if keys[pygame.K_DOWN] and cur_time - self.last_key_press > self.cooldown:
+            self.content_list.move_down(self.content_list.item_cards)
+            self.last_key_press = cur_time
+
+        if keys[pygame.K_RETURN] and cur_time - self.last_key_press > self.cooldown:
+            self.game.PLAYER.items[self.content_list.current_item].use(self.player_creature)
+            self.game.PLAYER.check_inventory()
+            self.choosing = False
+            self.content_list.reset_positions()
+            self.switch_turns()
+            self.last_key_press = cur_time
+
+        if keys[pygame.K_c] and cur_time - self.last_key_press > self.cooldown:
+            self.choosing = False
+            self.content_list.reset_positions()
+            self.last_key_press = cur_time
+
+    def choosing_skills(self, keys, cur_time):
+        if keys[pygame.K_UP] and cur_time - self.last_key_press > self.cooldown:
+            self.content_list.move_up()
+            self.last_key_press = cur_time
+
+        if keys[pygame.K_DOWN] and cur_time - self.last_key_press > self.cooldown:
+            self.content_list.move_down(self.content_list.skill_cards)
+            self.last_key_press = cur_time
+
+        if keys[pygame.K_RETURN] and cur_time - self.last_key_press > self.cooldown:
+            if self.player_creature.special_points >= self.player_creature.skills[self.content_list.current_item].sp_cost:
+                action, reaction = self.player_creature.use_skill(self.content_list.current_item, self.enemy_creature)
+                self.action_log.get_action(action, reaction, self.player_creature)
                 self.choosing = False
-                self.content_list.current_item = 0
-                self.content_list.offset = 0
+                self.content_list.reset_positions()
                 self.switch_turns()
                 self.last_key_press = cur_time
-
-            if keys[pygame.K_c] and cur_time - self.last_key_press > self.cooldown:
+            else:
                 self.choosing = False
-                self.content_list.current_item = 0
-                self.content_list.offset = 0
+                self.content_list.reset_positions()
                 self.last_key_press = cur_time
+
+        if keys[pygame.K_c] and cur_time - self.last_key_press > self.cooldown:
+            self.choosing = False
+            self.content_list.reset_positions()
+            self.last_key_press = cur_time
 
     def try_to_run(self):
         roll = randint(0, 100)
@@ -107,11 +142,13 @@ class FightScreen:
         if self.current_command == 1:
             if self.player_turn:
                 self.player_attack()
+                self.player_creature.process_statuses()
                 self.switch_turns()
                 self.time_of_player_turn = time()
 
         if not self.player_turn and cur_time - self.time_of_player_turn > 1.5:
             self.enemy_attack()
+            self.enemy_creature.process_statuses()
             self.switch_turns()
 
         if self.player_creature.check_if_down() or self.enemy_creature.check_if_down():
@@ -119,6 +156,7 @@ class FightScreen:
             self.enemy_creature = None
             self.enemy_creature_stats.creature = self.enemy_creature
             self.action_log.clear_log()
+            self.player_creature.clear_statuses()
 
     def player_attack(self):
         reaction = self.player_creature.attack_target(self.enemy_creature)
@@ -156,7 +194,7 @@ class FightScreen:
             self.game.SCREEN.blit(surface, surface_rect)
 
         if self.choosing:
-            self.content_list.draw(self.game.SCREEN)
+            self.content_list.draw(self.game.SCREEN, self.choosing_items)
 
 
 class PlayerCreatureStats:
@@ -328,17 +366,29 @@ class ContentList:
         self.fightscreen = fightscreen
         self.items = game.PLAYER.items
         self.item_cards = []
+        self.skills = fightscreen.player_creature.skills
+        self.skill_cards = []
+        print(self.skills)
+        print(self.skill_cards)
         for item in self.items:
-            self.item_cards.append(Item_card(item))
-        # self.skills = game.PLAYER.creatures[game.PLAYER.designated_creature].moves
+            self.item_cards.append(ItemCard(item))
+        for skill in self.skills:
+            self.skill_cards.append(SkillCard(skill, self.fightscreen.player_creature))
         self.offset = 0
         self.current_item = 0
 
-    def draw(self, screen):
+    def draw(self, screen, choosing_items):
+        match choosing_items:
+            case True:
+                self.draw_items(screen)
+            case False:
+                self.draw_skills(screen)
+
+    def draw_items(self, screen):
         if len(self.items) != len(self.item_cards):
             self.item_cards = []
             for item in self.items:
-                self.item_cards.append(Item_card(item))
+                self.item_cards.append(ItemCard(item))
 
         try:
             for x in range(3):
@@ -346,6 +396,21 @@ class ContentList:
                     card_surface = self.item_cards[x + self.offset * 3].draw_card(self.game.FONT, True)
                 else:
                     card_surface = self.item_cards[x + self.offset * 3].draw_card(self.game.FONT, False)
+
+                card_surface_rect = card_surface.get_rect()
+                card_surface_rect.center = card_surface_rect.w // 2, self.game.SCR_HEIGHT - card_surface_rect.h * (3 - x) - 240
+
+                screen.blit(card_surface, card_surface_rect)
+        except IndexError:
+            pass
+
+    def draw_skills(self, screen):
+        try:
+            for x in range(3):
+                if self.current_item % 3 == x:
+                    card_surface = self.skill_cards[x + self.offset * 3].draw_card(self.game.FONT, True)
+                else:
+                    card_surface = self.skill_cards[x + self.offset * 3].draw_card(self.game.FONT, False)
 
                 card_surface_rect = card_surface.get_rect()
                 card_surface_rect.center = card_surface_rect.w // 2, self.game.SCR_HEIGHT - card_surface_rect.h * (3 - x) - 200
@@ -360,8 +425,8 @@ class ContentList:
     def _scroll_up(self):
         self.offset -= 1
 
-    def move_down(self):
-        if self.current_item < len(self.items) - 1:
+    def move_down(self, list_):
+        if self.current_item < len(list_) - 1:
             self.current_item += 1
             if self.current_item % 3 == 0:
                 self._scroll_down()
@@ -372,3 +437,7 @@ class ContentList:
             if self.current_item % 3 == 2:
                 self._scroll_up()
 
+
+    def reset_positions(self):
+        self.offset = 0
+        self.current_item = 0
