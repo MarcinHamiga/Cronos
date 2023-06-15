@@ -183,9 +183,12 @@ class Player(Person):
             self.designated_creature = self.creatures[0]
 
     def check_inventory(self):
+        popped = False
         for idx, item in enumerate(self.items):
             if item.amount <= 0:
                 self.items.pop(idx)
+                popped = True
+        return popped
 
 
 class NPC:

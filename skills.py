@@ -49,7 +49,6 @@ class SkillCard:
 
     def __init__(self, skill, creature):
 
-        print(skill)
         self.icon = skill.get_icon()
         self.icon_rect = self.icon.get_rect()
         self.icon_rect.center = 24, 36

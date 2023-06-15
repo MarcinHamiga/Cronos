@@ -42,7 +42,6 @@ class Teleport(Event):
     def teleport(self, game):
         """Teleportuje gracza na wybrane koordynaty na wybranej mapie"""
         game.PLAYER.set_pos(self.map_coords)
-        print(f"Teleported player to {self.map_coords}")
         if self.dest_map is not None:
             game.map = self.dest_map
 
@@ -106,8 +105,6 @@ class Dialogue(Event):
             game.map.in_dialogue = False
             self.current_tree = None
             self.radiant_selected = False
-
-        print(game.map.in_dialogue)
 
     def create_name_tag(self, game):
         name_tag = pygame.Surface((game.map.dialogue_card_rect.w // 6, game.map.dialogue_card_rect.h // 3))
@@ -205,7 +202,6 @@ class Map:
                 for tile in layer:
                     if len(tile.events) != 0:
                         for event in tile.events:
-                            print(tile.x, tile.y, tile.events)
                             event.check_interact(game, tile)
                             self.last_press = cur_time
 
@@ -344,7 +340,6 @@ class TestMap(Map):
     def __init__(self, game):
         super().__init__(game)
         self.load_map("testmap")
-        print(self.layers)
 
     def bake_events(self):
         tile = self.get_tile(0, 0, 19)

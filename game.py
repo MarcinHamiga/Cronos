@@ -49,7 +49,6 @@ class Game:
         for asset in self.PATH_TO_ASSETS.iterdir():
             if asset.is_file():
                 filename = asset.name[:-4]
-                print(filename)
                 self.ASSETS[filename.upper()] = pygame.image.load(asset).convert_alpha()
 
         self.SKILLS_DICT = skills.SkillDict(self.ASSETS)
@@ -60,10 +59,11 @@ class Game:
         self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"]])
         self.PLAYER.read_scale(self.scale)
         self.PLAYER.add_creature(self.spawn_flametorch(2))
-        print(self.PLAYER.creatures)
+        self.PLAYER.add_creature(self.spawn_flametorch(5))
+        self.PLAYER.add_creature(self.spawn_flametorch(1))
         self.PLAYER.set_designated_creature(0)
         
-        self.INVENTORY = inventory.Inventory(self.PLAYER, self.ASSETS)
+        self.INVENTORY = inventory.Inventory(self)
         
         self.INVENTORY.add_item("Candy")
         self.INVENTORY.add_item("Small HP Restore")
@@ -147,11 +147,12 @@ class Game:
                 self.FUNC_KEY_COOLDOWN:
             self.STATE_MANAGER.change_state(3)
             self.func_key_used = self.current_time
+
         self.INVENTORY.update(keys)
         
         # Draw    
         self.SCREEN.fill((0, 0, 0))
-        self.INVENTORY.draw(self.FONT, self.SCREEN)
+        self.INVENTORY.draw()
 
     def fight_state(self):
 

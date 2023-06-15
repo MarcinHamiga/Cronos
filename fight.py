@@ -123,6 +123,9 @@ class FightScreen:
             return
 
     def update(self, keys):
+        if self.player_creature != self.game.PLAYER.creatures[self.game.PLAYER.designated_creature]:
+            self.player_creature = self.game.PLAYER.creatures[self.game.PLAYER.designated_creature]
+            self.player_creature_stats.creature = self.player_creature
         if self.player_creature.check_if_down():
             self.game.STATE_MANAGER.change_state(3)
             return
@@ -368,8 +371,6 @@ class ContentList:
         self.item_cards = []
         self.skills = fightscreen.player_creature.skills
         self.skill_cards = []
-        print(self.skills)
-        print(self.skill_cards)
         for item in self.items:
             self.item_cards.append(ItemCard(item))
         for skill in self.skills:
@@ -436,7 +437,6 @@ class ContentList:
             self.current_item -= 1
             if self.current_item % 3 == 2:
                 self._scroll_up()
-
 
     def reset_positions(self):
         self.offset = 0
