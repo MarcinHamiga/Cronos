@@ -4,7 +4,7 @@ from time import time
 import items
 
 
-# Ten obiekt typu ItemCard jest statycznyuch rozmiarów. Istnieje z powodu kodu, który potrzebuje tego typu klasy
+# Ten obiekt typu ItemCard jest statycznych rozmiarów. Istnieje z powodu kodu, który potrzebuje tego typu klasy
 class ItemCard:
     
     def __init__(self, item, w=240, h=48):
@@ -63,17 +63,18 @@ class DynamicItemCard:
         self.surface_rect = self.surface.get_rect()
 
         self.item = item
+        self.font = font
+        self.font_size = scr_height // 24
 
         self.icon = self.item.icon
         self.icon = pygame.transform.scale(self.icon, ((scr_height // 6), (scr_height // 6)))
         self.icon_rect = self.icon.get_rect()
         self.icon_rect.center = self.icon_rect.w // 2, self.icon_rect.h // 2
 
-        self.name, self.name_rect = font.render(f"{self.item.name}", size=scr_height//24, fgcolor=(0, 0, 0))
+        self.name, self.name_rect = self.font.render(f"{self.item.name}", size=self.font_size, fgcolor=(0, 0, 0))
         self.name_rect.center = (self.surface_rect.w + self.icon_rect.w) // 2, self.surface_rect.h // 4
 
-        self.amount, self.amount_rect = font.render(f"Amount: {self.item.amount}", size=scr_height//24, fgcolor=(0, 0, 0))
-        self.amount_rect.center = (self.surface_rect.w + self.icon_rect.w) // 2, self.surface_rect.h // 4 + self.surface_rect.h // 2
+
 
     def draw_card(self, is_current: bool):
         if is_current:
@@ -81,9 +82,12 @@ class DynamicItemCard:
         else:
             self.surface.fill((128, 0, 35))
 
+        amount, amount_rect = self.font.render(f"Amount: {self.item.amount}", size=self.font_size, fgcolor=(0, 0, 0))
+        amount_rect.center = (self.surface_rect.w + self.icon_rect.w) // 2, self.surface_rect.h // 4 + self.surface_rect.h // 2
+
         self.surface.blit(self.icon, self.icon_rect)
         self.surface.blit(self.name, self.name_rect)
-        self.surface.blit(self.amount, self.amount_rect)
+        self.surface.blit(amount, amount_rect)
 
         return self.surface
 
@@ -96,6 +100,8 @@ class DynamicCreatureCard:
         self.surface_rect = self.surface.get_rect()
 
         self.creature = creature
+        self.font = font
+        self.font_size = 32
 
         self.image = self.creature.image
         self.image = pygame.transform.scale(self.image, ((scr_height // 6), (scr_height // 6)))
@@ -105,18 +111,18 @@ class DynamicCreatureCard:
         self.name, self.name_rect = font.render(f"Name: {self.creature.name}", size=32, fgcolor=(0, 0, 0))
         self.name_rect.center = self.surface_rect.w // 2 + self.image_rect.w, self.surface_rect.h // 4
 
-        self.amount, self.amount_rect = font.render(f"Lvl: {self.creature.level}, HP:{self.creature.health}/{self.creature.max_health}", size=32, fgcolor=(0, 0, 0))
-        self.amount_rect.center = self.surface_rect.w // 2 + self.image_rect.w, self.surface_rect.h // 4 + self.surface_rect.h // 2
-
     def draw_card(self, is_current):
         if is_current:
             self.surface.fill((255, 255, 255))
         else:
             self.surface.fill((128, 0, 35))
 
+        amount, amount_rect = self.font.render(f"Lvl: {self.creature.level}, HP:{self.creature.health}/{self.creature.max_health}", size=32, fgcolor=(0, 0, 0))
+        amount_rect.center = self.surface_rect.w // 2 + self.image_rect.w, self.surface_rect.h // 4 + self.surface_rect.h // 2
+
         self.surface.blit(self.image, self.image_rect)
         self.surface.blit(self.name, self.name_rect)
-        self.surface.blit(self.amount, self.amount_rect)
+        self.surface.blit(amount, amount_rect)
 
         return self.surface
 
@@ -285,11 +291,14 @@ class Inventory:
         # zwyczajnie zwiększamy ilość istniejącego już przedmiotu o zadaną wartość amount
         if exists:
             item.amount += amount
+            amount = 0
+            return
         # W przeciwnym wypadku, dodajemy nowy obiekt typu Item do listy z ustawioną wartością
         # zmiennej amount na wskazaną przez nas ilość
         else:
-            self.player.items.append(self.item_dict.item_dict[name.upper()])
-
+            item = self.item_dict.item_dict[name.upper()]
+            item.amount = 5
+            self.player.items.append(item)
             # Aby uniknąć problemów, lista kart przedmiotów jest zerowana i zapełniana na nowo, kiedy
             # w ekwipunku pojawia się całkiem nowy przedmiot
             self.item_cards = []
@@ -336,10 +345,11 @@ class Inventory:
         if keys[pygame.K_RIGHT]:
             self.choosing_item = False
 
-        if keys[pygame.K_RETURN]:
+        if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and cur_time - self.last_click > self.click_cooldown:
             current_item_idx = self.current_item + self.offset * self.current_item
             current_creature_idx = self.current_creature + self.creature_offset * self.current_creature
             self.player.items[current_item_idx].use(self.player.creatures[current_creature_idx])
+            self.last_click = cur_time
             if self.player.check_inventory():
                 self.current_item = 0
                 self.offset = 0
@@ -365,6 +375,7 @@ class Inventory:
 
         if keys[pygame.K_d]:
             self.player.set_designated_creature(self.current_creature + self.creature_offset * self.current_creature)
+
     def update(self, keys):
 
         cur_time = time()

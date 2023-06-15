@@ -28,8 +28,9 @@ class SmallHPRestore(Item):
         super().__init__("Small HP restore", icon, amount)
 
     def use(self, target):
-        target.heal(50)
-        self.amount -= 1
+        if not target.check_if_down() and target.health != target.max_health:
+            target.heal(50)
+            self.amount -= 1
 
 
 class HPRestore(Item):
@@ -38,8 +39,9 @@ class HPRestore(Item):
         super().__init__("HP restore", icon, amount)
 
     def use(self, target):
-        target.heal(100)
-        self.amount -= 1
+        if not target.check_if_down() and target.health != target.max_health:
+            target.heal(100)
+            self.amount -= 1
 
 
 class SmallSPRestore(Item):
@@ -48,8 +50,9 @@ class SmallSPRestore(Item):
         super().__init__("Small SP restore", icon, amount)
         
     def use(self, target):
-        target.recover_sp(10)
-        self.amount -= 1
+        if not target.check_if_down() and target.special_points != target.max_special_points:
+            target.recover_sp(10)
+            self.amount -= 1
 
 
 class SPRestore(Item):
@@ -58,8 +61,9 @@ class SPRestore(Item):
         super().__init__("SP Restore", icon, amount)
 
     def use(self, target):
-        target.recover_sp(25)
-        self.amount -= 1
+        if not target.check_if_down() and target.special_points != target.max_special_points:
+            target.recover_sp(25)
+            self.amount -= 1
 
 class Item_dict:
     def __init__(self, assets):

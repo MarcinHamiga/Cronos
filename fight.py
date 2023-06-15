@@ -27,9 +27,16 @@ class FightScreen:
         self.player_turn = True
         self.time_of_player_turn = 0
 
+    def set_enemy_image(self):
+        self.enemy_creature_image = self.enemy_creature.image
+        self.enemy_creature_image = pygame.transform.scale(self.enemy_creature_image, (256, 256))
+        self.enemy_creature_rect = self.enemy_creature_image.get_rect()
+        self.enemy_creature_rect.center = self.game.SCR_WIDTH // 2, self.game.SCR_HEIGHT // 2 - 100
+
     def set_enemy(self, enemy):
         self.enemy_creature = enemy
         self.enemy_creature_stats.creature = self.enemy_creature
+        self.set_enemy_image()
 
     def _handle_input(self, keys):
         cur_time = time()
@@ -126,10 +133,13 @@ class FightScreen:
         if self.player_creature != self.game.PLAYER.creatures[self.game.PLAYER.designated_creature]:
             self.player_creature = self.game.PLAYER.creatures[self.game.PLAYER.designated_creature]
             self.player_creature_stats.creature = self.player_creature
+
         if self.player_creature.check_if_down():
             self.game.STATE_MANAGER.change_state(3)
             return
+
         self._handle_input(keys)
+
         if not self.player_turn and self.enemy_creature is not None:
             self.turn()
 
@@ -156,6 +166,9 @@ class FightScreen:
 
         if self.player_creature.check_if_down() or self.enemy_creature.check_if_down():
             self.game.STATE_MANAGER.change_state(3)
+            if self.enemy_creature.check_if_down():
+                self.player_creature.xp += 3 * self.enemy_creature.level
+                self.player_creature.check_for_level_up()
             self.enemy_creature = None
             self.enemy_creature_stats.creature = self.enemy_creature
             self.action_log.clear_log()
@@ -171,7 +184,7 @@ class FightScreen:
 
     def draw(self):
 
-        self.game.SCREEN.fill((0, 0, 0))
+        self.game.SCREEN.fill((200, 200, 200))
         self.player_creature_stats.draw()
         self.enemy_creature_stats.draw()
         self.player_action_menu.draw()
@@ -198,6 +211,8 @@ class FightScreen:
 
         if self.choosing:
             self.content_list.draw(self.game.SCREEN, self.choosing_items)
+
+        self.game.SCREEN.blit(self.enemy_creature_image, self.enemy_creature_rect)
 
 
 class PlayerCreatureStats:
