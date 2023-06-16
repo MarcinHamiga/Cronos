@@ -276,3 +276,68 @@ class Healer(NPC):
 
     def __init__(self, body_textures: list, accessories=[]):
         super().__init__(body_textures, accessories)
+
+        greeting_4 = dialogue.DialogueLine("Bye now!", None)
+        greeting_3 = dialogue.DialogueLine("Just come talk to me and we will figure it out!", greeting_4)
+        greeting_2 = dialogue.DialogueLine("I can cure your Creatures anytime you need!", greeting_3)
+        greeting_1 = dialogue.DialogueLine("Hi! My name is Lily.", greeting_2)
+
+        greeting_tree = dialogue.DialogueTree("GREETING", greeting_1)
+
+        healing_2 = dialogue.DialogueLine("That'll be all. Your Creatures are happy and healthy.", None)
+        healing_1 = dialogue.DialogueLine("Right, I'm on it! Don't worry!", healing_2)
+
+        healing_tree = dialogue.RadiantTree("HEALING", [healing_1])
+
+        self.player_greet = False
+        self.DIALOGUE_DICT = {
+            "GREETING": greeting_tree,
+            "HEALING": healing_tree
+        }
+
+    def get_dialogue(self):
+        if not self.player_greet:
+            self.player_greet = True
+            return self.DIALOGUE_DICT["GREETING"]
+        return self.DIALOGUE_DICT["HEALING"]
+
+    def is_available(self):
+        if not self.player_greet:
+            return self.DIALOGUE_DICT["GREETING"]
+        else:
+            return self.DIALOGUE_DICT["HEALING"]
+
+
+class Trader(NPC):
+
+    def __init__(self, body_textures: list, accessories=[]):
+        super().__init__(body_textures, accessories)
+
+        greeting_4 = dialogue.DialogueLine("Anyway, I hope you have a great day. Visit anytime you need to buy something!", None)
+        greeting_3 = dialogue.DialogueLine("Did you meet Brigitte? I hope she doesn't come off as a little... harsh.", greeting_4)
+        greeting_2 = dialogue.DialogueLine("I came here with my daughter Brigitte two years back, so we are both new, just like you.", greeting_3)
+        greeting_1 = dialogue.DialogueLine("Oh, hi there! I'm Mark. I run this little store.", greeting_2)
+
+        greeting_tree = dialogue.DialogueTree("Greeting", greeting_1)
+
+        trade_1 = dialogue.DialogueLine("I've got everything you need.", None)
+
+        trade_tree = dialogue.RadiantTree("Trade", [trade_1])
+
+        self.player_greet = True
+        self.DIALOGUE_DICT = {
+            "GREETING": greeting_tree,
+            "TRADE": trade_tree
+        }
+
+    def get_dialogue(self):
+        if not self.player_greet:
+            self.player_greet = True
+            return self.DIALOGUE_DICT["GREETING"]
+        return self.DIALOGUE_DICT["TRADE"]
+
+    def is_available(self):
+        if not self.player_greet:
+            return self.DIALOGUE_DICT["GREETING"]
+        else:
+            return self.DIALOGUE_DICT["TRADE"]

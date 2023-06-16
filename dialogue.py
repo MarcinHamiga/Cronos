@@ -1,6 +1,7 @@
 import pygame
 from random import choice
 
+
 class DialogueLine:
     def __init__(self, content: str, next_):
         self.content = content

@@ -4,7 +4,7 @@ import skills
 
 
 class Creature:
-    def __init__(self, level, health, special_points, attack, defense, hidden_skills, name):
+    def __init__(self, level, health, special_points, attack, defense, hidden_skills, name, element):
         self.image = None
         self.rect = None
         self.name = name
@@ -22,6 +22,7 @@ class Creature:
         self._statuses = []   # Lista zawierająca wszystkie nałożone na stworka statusy
         self.skills = []    # Lista ruchów dostępnych dla stworka
         self._hidden_skills = hidden_skills
+        self.element = element
 
     def apply_status(self, applied_status):
 
@@ -62,7 +63,7 @@ class Creature:
         self.skills.append(skill)
 
     def add_hidden_skill(self, skill):
-        if skill.required_level <= self.level:
+        if skill.get_req_level() <= self.level:
             self.skills.append(skill)
         else:
             self._hidden_skills.append(skill)
@@ -92,22 +93,26 @@ class Creature:
         self.check_if_down()
         return amount
         
+    def heal(self, amount):
+        self.set_health(self.health + amount)
+    
+    def recover_sp(self, amount):
+        self.set_sp(self.special_points + amount)
+
+    def revitalize(self):
+        self.revive(self.max_health)
+        self.recover_sp(self.max_special_points)
+    
     def set_image(self, image):
         self.image = image
         self._set_rectangle()
-    
+        
     def _set_rectangle(self):
         self._rect = self.image.get_rect()
         self._rect.center = 24, 24
-    
+
     def set_max_health(self, amount: int):
         self.max_health = amount
-        
-    def set_health(self, amount):
-        if amount > self.max_health:
-            self.health = self.max_health
-        else:
-            self.health = amount
 
     def set_sp(self, amount):
         if amount > self.max_special_points:
@@ -115,11 +120,11 @@ class Creature:
         else:
             self.special_points = amount
 
-    def heal(self, amount):
-        self.set_health(self.health + amount)
-
-    def recover_sp(self, amount):
-        self.set_sp(self.special_points + amount)
+    def set_health(self, amount):
+        if amount > self.max_health:
+            self.health = self.max_health
+        else:
+            self.health = amount
 
     def get_health(self):
         return self.health
@@ -139,8 +144,8 @@ class Creature:
 
 class Flametorch(Creature):
 
-    def __init__(self, level, health, action_points, attack, defense, hidden_skills, name, image):
-        super().__init__(level, health, action_points, attack, defense, hidden_skills, name)
+    def __init__(self, level, image, name=""):
+        super().__init__(level, 100, 35, 24, 10, [], name, "Fire")
         self.skills = []
         self.set_image(image)
         self.required_xp = 50 + (self.level - 1) * 50
@@ -155,9 +160,10 @@ class Flametorch(Creature):
         self.health = self.max_health
         self.max_special_points += 5
         self.special_points = self.max_special_points
-        for move, idx in enumerate(self._hidden_skills):
-            if move.required_level <= self.level:
-                self.skills.append(self._hidden_skills.pop(idx))
+        for idx, move in enumerate(self._hidden_skills):
+            if self.level >= move.required_level:
+                self.skills.append(move)
+                self._hidden_skills.pop(idx)
 
     def check_for_level_up(self):
         if self.xp >= self.required_xp:
@@ -169,8 +175,8 @@ class Flametorch(Creature):
 
 class Leafwing(Creature):
     
-    def __init__(self, level, health, action_points, attack, defense, hidden_skills, name, image):
-        super().__init__(level, health, action_points, attack, defense, hidden_skills, name)
+    def __init__(self, level, image, name):
+        super().__init__(level, 110, 35, 23, 14, [], name, "Nature")
         self.skills = []
         self.set_image(image)
         self.required_xp = 50 + (self.level - 1) * 35

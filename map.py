@@ -125,13 +125,23 @@ class Fight(Event):
 
 
 # TODO
-class Shop(Event):
-    pass
+class Shop(Dialogue):
+    def __init__(self, coords: tuple, img=None, npc=None):
+        super().__init__(coords, img, npc)
 
+    def dialogue(self, game):
+        super().dialogue(game)
+        if not game.map.in_dialogue:
+            game.STATE_MANAGER.change_state(6)
 
 class Cure(Dialogue):
     def __init__(self, coords: tuple, img=None, npc=None):
         super().__init__(coords, img, npc)
+
+    def dialogue(self, game):
+        super().dialogue(game)
+        for creature in game.PLAYER.creatures:
+            creature.revitalize()
 
 
 class Tile:

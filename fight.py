@@ -81,7 +81,13 @@ class FightScreen:
             self.last_key_press = cur_time
 
         if keys[pygame.K_RETURN] and cur_time - self.last_key_press > self.cooldown:
-            self.game.PLAYER.items[self.content_list.current_item].use(self.player_creature)
+            item_used = self.game.PLAYER.items[self.content_list.current_item]
+            if item_used.__class__.__name__ == "Catcher":
+                if item_used.use(self.enemy_creature):
+                    self.enemy_creature.take_damage(999999)
+                    self.game.PLAYER.creatures.append(self.enemy_creature)
+            else:
+                item_used.use(self.player_creature)
             self.game.PLAYER.check_inventory()
             self.choosing = False
             self.content_list.reset_positions()
@@ -389,7 +395,7 @@ class ContentList:
         for item in self.items:
             self.item_cards.append(ItemCard(item))
         for skill in self.skills:
-            self.skill_cards.append(SkillCard(skill, self.fightscreen.player_creature))
+            self.skill_cards.append(SkillCard(skill, self.fightscreen))
         self.offset = 0
         self.current_item = 0
 
@@ -401,6 +407,7 @@ class ContentList:
                 self.draw_skills(screen)
 
     def draw_items(self, screen):
+
         if len(self.items) != len(self.item_cards):
             self.item_cards = []
             for item in self.items:

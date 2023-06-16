@@ -237,7 +237,7 @@ class Inventory:
                 self.creature_cards.append(DynamicCreatureCard(creature, self.game.SCR_WIDTH, self.game.SCR_HEIGHT, self.game.FONT))
 
     def draw_status(self):
-        self.creature_status.set_creature(self.player.creatures[self.current_creature + self.creature_offset * self.current_creature], self.game.SCR_HEIGHT)
+        self.creature_status.set_creature(self.player.creatures[self.current_creature], self.game.SCR_HEIGHT)
         surface = self.creature_status.draw_card(self.game.FONT)
         surface_rect = surface.get_rect()
         surface_rect.center = self.game.SCR_WIDTH // 2 + self.game.SCR_WIDTH // 4, self.game.SCR_HEIGHT // 4
@@ -246,10 +246,10 @@ class Inventory:
     def draw_items(self):
         try:
             for x in range(6):
-                if self.current_item == x:
-                    card_surface = self.item_cards[x + self.offset].draw_card(True)
+                if self.current_item % 6 == x:
+                    card_surface = self.item_cards[x + self.offset * x].draw_card(True)
                 else:
-                    card_surface = self.item_cards[x + self.offset].draw_card(False)
+                    card_surface = self.item_cards[x + self.offset * x].draw_card(False)
 
                 print(card_surface.get_width(), card_surface.get_height())
                 card_surface_rect = card_surface.get_rect()
@@ -262,10 +262,10 @@ class Inventory:
     def draw_creatures(self):
         try:
             for x in range(3):
-                if self.current_creature == x:
-                    card_surface = self.creature_cards[x + self.creature_offset].draw_card(True)
+                if self.current_creature % 3 == x:
+                    card_surface = self.creature_cards[x + self.creature_offset * 3].draw_card(True)
                 else:
-                    card_surface = self.creature_cards[x + self.creature_offset].draw_card(False)
+                    card_surface = self.creature_cards[x + self.creature_offset * 3].draw_card(False)
 
                 print(card_surface.get_width(), card_surface.get_height())
                 card_surface_rect = card_surface.get_rect()
@@ -366,7 +366,7 @@ class Inventory:
                 self.player.creatures) - 1:
             self.current_creature += 1
             self.last_click = cur_time
-            if self.current_creature % 6 == 0:
+            if self.current_creature % 3 == 0:
                 self.creature_offset += 1
 
         if keys[pygame.K_LEFT]:
@@ -374,7 +374,7 @@ class Inventory:
             self.last_click = cur_time
 
         if keys[pygame.K_d]:
-            self.player.set_designated_creature(self.current_creature + self.creature_offset * self.current_creature)
+            self.player.set_designated_creature(self.current_creature)
 
     def update(self, keys):
 

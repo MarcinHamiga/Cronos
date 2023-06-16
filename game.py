@@ -57,12 +57,15 @@ class Game:
 
         self.BRIGITTE = person.Brigitte(self.ASSETS["CHAR_BLUE_EYES_PERSON"])
         self.THOMAS = person.Thomas(self.ASSETS["CHAR_BLUE_EYES_PERSON"])
+        self.HEALER = person.Healer(self.ASSETS["CHAR_BLUE_EYES_PERSON"])
+        self.TRADER = person.Trader(self.ASSETS["CHAR_BLUE_EYES_PERSON"])
 
         self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"]])
         self.PLAYER.read_scale(self.scale)
         self.PLAYER.add_creature(self.spawn_flametorch(2))
         self.PLAYER.add_creature(self.spawn_flametorch(5))
         self.PLAYER.add_creature(self.spawn_leafwing(5))
+        self.PLAYER.add_creature(self.spawn_flametorch(10))
         self.PLAYER.set_designated_creature(0)
         
         self.INVENTORY = inventory.Inventory(self)
@@ -72,9 +75,11 @@ class Game:
         self.INVENTORY.add_item("Small SP Restore", 5)
         self.INVENTORY.add_item("HP restore", 5)
         self.INVENTORY.add_item("SP restore", 5)
+        self.INVENTORY.add_item("Catcher", 5)
 
-        self.TEST_ENEMY = creature.Flametorch(1, 100, 40, 24, 12, [], None, self.ASSETS["ITEM_SP_RESTORE"])
+        self.TEST_ENEMY = self.spawn_leafwing(2)
         self.FIGHTSCREEN = fight.FightScreen(self)
+        self.FIGHTSCREEN.set_enemy(self.TEST_ENEMY)
 
         count = 0
 
@@ -197,19 +202,21 @@ class Game:
         pygame.display.flip()
         self.CLOCK.tick(fps)
 
-
     # Funkcje do zarządzania contentem
-    def spawn_flametorch(self, level=1, name=None):
-        creature_ = creature.Flametorch(1, 100, 40, 24, 10, [], name, self.ASSETS["CRT_FLAMETORCH"])
+
+    def spawn_flametorch(self, level=1, name=""):
+        creature_ = creature.Flametorch(1, self.ASSETS["CRT_FLAMETORCH"], name)
         creature_.add_skill(self.SKILLS_DICT.get_skill("FIREBREATH"))
+        creature_.add_hidden_skill(self.SKILLS_DICT.get_skill("FIREWHIP"))
         if level > 1:
             for x in range(level - 1):
                 creature_.level_up()
         return creature_
 
-    def spawn_leafwing(self, level=1, name=None):
-        creature_ = creature.Leafwing(1, 110, 35, 23, 14, [], name, self.ASSETS["CRT_LEAFWING"])
-        creature_.add_skill(self.SKILLS_DICT.get_skill("FIREBREATH"))
+    def spawn_leafwing(self, level=1, name=""):
+        creature_ = creature.Leafwing(1, self.ASSETS["CRT_LEAFWING"], name)
+        creature_.add_skill(self.SKILLS_DICT.get_skill("WHIRLWIND"))
+
         if level > 1:
             for x in range(level - 1):
                 creature_.level_up()

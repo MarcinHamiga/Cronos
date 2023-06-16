@@ -1,3 +1,5 @@
+import random
+
 class Item:
     
     def __init__(self, name, icon, amount=1):
@@ -65,6 +67,23 @@ class SPRestore(Item):
             target.recover_sp(25)
             self.amount -= 1
 
+
+class Catcher(Item):
+
+    def __init__(self, icon, amount=1):
+        super().__init__("Catcher", icon, amount)
+
+    def use(self, target):
+        self.amount -= 1
+        if int(target.health / target.max_health * 100) < 40:
+            roll = random.randint(0, 100)
+            if roll < 60:
+                return True
+            else:
+                return False
+        return False
+
+
 class Item_dict:
     def __init__(self, assets):
         self.item_dict = {
@@ -72,5 +91,6 @@ class Item_dict:
             "SMALL HP RESTORE": SmallHPRestore(assets["ITEM_SMALL_HP_RESTORE"]),
             "SMALL SP RESTORE": SmallSPRestore(assets["ITEM_SMALL_SP_RESTORE"]),
             "HP RESTORE": HPRestore(assets["ITEM_HP_RESTORE"]),
-            "SP RESTORE": SPRestore(assets["ITEM_SP_RESTORE"])
+            "SP RESTORE": SPRestore(assets["ITEM_SP_RESTORE"]),
+            "CATCHER": Catcher(assets["ITEM_CANDY"])
         }
