@@ -41,9 +41,6 @@ class Game:
 
         self.scale = 1
 
-        self.map_surface = pygame.Surface((1, 1))
-        self.map = map.TestMap(self)
-
         self.FONT = pygame.freetype.Font(Path.cwd() / Path("fonts") / Path ("VCR_OSD_MONO_1.001.ttf"), 16)
         self.ASSETS = {}
         self.PATH_TO_ASSETS = Path(Path.cwd()) / Path("assets")
@@ -80,6 +77,9 @@ class Game:
         self.TEST_ENEMY = self.spawn_leafwing(2)
         self.FIGHTSCREEN = fight.FightScreen(self)
         self.FIGHTSCREEN.set_enemy(self.TEST_ENEMY)
+
+        self.map_surface = pygame.Surface((1, 1))
+        self.map = map.TestMap(self)
 
         count = 0
 
@@ -165,10 +165,10 @@ class Game:
         self.current_time = time()
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_f] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
-            self.game_state = self.STATE_MANAGER.change_state(3)
-            self.func_key_used = self.current_time
-            self.FIGHTSCREEN.action_log.clear_log()
+        # if keys[pygame.K_f] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
+        #     self.game_state = self.STATE_MANAGER.change_state(3)
+        #     self.func_key_used = self.current_time
+        #     self.FIGHTSCREEN.action_log.clear_log()
 
         # Input
         self.FIGHTSCREEN.update(keys)

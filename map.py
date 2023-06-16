@@ -2,7 +2,7 @@ import pygame
 import pytmx
 from pathlib import Path
 from time import time
-import pickle
+from random import randint, choice
 
 
 class Event:
@@ -119,12 +119,28 @@ class Dialogue(Event):
         return content_tag, content_tag_rect
 
 
-# TODO
-class Fight(Event):
-    pass
+class DangerZone(Event):
+
+    def __init__(self, coords, enemies: list, game, max_level: int, img=None):
+        super().__init__(coords, img)
+        self.enemies = enemies
+        self.game = game
+        self.max_level = max_level
+
+    def start_a_fight(self):
+        enemy = choice(self.enemies)
+        level = randint(1, self.max_level)
+        for x in range(level - 1):
+            enemy.level_up()
+        self.game.STATE_MANAGER.change_state("FIGHT")
+        self.game.FIGHTSCREEN.set_enemy(enemy)
+
+    def check_stepped_on(self, game):
+        roll = randint(1, 1000)
+        if self.rect.colliderect(game.PLAYER.get_rectangle()) and roll < 5:
+            self.start_a_fight()
 
 
-# TODO
 class Shop(Dialogue):
     def __init__(self, coords: tuple, img=None, npc=None):
         super().__init__(coords, img, npc)
@@ -143,10 +159,11 @@ class Cure(Dialogue):
         super().dialogue(game)
         for creature in game.PLAYER.creatures:
             creature.revitalize()
+            print(creature)
 
 
 class Tile:
-    def __init__(self, image, rect, impassable, size, x, y, layer):
+    def __init__(self, image, rect, impassable, danger_zone, size, x, y, layer):
         self.image = image
         self.rect = rect
         self.size = size
@@ -155,6 +172,7 @@ class Tile:
         self.layer = layer
         self.rect.center = x * self.size[0] + 24, y * self.size[1] + 24
         self.impassable = impassable
+        self.danger_zone = danger_zone
         self.width_pos = ((self.rect.x + 1) - (self.size[0] // 2), self.rect.x + (self.size[0] // 2))
         self.height_pos = ((self.rect.y + 1) - (self.size[1] // 2), self.rect.y + (self.size[1] // 2))
         self.events = []
@@ -202,9 +220,11 @@ class Map:
                 for x, y, gid in layer:
                     image = self.tmx_map_data.get_tile_image_by_gid(gid)
                     if image is not None:
-                        impassable = self.tmx_map_data.get_tile_properties_by_gid(gid)["impassable"]
+                        data = self.tmx_map_data.get_tile_properties_by_gid(gid)
+                        impassable = data["impassable"]
+                        danger_zone = data["danger_zone"]
                         rect = image.get_rect()
-                        tile = Tile(image, rect, impassable, (self.tmx_map_data.tilewidth,
+                        tile = Tile(image, rect, impassable, danger_zone, (self.tmx_map_data.tilewidth,
                                                               self.tmx_map_data.tileheight), x, y, layer_num)
                         self.layers[layer_num].append(tile)
                         
@@ -235,10 +255,10 @@ class Map:
             self.last_press = cur_time
             self.game.func_key_used = cur_time
 
-        if keys_pressed[pygame.K_f] and cur_time - self.last_press > self.cooldown and cur_time - self.game.func_key_used > self.cooldown:
-            self.game.STATE_MANAGER.change_state(5)
-            self.last_press = cur_time
-            self.game.func_key_used = cur_time
+        # if keys_pressed[pygame.K_f] and cur_time - self.last_press > self.cooldown and cur_time - self.game.func_key_used > self.cooldown:
+        #     self.game.STATE_MANAGER.change_state(5)
+        #     self.last_press = cur_time
+        #     self.game.func_key_used = cur_time
 
     def update(self, keys_pressed, game):
         if self.in_dialogue:
@@ -311,6 +331,23 @@ class Map:
         self.add_event(tile, event)
         tile.impassable = True
 
+    def add_shop(self, tile, img=None, npc=None):
+        cx, cy = self.get_tile_center(tile)
+        event = Shop((cx, cy), img=img, npc=npc)
+        self.add_event(tile, event)
+        tile.impassable = True
+
+    def add_cure(self, tile, img=None, npc=None):
+        cx, cy = self.get_tile_center(tile)
+        event = Cure((cx, cy), img=img, npc=npc)
+        self.add_event(tile, event)
+        tile.impassable = True
+
+    def add_dangerzone(self, tile, enemies, game, max_level, img=None):
+        cx, cy = self.get_tile_center(tile)
+        event = DangerZone((cx, cy), enemies, game, max_level, img=img)
+        self.add_event(tile, event)
+
     def get_neighbours(self, tile):
         try:
             top = self.get_tile(tile.layer, tile.x, tile.y - 1)
@@ -353,12 +390,19 @@ class TestMap(Map):
     def __init__(self, game):
         super().__init__(game)
         self.load_map("testmap")
+        self.enemies = [self.game.spawn_leafwing(), self.game.spawn_flametorch()]
 
     def bake_events(self):
         tile = self.get_tile(0, 0, 19)
         self.add_teleport(tile, (0, 72), TestMap2(self.game))
         tile = self.get_tile(0, 2, 2)
         self.add_dialogue(tile, img=self.game.BRIGITTE.body_textures[0], npc=self.game.BRIGITTE)
+        tile = self.get_tile(0, 29, 0)
+        self.add_cure(tile, img=self.game.HEALER.body_textures[0], npc=self.game.HEALER)
+        for layer in self.layers:
+            for tile in layer:
+                if tile.danger_zone:
+                    self.add_dangerzone(tile, self.enemies, self.game, 5, None)
         self.baked = 1
 
 
