@@ -200,4 +200,4 @@ class Leafwing(Creature):
             self.level_up()
 
     def __str__(self):
-        return f"Creature: {self.__class__.__name__}"            
+        return f"Creature: {self.__class__.__name__}"

@@ -134,6 +134,7 @@ class Shop(Dialogue):
         if not game.map.in_dialogue:
             game.STATE_MANAGER.change_state(6)
 
+
 class Cure(Dialogue):
     def __init__(self, coords: tuple, img=None, npc=None):
         super().__init__(coords, img, npc)
@@ -239,13 +240,11 @@ class Map:
             self.last_press = cur_time
             self.game.func_key_used = cur_time
 
-
     def update(self, keys_pressed, game):
         if self.in_dialogue:
             self.current_dialogue.dialogue(self.game)
         self._handle_input(keys_pressed, game)
 
-    
     def draw_map(self):
         # Ustawienie warstwy na pierwszą warstwę
         layer_num = 1
@@ -283,7 +282,6 @@ class Map:
 
         if self.in_dialogue:
             self.game.SCREEN.blit(self.dialogue_card, self.dialogue_card_rect)
-
 
     def clear_dialogue_card(self):
         self.dialogue_card = pygame.Surface((self.game.SCR_WIDTH, self.game.SCR_HEIGHT // 4))

@@ -20,11 +20,11 @@
             "scaleInEditor": 1
         },
         "Dockersville.tmx": {
-            "scale": 0.75,
-            "selectedLayer": 0,
+            "scale": 1,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 728,
-                "y": 409.33333333333337
+                "x": 828,
+                "y": 261
             }
         },
         "testmap.tmx": {
