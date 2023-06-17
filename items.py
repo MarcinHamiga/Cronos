@@ -18,7 +18,7 @@ class Item:
 class Candy(Item):
     
     def __init__(self, icon, amount=1):
-        super().__init__("Candy", icon, amount)
+        super().__init__("Candy", icon, amount, price=125)
     
     def use(self, target):
         if target.check_if_down():
@@ -95,11 +95,23 @@ class Junk(Item):
 class Item_dict:
     def __init__(self, assets):
         self.item_dict = {
+            "CANDY": Candy,
+            "SMALL HP RESTORE": SmallHPRestore,
+            "SMALL SP RESTORE": SmallSPRestore,
+            "HP RESTORE": HPRestore,
+            "SP RESTORE": SPRestore,
+            "CATCHER": Catcher,
+            "JUNK": Junk
+        }
+
+class Shop_dict:
+    def __init__(self, assets):
+        self.shop_dict = {
             "CANDY": Candy(assets["ITEM_CANDY"]),
             "SMALL HP RESTORE": SmallHPRestore(assets["ITEM_SMALL_HP_RESTORE"]),
             "SMALL SP RESTORE": SmallSPRestore(assets["ITEM_SMALL_SP_RESTORE"]),
             "HP RESTORE": HPRestore(assets["ITEM_HP_RESTORE"]),
             "SP RESTORE": SPRestore(assets["ITEM_SP_RESTORE"]),
-            "CATCHER": Catcher(assets["ITEM_CANDY"]),
+            "CATCHER": Catcher(assets["ITEM_CATCHER"]),
             "JUNK": Junk(assets["ITEM_JUNK"])
         }

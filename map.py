@@ -137,8 +137,10 @@ class DangerZone(Event):
 
     def check_stepped_on(self, game):
         roll = randint(1, 1000)
-        if self.rect.colliderect(game.PLAYER.get_rectangle()) and roll < 5:
+        if self.rect.colliderect(game.PLAYER.get_rectangle()) and roll <= 5:
             self.start_a_fight()
+        if self.rect.colliderect(game.PLAYER.get_rectangle()) and 10 <= roll <= 20:
+            self.game.INVENTORY.add_item("Junk", amount=randint(1, 5))
 
 
 class Shop(Dialogue):
@@ -149,6 +151,7 @@ class Shop(Dialogue):
         super().dialogue(game)
         if not game.map.in_dialogue:
             game.STATE_MANAGER.change_state(6)
+            game.SHOPSCREEN.set_for_refresh()
 
 
 class Cure(Dialogue):

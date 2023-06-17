@@ -212,7 +212,7 @@ class Game:
         if keys[pygame.K_c] or keys[pygame.K_BACKSPACE]:
             self.STATE_MANAGER.change_state(3)
 
-        self.SHOPSCREEN.update()
+        self.SHOPSCREEN.update(keys)
 
         self.SHOPSCREEN.draw()
 

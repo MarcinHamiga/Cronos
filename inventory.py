@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import pygame
 from time import time
 
@@ -192,6 +194,7 @@ class Inventory:
         assets = game.ASSETS
         self.player = game.PLAYER
         self.item_dict = items.Item_dict(assets)
+        self.shop_dict = items.Shop_dict(assets)
         self.game = game
 
         self.item_cards = []
@@ -215,14 +218,14 @@ class Inventory:
         for creature in self.player.creatures:
             self.creature_cards.append(DynamicCreatureCard(creature, self.game.SCR_WIDTH, self.game.SCR_HEIGHT, self.game.FONT))
 
-    def _check_for_strays(self):
+    def check_for_strays(self):
         for idx, item in enumerate(self.player.items):
             if item.amount == 0:
                 self.player.items.pop(idx)
 
     def _check_card_integrity(self):
 
-        self._check_for_strays()
+        self.check_for_strays()
 
         if len(self.item_cards) != len(self.player.items):
             self.item_cards = []
@@ -294,8 +297,14 @@ class Inventory:
         # W przeciwnym wypadku, dodajemy nowy obiekt typu Item do listy z ustawioną wartością
         # zmiennej amount na wskazaną przez nas ilość
         else:
-            item = self.item_dict.item_dict[name.upper()]
-            item.amount = 5
+            prefix = "ITEM_"
+            new_name = ""
+            for char in name:
+                if char == " ":
+                    new_name += "_"
+                else:
+                    new_name += char
+            item = self.item_dict.item_dict[name.upper()](self.game.ASSETS[prefix + new_name.upper()], amount)
             self.player.items.append(item)
             # Aby uniknąć problemów, lista kart przedmiotów jest zerowana i zapełniana na nowo, kiedy
             # w ekwipunku pojawia się całkiem nowy przedmiot
