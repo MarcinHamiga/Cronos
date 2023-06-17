@@ -8,7 +8,7 @@ class State_manager:
             3: "MAP",
             4: "SETTINGS",
             5: "FIGHT",
-            6: "TRADE"
+            6: "SHOP"
 
         }
         

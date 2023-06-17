@@ -48,6 +48,7 @@ class Player(Person):
         self.designated_creature = None
         self.items = []
         self.orientation = 0 # 0 - góra, 1 - prawo, 2 - dół, 3 - lewo
+        self.money = 0
         
         self.moving = {
             "top": False,

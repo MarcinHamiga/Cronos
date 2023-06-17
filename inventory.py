@@ -53,8 +53,8 @@ class ItemCard:
         return self.card_surface
 
 
-# Ten obiekt typu ItemCard skaluje się do rozdzielczości ekranu użytkownika. Istnieje **TYLKO** na potrzeby
-# klasy Inventory do wyświetlania przedmiotów z ekwipunku w odpowiedni sposób.
+# Ten obiekt typu ItemCard skaluje się do rozdzielczości ekranu użytkownika. Zajmuje zawsze 1/2 szerokości ekranu
+# i 1/6 jego wysokości
 class DynamicItemCard:
 
     def __init__(self, item, scr_width, scr_height, font):
@@ -73,8 +73,6 @@ class DynamicItemCard:
 
         self.name, self.name_rect = self.font.render(f"{self.item.name}", size=self.font_size, fgcolor=(0, 0, 0))
         self.name_rect.center = (self.surface_rect.w + self.icon_rect.w) // 2, self.surface_rect.h // 4
-
-
 
     def draw_card(self, is_current: bool):
         if is_current:
@@ -247,9 +245,9 @@ class Inventory:
         try:
             for x in range(6):
                 if self.current_item % 6 == x:
-                    card_surface = self.item_cards[x + self.offset * x].draw_card(True)
+                    card_surface = self.item_cards[x + self.offset * 6].draw_card(True)
                 else:
-                    card_surface = self.item_cards[x + self.offset * x].draw_card(False)
+                    card_surface = self.item_cards[x + self.offset * 6].draw_card(False)
 
                 print(card_surface.get_width(), card_surface.get_height())
                 card_surface_rect = card_surface.get_rect()

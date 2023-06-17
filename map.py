@@ -415,4 +415,6 @@ class TestMap2(Map):
     def bake_events(self):
         tile = self.get_tile(0, 0, 0)
         self.add_teleport(tile, (24, 888), TestMap(self.game))
+        tile = self.get_tile(0, 4, 2)
+        self.add_shop(tile, self.game.ASSETS["CHAR_BLUE_EYES_PERSON"], self.game.TRADER)
         self.baked = 1

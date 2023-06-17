@@ -2,13 +2,15 @@ import random
 
 class Item:
     
-    def __init__(self, name, icon, amount=1):
+    def __init__(self, name, icon, amount=1, price=1, buyable=True):
         self.name = name
         self.icon = icon
         if self.icon is not None:
             self.icon_rect = icon.get_rect()
         self.amount = amount
-        
+        self.buyable = buyable
+        self.price = price
+
     def __str__(self):
         return f"Name: {self.name}, amount: {self.amount}"
 
@@ -27,7 +29,7 @@ class Candy(Item):
 class SmallHPRestore(Item):
     
     def __init__(self, icon, amount=1):
-        super().__init__("Small HP restore", icon, amount)
+        super().__init__("Small HP restore", icon, amount, price=50)
 
     def use(self, target):
         if not target.check_if_down() and target.health != target.max_health:
@@ -38,7 +40,7 @@ class SmallHPRestore(Item):
 class HPRestore(Item):
 
     def __init__(self, icon, amount=1):
-        super().__init__("HP restore", icon, amount)
+        super().__init__("HP restore", icon, amount, price=100)
 
     def use(self, target):
         if not target.check_if_down() and target.health != target.max_health:
@@ -48,7 +50,7 @@ class HPRestore(Item):
 
 class SmallSPRestore(Item):
     
-    def __init__(self, icon, amount=1):
+    def __init__(self, icon, amount=1, price=50):
         super().__init__("Small SP restore", icon, amount)
         
     def use(self, target):
@@ -59,7 +61,7 @@ class SmallSPRestore(Item):
 
 class SPRestore(Item):
 
-    def __init__(self, icon, amount=1):
+    def __init__(self, icon, amount=1, price=100):
         super().__init__("SP Restore", icon, amount)
 
     def use(self, target):
@@ -71,7 +73,7 @@ class SPRestore(Item):
 class Catcher(Item):
 
     def __init__(self, icon, amount=1):
-        super().__init__("Catcher", icon, amount)
+        super().__init__("Catcher", icon, amount, price=150)
 
     def use(self, target):
         self.amount -= 1
@@ -84,6 +86,12 @@ class Catcher(Item):
         return False
 
 
+class Junk(Item):
+
+    def __init__(self, icon, amount=1):
+        super().__init__("Junk", icon, amount, price=5, buyable=False)
+
+
 class Item_dict:
     def __init__(self, assets):
         self.item_dict = {
@@ -92,5 +100,6 @@ class Item_dict:
             "SMALL SP RESTORE": SmallSPRestore(assets["ITEM_SMALL_SP_RESTORE"]),
             "HP RESTORE": HPRestore(assets["ITEM_HP_RESTORE"]),
             "SP RESTORE": SPRestore(assets["ITEM_SP_RESTORE"]),
-            "CATCHER": Catcher(assets["ITEM_CANDY"])
+            "CATCHER": Catcher(assets["ITEM_CANDY"]),
+            "JUNK": Junk(assets["ITEM_JUNK"])
         }

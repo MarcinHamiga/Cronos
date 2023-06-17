@@ -16,6 +16,7 @@ import creature
 import fight
 import skills
 from menu import Menu
+from shop import Shopscreen
 
 
 class Game:
@@ -73,6 +74,7 @@ class Game:
         self.INVENTORY.add_item("HP restore", 5)
         self.INVENTORY.add_item("SP restore", 5)
         self.INVENTORY.add_item("Catcher", 5)
+        self.INVENTORY.add_item("Junk", 10)
 
         self.TEST_ENEMY = self.spawn_leafwing(2)
         self.FIGHTSCREEN = fight.FightScreen(self)
@@ -80,6 +82,8 @@ class Game:
 
         self.map_surface = pygame.Surface((1, 1))
         self.map = map.TestMap(self)
+
+        self.SHOPSCREEN = Shopscreen(self)
 
         count = 0
 
@@ -118,6 +122,9 @@ class Game:
 
                 case "SETTINGS":
                     self.settings_state()
+
+                case "SHOP":
+                    self.shop_state()
 
                 case _:
                     self.map_state()
@@ -197,7 +204,18 @@ class Game:
         self.SETTINGS.update(keys)
 
         self.SETTINGS.draw()
-        
+
+    def shop_state(self):
+        self.current_time = time()
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_c] or keys[pygame.K_BACKSPACE]:
+            self.STATE_MANAGER.change_state(3)
+
+        self.SHOPSCREEN.update()
+
+        self.SHOPSCREEN.draw()
+
     def flip_n_tick(self, fps=60):
         pygame.display.flip()
         self.CLOCK.tick(fps)
