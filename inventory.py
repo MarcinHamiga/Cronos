@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 import pygame
 from time import time
 
@@ -48,8 +46,6 @@ class ItemCard:
         # Wyrysowanie obu tekstów na karcie przedmiotu
         self.card_surface.blit(item_name, name_rect)
         self.card_surface.blit(item_amount, amount_rect)
-
-        print(self.card_surface.get_width(), self.card_surface.get_height())
         
         # Zwrócenie kompletnej karty przedmiotu
         return self.card_surface
@@ -252,7 +248,6 @@ class Inventory:
                 else:
                     card_surface = self.item_cards[x + self.offset * 6].draw_card(False)
 
-                print(card_surface.get_width(), card_surface.get_height())
                 card_surface_rect = card_surface.get_rect()
                 card_surface_rect.center = self.game.SCR_WIDTH // 4, self.game.SCR_HEIGHT // 12 + x * self.game.SCR_HEIGHT // 6
 
@@ -268,7 +263,6 @@ class Inventory:
                 else:
                     card_surface = self.creature_cards[x + self.creature_offset * 3].draw_card(False)
 
-                print(card_surface.get_width(), card_surface.get_height())
                 card_surface_rect = card_surface.get_rect()
                 card_surface_rect.center = self.game.SCR_WIDTH // 4 + self.game.SCR_WIDTH // 2, (self.game.SCR_HEIGHT // 2 + self.game.SCR_HEIGHT // 12) + x * self.game.SCR_HEIGHT // 6
 

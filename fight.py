@@ -72,7 +72,7 @@ class FightScreen:
                     self.choosing_skills(keys, cur_time)
 
     def choosing_items_f(self, keys, cur_time):
-        if keys[pygame.K_UP] and  cur_time - self.last_key_press > self.cooldown:
+        if keys[pygame.K_UP] and cur_time - self.last_key_press > self.cooldown:
             self.content_list.move_up()
             self.last_key_press = cur_time
 
@@ -463,3 +463,13 @@ class ContentList:
     def reset_positions(self):
         self.offset = 0
         self.current_item = 0
+
+    def refresh(self):
+        self.items = [item for item in self.game.PLAYER.items if item.buyable is True]
+        self.item_cards = []
+        self.skills = self.fightscreen.player_creature.skills
+        self.skill_cards = []
+        for item in self.items:
+            self.item_cards.append(ItemCard(item))
+        for skill in self.skills:
+            self.skill_cards.append(SkillCard(skill, self.fightscreen))

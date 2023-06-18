@@ -3,12 +3,12 @@ import pygame
 import dialogue
 
 
-class Person():
-    
-    def __init__(self, body_textures: list, px=24, py=24, accessories=[]):
-        
+class Person(pygame.sprite.Sprite):
+
+    def __init__(self, body_textures: list, px=24, py=24, accessories=None):
         super().__init__()
-        
+        if accessories is None:
+            accessories = []
         self.rotation = 0 # 0 - w dół, 1 - w lewo, 2 - w górę , 3 - w prawo
         
         if not isinstance(body_textures, (list, tuple)):
@@ -19,7 +19,7 @@ class Person():
        
         for texture in body_textures:
             self._body_textures.append(texture)
-        
+
         for accessory in accessories:
             self._body_textures.append(accessory)
         
@@ -40,7 +40,7 @@ class Person():
 
 class Player(Person):
     
-    def __init__(self, body_texture: list, px, py, accessories=[]):
+    def __init__(self, body_texture: list, px, py, accessories=None):
         super().__init__(body_texture, px, py, accessories)
         self._movement_speed = 3
         self._movement_speed_multiplier = 1.0
@@ -193,26 +193,42 @@ class Player(Person):
         return popped
 
 
-class NPC:
-    def __init__(self, body_textures: list, accessories=[]):
+class NPC(pygame.sprite.Sprite):
+
+    def __init__(self, body_textures: list, accessories=None):
+        super().__init__()
+        if accessories is None:
+            accessories = []
         if not isinstance(body_textures, list):
             body_textures = [body_textures]
-        self.body_textures = body_textures
+        self.body_textures = []
         self.rectangles = []
-        for texture in self.body_textures:
+        for texture in body_textures:
+            self.body_textures.append(texture)
             rect = texture.get_rect()
             rect.center = 24, 24
             self.rectangles.append(rect)
-        self.accessories = accessories
-        for accessory in self.accessories:
+        for accessory in accessories:
             rect = accessory.get_rect()
             rect.center = 24, 24
             self.rectangles.append(rect)
+            self.body_textures.append(accessory)
+
+    def get_image(self):
+        npc_surface = pygame.Surface((48, 48))
+        npc_surface = npc_surface.convert_alpha(npc_surface)
+        npc_surface.fill((0, 0, 0, 0))
+        for texture in self.body_textures:
+            npc_surface.blit(texture, self.rectangles[0])
+
+        return npc_surface
 
 
 class Brigitte(NPC):
     
-    def __init__(self, body_textures: list, accessories=[]):
+    def __init__(self, game):
+        body_textures = game.ASSETS["CHAR_BLUE_EYES_PERSON"]
+        accessories = [game.ASSETS["CHAR_DARKBLUE_HOODIE"], game.ASSETS["CHAR_GREY_JEANS"], game.ASSETS["CHAR_BROWN_BOBCUT"], game.ASSETS["CHAR_DARKBLUE_SNEAKERS"]]
         super().__init__(body_textures, accessories)
         greeting_1 = dialogue.DialogueLine("Hello! My name's Brigitte!", None)
         greeting_2 = dialogue.DialogueLine("I hope you are having fun in our little town!", None)
@@ -254,8 +270,9 @@ class Brigitte(NPC):
 
 class Thomas(NPC):
     
-    def __init__(self, body_textures: list, accessories=[]):
-
+    def __init__(self, game):
+        body_textures = game.ASSETS["CHAR_BLUE_EYES_PERSON"]
+        accessories = [game.ASSETS["CHAR_DARKBLUE_HOODIE"], game.ASSETS["CHAR_JEANS"]]
         super().__init__(body_textures, accessories)
 
         self.player_greet = False
@@ -275,7 +292,9 @@ class Thomas(NPC):
 
 class Healer(NPC):
 
-    def __init__(self, body_textures: list, accessories=[]):
+    def __init__(self, game):
+        body_textures = game.ASSETS["CHAR_BLUE_EYES_PERSON"]
+        accessories = [game.ASSETS["CHAR_MEDICAL_UNIFORM"], game.ASSETS["CHAR_BLONDE_PONYTAIL"]]
         super().__init__(body_textures, accessories)
 
         greeting_4 = dialogue.DialogueLine("Bye now!", None)
@@ -311,7 +330,9 @@ class Healer(NPC):
 
 class Trader(NPC):
 
-    def __init__(self, body_textures: list, accessories=[]):
+    def __init__(self, game):
+        body_textures = game.ASSETS["CHAR_BLUE_EYES_PERSON"]
+        accessories = None
         super().__init__(body_textures, accessories)
 
         greeting_4 = dialogue.DialogueLine("Anyway, I hope you have a great day. Visit anytime you need to buy something!", None)

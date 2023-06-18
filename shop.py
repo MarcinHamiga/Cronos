@@ -103,8 +103,6 @@ class Shopscreen:
                 if keys[pygame.K_RETURN] and cur_time - self.last_click > 0.15:
                     self.buy()
                     self.last_click = cur_time
-                    self.set_for_refresh()
-                    self.refresh()
 
             case False:
                 if keys[pygame.K_UP] and cur_time - self.last_click > self.cooldown and self.current_item_inv > 0:
@@ -125,8 +123,6 @@ class Shopscreen:
                 if keys[pygame.K_RETURN] and cur_time - self.last_click > 0.15:
                     self.sell()
                     self.last_click = cur_time
-                    self.set_for_refresh()
-                    self.refresh()
 
     def buy(self):
 
@@ -147,6 +143,8 @@ class Shopscreen:
         try:
             item = self.game.PLAYER.items[self.current_item_inv]
             item.amount -= 1
+            if item.amount == 0 and self.current_item_inv != 0:
+                self.current_item_inv -= 1
             if item.__class__.__name__ == "Junk":
                 self.game.PLAYER.money += self.game.PLAYER.items[self.current_item_inv].price
             else:
@@ -158,6 +156,7 @@ class Shopscreen:
             if self.current_item_inv % 5 == 4:
                 self.offset -= 1
             self.set_for_refresh()
+            self.refresh()
             self.game.INVENTORY.check_for_strays()
 
     def refresh(self):

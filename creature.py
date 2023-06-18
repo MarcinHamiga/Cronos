@@ -21,7 +21,7 @@ class Creature:
         self._guard_bonus = int(self.defense * 0.2)
         self._statuses = []   # Lista zawierająca wszystkie nałożone na stworka statusy
         self.skills = []    # Lista ruchów dostępnych dla stworka
-        self._hidden_skills = hidden_skills
+        self.hidden_skills = hidden_skills
         self.element = element
 
     def apply_status(self, applied_status):
@@ -66,7 +66,7 @@ class Creature:
         if skill.get_req_level() <= self.level:
             self.skills.append(skill)
         else:
-            self._hidden_skills.append(skill)
+            self.hidden_skills.append(skill)
             
     def guard(self):
         self.defense += self._guard_bonus
@@ -160,10 +160,10 @@ class Flametorch(Creature):
         self.health = self.max_health
         self.max_special_points += 5
         self.special_points = self.max_special_points
-        for idx, move in enumerate(self._hidden_skills):
-            if self.level >= move.required_level:
-                self.skills.append(move)
-                self._hidden_skills.pop(idx)
+        for idx, skill in enumerate(self.hidden_skills):
+            if skill.get_req_level() <= self.level:
+                self.skills.append(skill)
+                self.hidden_skills.pop(idx)
 
     def check_for_level_up(self):
         if self.xp >= self.required_xp:
@@ -191,9 +191,9 @@ class Leafwing(Creature):
         self.health = self.max_health
         self.max_special_points += 7
         self.special_points = self.max_special_points
-        for move, idx in enumerate(self._hidden_skills):
-            if move.required_level <= self.level:
-                self.skills.append(self._hidden_skills.pop(idx))
+        for idx, skill in enumerate(self.hidden_skills):
+            if skill.get_req_level() <= self.level:
+                self.skills.append(self.hidden_skills.pop(idx))
                 
     def check_for_level_up(self):
         if self.xp >= self.required_xp:
@@ -201,3 +201,30 @@ class Leafwing(Creature):
 
     def __str__(self):
         return f"Creature: {self.__class__.__name__}"
+
+
+class Aquashade(Creature):
+
+    def __init__(self, level, image, name):
+        super().__init__(level, 95, 50, 27, 8, [], name, "Water")
+        self.skills = []
+        self.set_image(image)
+        self.required_xp = 50 + (self.level - 1) * 45
+
+    def level_up(self):
+        self.xp = 0
+        self.level += 1
+        self.required_xp = 50 + (self.level - 1) * 35
+        self.attack += 5
+        self.defense += 1
+        self.max_health += 14
+        self.health = self.max_health
+        self.max_special_points += 9
+        self.special_points = self.max_special_points
+        for idx, skill in enumerate(self.hidden_skills):
+            if skill.get_req_level() <= self.level:
+                self.skills.append(self.hidden_skills.pop(idx))
+
+    def check_for_level_up(self):
+        if self.xp >= self.required_xp:
+            self.level_up()

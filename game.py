@@ -3,8 +3,6 @@ import random
 import pygame
 from pathlib import Path
 from time import time
-import pickle
-
 
 # Custom made modules
 import map
@@ -53,14 +51,16 @@ class Game:
 
         self.SKILLS_DICT = skills.SkillDict(self.ASSETS)
 
-        self.BRIGITTE = person.Brigitte(self.ASSETS["CHAR_BLUE_EYES_PERSON"])
-        self.THOMAS = person.Thomas(self.ASSETS["CHAR_BLUE_EYES_PERSON"])
-        self.HEALER = person.Healer(self.ASSETS["CHAR_BLUE_EYES_PERSON"])
-        self.TRADER = person.Trader(self.ASSETS["CHAR_BLUE_EYES_PERSON"])
+        self.BRIGITTE = person.Brigitte(self)
+        self.THOMAS = person.Thomas(self)
+        self.HEALER = person.Healer(self)
+        self.TRADER = person.Trader(self)
 
-        self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"]])
+        self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"], self.ASSETS["CHAR_WHITERED_SNEAKERS"], self.ASSETS["CHAR_RED_FULLCAP"]])
+
         self.PLAYER.read_scale(self.scale)
-        self.PLAYER.add_creature(self.spawn_flametorch(2))
+
+        self.PLAYER.add_creature(self.spawn_aquashade(2))
         self.PLAYER.add_creature(self.spawn_flametorch(5))
         self.PLAYER.add_creature(self.spawn_leafwing(5))
         self.PLAYER.add_creature(self.spawn_flametorch(10))
@@ -165,10 +165,12 @@ class Game:
         
         # Draw    
         self.SCREEN.fill((0, 0, 0))
+
         self.INVENTORY.draw()
 
     def fight_state(self):
 
+        self.FIGHTSCREEN.content_list.refresh()
         self.current_time = time()
         keys = pygame.key.get_pressed()
 
@@ -208,6 +210,8 @@ class Game:
     def shop_state(self):
         self.current_time = time()
         keys = pygame.key.get_pressed()
+        self.SHOPSCREEN.set_for_refresh()
+        self.SHOPSCREEN.refresh()
 
         if keys[pygame.K_c] or keys[pygame.K_BACKSPACE]:
             self.STATE_MANAGER.change_state(3)
@@ -224,8 +228,10 @@ class Game:
 
     def spawn_flametorch(self, level=1, name=""):
         creature_ = creature.Flametorch(1, self.ASSETS["CRT_FLAMETORCH"], name)
-        creature_.add_skill(self.SKILLS_DICT.get_skill("FIREBREATH"))
+
+        creature_.add_hidden_skill(self.SKILLS_DICT.get_skill("FIREBREATH"))
         creature_.add_hidden_skill(self.SKILLS_DICT.get_skill("FIREWHIP"))
+
         if level > 1:
             for x in range(level - 1):
                 creature_.level_up()
@@ -233,10 +239,20 @@ class Game:
 
     def spawn_leafwing(self, level=1, name=""):
         creature_ = creature.Leafwing(1, self.ASSETS["CRT_LEAFWING"], name)
-        creature_.add_skill(self.SKILLS_DICT.get_skill("WHIRLWIND"))
+        creature_.add_hidden_skill(self.SKILLS_DICT.get_skill("WHIRLWIND"))
 
         if level > 1:
             for x in range(level - 1):
                 creature_.level_up()
+        return creature_
+
+    def spawn_aquashade(self, level=1, name=""):
+        creature_ = creature.Aquashade(1, self.ASSETS["CRT_AQUASHADE"], name)
+        creature_.add_hidden_skill(self.SKILLS_DICT.get_skill("WATERBLAST"))
+
+        if level > 1:
+            for x in range(level - 1):
+                creature_.level_up()
+
         return creature_
 

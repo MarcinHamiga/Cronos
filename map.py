@@ -140,7 +140,7 @@ class DangerZone(Event):
         if self.rect.colliderect(game.PLAYER.get_rectangle()) and roll <= 5:
             self.start_a_fight()
         if self.rect.colliderect(game.PLAYER.get_rectangle()) and 10 <= roll <= 20:
-            self.game.INVENTORY.add_item("Junk", amount=randint(1, 5))
+            self.game.INVENTORY.add_item("Junk", amount=randint(1, 7))
 
 
 class Shop(Dialogue):
@@ -399,9 +399,9 @@ class TestMap(Map):
         tile = self.get_tile(0, 0, 19)
         self.add_teleport(tile, (0, 72), TestMap2(self.game))
         tile = self.get_tile(0, 2, 2)
-        self.add_dialogue(tile, img=self.game.BRIGITTE.body_textures[0], npc=self.game.BRIGITTE)
+        self.add_dialogue(tile, img=self.game.BRIGITTE.get_image(), npc=self.game.BRIGITTE)
         tile = self.get_tile(0, 29, 0)
-        self.add_cure(tile, img=self.game.HEALER.body_textures[0], npc=self.game.HEALER)
+        self.add_cure(tile, img=self.game.HEALER.get_image(), npc=self.game.HEALER)
         for layer in self.layers:
             for tile in layer:
                 if tile.danger_zone:
@@ -419,5 +419,5 @@ class TestMap2(Map):
         tile = self.get_tile(0, 0, 0)
         self.add_teleport(tile, (24, 888), TestMap(self.game))
         tile = self.get_tile(0, 4, 2)
-        self.add_shop(tile, self.game.ASSETS["CHAR_BLUE_EYES_PERSON"], self.game.TRADER)
+        self.add_shop(tile, self.game.TRADER.get_image(), self.game.TRADER)
         self.baked = 1

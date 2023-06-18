@@ -29,7 +29,8 @@ class Firebreath(Skill):
         self.dmg_multi = 1.25
 
     def use(self, user, target):
-        damage = randint(self.base_damage, int(user.attack * self.dmg_multi))
+        base_damage = self.base_damage + (user.attack // 4)
+        damage = randint(base_damage, int(user.attack * self.dmg_multi))
         if target.element == "Nature":
             damage = int(damage * 1.5)
         target.take_damage(damage)
@@ -40,13 +41,15 @@ class Firebreath(Skill):
         return damage
 
     def get_min_max_damage(self, user):
-        return self.base_damage, int(user.attack * self.dmg_multi)
+        base_damage = self.base_damage + (user.attack // 4)
+        return base_damage, int(user.attack * self.dmg_multi)
 
 class Firewhip(Skill):
 
     def __init__(self, sp_cost, icon):
         super().__init__(sp_cost, icon, "Use your tail to set enemy on fire, while dealing miniscule damage.", "Fire", 4)
         self.dmg_multi = 0.25
+        self.base_damage = 0
 
     def use(self, user, target):
         damage = randint(0, int(user.attack * self.dmg_multi))
@@ -81,12 +84,37 @@ class Whirlwind(Skill):
         return 0, int(user.attack * self.dmg_multi * 3)
 
 
+class Waterblast(Skill):
+
+    def __init__(self, sp_cost, icon):
+        super().__init__(sp_cost, icon, "Launch a powerful water blast at the enemy dealing incredible damage, but with a chance to miss altogether.", "Water", 1)
+        self.dmg_multi = 1.5
+        self.base_damage = 5
+
+    def use(self, user, target):
+        damage = randint(int(self.base_damage + (user.attack // 4)), int(user.attack * self.dmg_multi))
+        roll = randint(0, 100)
+        if roll < 30:
+            return 0
+        else:
+            if target.element == "Fire":
+                target.take_damage(int(damage * 1.5))
+            else:
+                target.take_damage(damage)
+
+            return damage
+
+    def get_min_max_damage(self, user):
+        return self.base_damage + (user.attack // 4), int(user.attack * self.dmg_multi)
+
+
 class SkillDict:
     def __init__(self, assets):
         self.skill_dict = {
             "FIREBREATH": Firebreath(7, assets["SKL_FIREBREATH"]),
-            "FIREWHIP": Firewhip(9, assets["SKL_FIREBREATH"]),
-            "WHIRLWIND": Whirlwind(6, assets["SKL_FIREBREATH"])
+            "FIREWHIP": Firewhip(9, assets["SKL_FIREWHIP"]),
+            "WHIRLWIND": Whirlwind(6, assets["SKL_WHIRLWIND"]),
+            "WATERBLAST": Waterblast(9, assets["SKL_WATERBLAST"])
         }
 
     def get_skill(self, skill):
@@ -124,8 +152,8 @@ class SkillCard:
 
                 self.surface.blit(cost, cost_rect)
 
-                numerical_dmg = self.fightmenu.player_creature.attack
-                dmg, dmg_rect = font.render(f"Dmg/heal: {self.skill.base_damage}-{int(self.fightmenu.player_creature.attack * self.skill.dmg_multi)}", fgcolor=(0, 0, 0))
+                min_dmg, max_dmg = self.skill.get_min_max_damage(self.fightmenu.player_creature)
+                dmg, dmg_rect = font.render(f"Dmg/heal: {min_dmg}-{max_dmg}", fgcolor=(0, 0, 0))
                 dmg_rect.center = 144, 60
 
                 self.surface.blit(dmg, dmg_rect)
@@ -135,20 +163,21 @@ class SkillCard:
             case False:
                 self.surface.fill((128, 0, 35))
 
+                self.surface.blit(self.icon, self.icon_rect)
+
                 name, name_rect = font.render(f"Name: {self.skill.__class__.__name__}")
                 name_rect.center = 144, 12
 
                 self.surface.blit(name, name_rect)
 
-                cost, cost_rect = font.render(f"Cost: {self.skill.sp_cost}", size=24, fgcolor=(255, 255, 255))
-                cost_rect.center = 144, 12
+                cost, cost_rect = font.render(f"Cost: {self.skill.sp_cost}", fgcolor=(255, 255, 255))
+                cost_rect.center = 144, 36
 
                 self.surface.blit(cost, cost_rect)
 
-                numerical_dmg = self.fightmenu.player_creature.attack
-                dmg, dmg_rect = font.render(f"Dmg/heal: {self.skill.base_damage}-{int(self.fightmenu.player_creature.attack * self.skill.dmg_multi)}",
-                                            size=24, fgcolor=(255, 255, 255))
-                dmg_rect = 144, 36
+                min_dmg, max_dmg = self.skill.get_min_max_damage(self.fightmenu.player_creature)
+                dmg, dmg_rect = font.render(f"Dmg/heal: {min_dmg}-{max_dmg}", fgcolor=(255, 255, 255))
+                dmg_rect.center = 144, 60
 
                 self.surface.blit(dmg, dmg_rect)
 
