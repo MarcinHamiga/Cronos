@@ -82,6 +82,7 @@ class Dialogue(Event):
         game.map.in_dialogue = True
 
         if self.current_tree.get_current_line() is not None:
+            game.SCREEN.fill((0, 0, 0))
             game.map.current_dialogue = self
             name_tag, name_tag_rect = self.create_name_tag(game)
 
@@ -96,6 +97,7 @@ class Dialogue(Event):
             content, content_rect = game.FONT.render(content, size=24, fgcolor=(255,255,255))
             content_tag.blit(content, content_rect)
 
+            game.map.dialogue_card.fill((0, 0, 0))
             game.map.dialogue_card.blit(npc_name, npc_name_rect)
             game.map.dialogue_card.blit(content_tag, content_tag_rect)
             self.current_tree.go_to_next()

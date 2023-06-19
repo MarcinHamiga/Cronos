@@ -173,7 +173,7 @@ class FightScreen:
         if self.player_creature.check_if_down() or self.enemy_creature.check_if_down():
             self.game.STATE_MANAGER.change_state(3)
             if self.enemy_creature.check_if_down():
-                self.player_creature.xp += 3 * self.enemy_creature.level
+                self.player_creature.xp += 5 * self.enemy_creature.level
                 self.player_creature.check_for_level_up()
             self.enemy_creature = None
             self.enemy_creature_stats.creature = self.enemy_creature

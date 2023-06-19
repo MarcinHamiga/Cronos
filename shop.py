@@ -145,19 +145,19 @@ class Shopscreen:
             item.amount -= 1
             if item.amount == 0 and self.current_item_inv != 0:
                 self.current_item_inv -= 1
+                if self.current_item_inv % 5 == 4:
+                    self.offset -= 1
+                self.set_for_refresh()
+                self.refresh()
+                self.game.INVENTORY.check_for_strays()
             if item.__class__.__name__ == "Junk":
-                self.game.PLAYER.money += self.game.PLAYER.items[self.current_item_inv].price
+                self.game.PLAYER.money += item.price
             else:
-                self.game.PLAYER.money += self.game.PLAYER.items[self.current_item_inv].price // 2
+                self.game.PLAYER.money += item.price // 2
             self.game.INVENTORY.check_for_strays()
 
         except IndexError:
-            self.current_item_inv -= 1
-            if self.current_item_inv % 5 == 4:
-                self.offset -= 1
-            self.set_for_refresh()
-            self.refresh()
-            self.game.INVENTORY.check_for_strays()
+            pass
 
     def refresh(self):
         if not self.refreshed:
