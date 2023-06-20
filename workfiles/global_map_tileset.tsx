@@ -64,13 +64,6 @@
   </properties>
   <image width="48" height="48" source="../assets/MAP_red_rooftile_top.png"/>
  </tile>
- <tile id="12">
-  <properties>
-   <property name="danger_zone" type="bool" value="false"/>
-   <property name="impassable" type="bool" value="false"/>
-  </properties>
-  <image width="48" height="48" source="../assets/MAP_grass_road_straight.png"/>
- </tile>
  <tile id="13">
   <properties>
    <property name="danger_zone" type="bool" value="false"/>
@@ -107,36 +100,87 @@
   <image width="48" height="48" source="../assets/MAP_brick_wall_diagonal_mirrored.png"/>
  </tile>
  <tile id="18">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
   <image width="48" height="48" source="../assets/MAP_window.png"/>
  </tile>
  <tile id="19">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="false"/>
+  </properties>
   <image width="48" height="48" source="../assets/MAP_grass_road_curve_1.png"/>
  </tile>
  <tile id="20">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="false"/>
+  </properties>
   <image width="48" height="48" source="../assets/MAP_grass_road_curve_2.png"/>
  </tile>
  <tile id="21">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="false"/>
+  </properties>
   <image width="48" height="48" source="../assets/MAP_grass_road_curve_3.png"/>
  </tile>
  <tile id="22">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="false"/>
+  </properties>
   <image width="48" height="48" source="../assets/MAP_grass_road_curve_4.png"/>
  </tile>
  <tile id="23">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="false"/>
+  </properties>
   <image width="48" height="48" source="../assets/MAP_grass_road_straight.png"/>
  </tile>
  <tile id="24">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="false"/>
+  </properties>
   <image width="48" height="48" source="../assets/MAP_grass_road_T_1.png"/>
  </tile>
  <tile id="25">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="false"/>
+  </properties>
   <image width="48" height="48" source="../assets/MAP_grass_road_T_2.png"/>
  </tile>
  <tile id="26">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="false"/>
+  </properties>
   <image width="48" height="48" source="../assets/MAP_grass_road_T_3.png"/>
  </tile>
  <tile id="27">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="false"/>
+  </properties>
   <image width="48" height="48" source="../assets/MAP_grass_road_T_4.png"/>
  </tile>
  <tile id="28">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="false"/>
+  </properties>
   <image width="48" height="48" source="../assets/MAP_grass_road_+.png"/>
+ </tile>
+ <tile id="29">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="false"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_grass_road_straight_h.png"/>
  </tile>
 </tileset>

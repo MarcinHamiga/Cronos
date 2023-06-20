@@ -70,7 +70,10 @@ class Menu:
                 pygame.quit()
 
     def draw(self):
-        self.game.SCREEN.fill((0, 0, 0))
+        try:
+            self.game.SCREEN.fill((0, 0, 0))
+        except pygame.error:
+            exit(0)
         count = 0
         for button in self.buttons:
             if count == self.current_button:

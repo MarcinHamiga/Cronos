@@ -39,7 +39,6 @@ class Shopscreen:
                 else:
                     card_surface = self.item_cards[x + self.offset * 5].draw_card(False)
 
-                print(card_surface.get_width(), card_surface.get_height())
                 card_surface_rect = card_surface.get_rect()
                 card_surface_rect.center = self.game.SCR_WIDTH // 4, self.game.SCR_HEIGHT // 12 + x * self.game.SCR_HEIGHT // 6
 
@@ -66,7 +65,6 @@ class Shopscreen:
                 else:
                     card_surface = self.shop_item_cards[x + self.offset_shop * 6].draw_card(False)
 
-                print(card_surface.get_width(), card_surface.get_height())
                 card_surface_rect = card_surface.get_rect()
                 card_surface_rect.center = 3 * self.game.SCR_WIDTH // 4, self.game.SCR_HEIGHT // 12 + x * self.game.SCR_HEIGHT // 6
 
@@ -136,7 +134,6 @@ class Shopscreen:
                     return
             self.game.INVENTORY.add_item(item.name.upper())
             self.refresh()
-            print(self.game.PLAYER.items)
 
     def sell(self):
 

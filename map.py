@@ -50,6 +50,10 @@ class Teleport(Event):
         # self.
         if self.rect.colliderect(game.PLAYER.get_rectangle()):
             self.teleport(game)
+
+    def check_interact(self, game, tile):
+        if game.map.check_if_looking_at(tile):
+            self.teleport(game)
      
             
 class Dialogue(Event):
@@ -164,7 +168,6 @@ class Cure(Dialogue):
         super().dialogue(game)
         for creature in game.PLAYER.creatures:
             creature.revitalize()
-            print(creature)
 
 
 class Tile:
@@ -325,9 +328,12 @@ class Map:
     def add_event(self, tile: Tile, event: Event):
         tile.add_event(event)
 
-    def add_teleport(self, tile: Tile, place_on_map: tuple, mapname: str):
+    def add_teleport(self, tile: Tile, place_on_map: tuple, mapname):
         cx, cy = self.get_tile_center(tile)
-        event = Teleport((cx, cy), place_on_map, mapname)
+        px, py = place_on_map
+        px = 24 + px * 48
+        py = 24 + py * 48
+        event = Teleport((cx, cy), (px, py), mapname)
         self.add_event(tile, event)
 
     def add_dialogue(self, tile, img=None, npc=None):
@@ -377,16 +383,31 @@ class Map:
         return top, bottom, left, right
 
     def check_if_looking_at(self, tile):
-
         top, bottom, left, right = self.get_neighbours(tile)
-        if top.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 2:
-            return True
-        if bottom.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 0:
-            return True
-        if left.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 1:
-            return True
-        if right.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 3:
-            return True
+        try:
+            if top.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 2:
+                return True
+        except AttributeError:
+            pass
+
+        try:
+            if bottom.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 0:
+                return True
+        except AttributeError:
+            pass
+
+        try:
+            if left.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 1:
+                return True
+        except AttributeError:
+            pass
+
+        try:
+            if right.rect.collidepoint(self.game.PLAYER.get_pos()) and self.game.PLAYER.get_orient() == 3:
+                return True
+        except AttributeError:
+            pass
+
         return False
 
 
@@ -399,7 +420,7 @@ class TestMap(Map):
 
     def bake_events(self):
         tile = self.get_tile(0, 0, 19)
-        self.add_teleport(tile, (0, 72), TestMap2(self.game))
+        self.add_teleport(tile, (0, 1), TestMap2(self.game))
         tile = self.get_tile(0, 2, 2)
         self.add_dialogue(tile, img=self.game.BRIGITTE.get_image(), npc=self.game.BRIGITTE)
         tile = self.get_tile(0, 29, 0)
@@ -419,7 +440,23 @@ class TestMap2(Map):
     
     def bake_events(self):
         tile = self.get_tile(0, 0, 0)
-        self.add_teleport(tile, (24, 888), TestMap(self.game))
+        self.add_teleport(tile, (0, 18), TestMap(self.game))
         tile = self.get_tile(0, 4, 2)
         self.add_shop(tile, self.game.TRADER.get_image(), self.game.TRADER)
+        tile = self.get_tile(0, 0, 7)
+        self.add_teleport(tile, (28, 1), Dockersville(self.game))
+        self.baked = 1
+
+
+class Dockersville(Map):
+
+    def __init__(self, game):
+        super().__init__(game)
+        self.load_map("dockersville")
+
+    def bake_events(self):
+        tile = self.get_tile(0, 29, 1)
+        self.add_teleport(tile, (1, 7), TestMap2(self.game))
+        tile = self.get_tile(0, 25, 7)
+        self.add_dialogue(tile, self.game.LAVENDER.get_image(), self.game.LAVENDER)
         self.baked = 1

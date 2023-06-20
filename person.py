@@ -331,8 +331,8 @@ class Healer(NPC):
 class Trader(NPC):
 
     def __init__(self, game):
-        body_textures = game.ASSETS["CHAR_BLUE_EYES_PERSON"]
-        accessories = None
+        body_textures = game.ASSETS["CHAR_BROWN_EYES_PERSON"]
+        accessories = [game.ASSETS["CHAR_WHITERED_SNEAKERS"], game.ASSETS["CHAR_WHITE_TSHIRT"], game.ASSETS["CHAR_OVERALLS"]]
         super().__init__(body_textures, accessories)
 
         greeting_4 = dialogue.DialogueLine("Anyway, I hope you have a great day. Visit anytime you need to buy something!", None)
@@ -346,7 +346,7 @@ class Trader(NPC):
 
         trade_tree = dialogue.RadiantTree("Trade", [trade_1])
 
-        self.player_greet = True
+        self.player_greet = False
         self.DIALOGUE_DICT = {
             "GREETING": greeting_tree,
             "TRADE": trade_tree
@@ -363,3 +363,41 @@ class Trader(NPC):
             return self.DIALOGUE_DICT["GREETING"]
         else:
             return self.DIALOGUE_DICT["TRADE"]
+
+
+class Lavender(NPC):
+
+    def __init__(self, game):
+        body_textures = game.ASSETS["CHAR_BROWN_EYES_PERSON"]
+        accessories = [game.ASSETS["CHAR_FISHNETS"], game.ASSETS["CHAR_DARKBLUE_HOODIE"], game.ASSETS["CHAR_DARKBLUE_SKIRT"], game.ASSETS["CHAR_DARKBLUE_SNEAKERS"]]
+        super().__init__(body_textures, accessories)
+
+        greeting_4 = dialogue.DialogueLine("Sorry, I need to get going now. But I hope we can talk some more later! Cya!", None)
+        greeting_3 = dialogue.DialogueLine("I hope you are going to have a great time here!", greeting_4)
+        greeting_2 = dialogue.DialogueLine("You are the new guy here, aren't you?", greeting_3)
+        greeting_1 = dialogue.DialogueLine("Oh hi there! I'm Lavender.", greeting_2)
+
+        greeting_tree = dialogue.DialogueTree("Greeting", greeting_1)
+
+        banter_1 = dialogue.DialogueLine("Any plans for today? I would kill for some ice cream.", None)
+        banter_2 = dialogue.DialogueLine("It's so hoooot today...", None)
+        banter_3 = dialogue.DialogueLine("Ugh, why did my parents have to move here...", None)
+        banter_tree = dialogue.RadiantTree("Banter", [banter_1, banter_2, banter_3])
+
+        self.player_greet = False
+        self.DIALOGUE_DICT = {
+            "GREETING": greeting_tree,
+            "BANTER": banter_tree
+        }
+
+    def get_dialogue(self):
+        if not self.player_greet:
+            self.player_greet = True
+            return self.DIALOGUE_DICT["GREETING"]
+        return self.DIALOGUE_DICT["BANTER"]
+
+    def is_available(self):
+        if not self.player_greet:
+            return self.DIALOGUE_DICT["GREETING"]
+        else:
+            return self.DIALOGUE_DICT["BANTER"]

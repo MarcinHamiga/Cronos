@@ -23,16 +23,16 @@
             "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 716,
-                "y": 412
+                "x": 921,
+                "y": 250
             }
         },
         "testmap.tmx": {
             "scale": 1,
-            "selectedLayer": 1,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 862,
-                "y": 486
+                "x": 321,
+                "y": 742
             }
         },
         "testmap.tmx#global_tileset": {
@@ -41,10 +41,10 @@
         },
         "testmap2.tmx": {
             "scale": 0.75,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 542.6666666666666,
-                "y": 480.6666666666666
+                "x": 538.6666666666666,
+                "y": 477.33333333333337
             }
         }
     },
@@ -55,15 +55,17 @@
     "map.width": 30,
     "openFiles": [
         "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx",
-        "Dockersville.tmx"
+        "Dockersville.tmx",
+        "testmap.tmx",
+        "testmap2.tmx"
     ],
     "project": "cronos.tiled_project.tiled-project",
     "property.type": "bool",
     "recentFiles": [
         "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx",
-        "Dockersville.tmx",
         "testmap2.tmx",
-        "testmap.tmx"
+        "testmap.tmx",
+        "Dockersville.tmx"
     ],
     "tileset.embedInMap": false,
     "tileset.lastUsedFormat": "tsx",

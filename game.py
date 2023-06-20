@@ -25,7 +25,8 @@ class Game:
         self.CLOCK = pygame.time.Clock()
         screen_info = pygame.display.get_desktop_sizes()
         self.SCR_WIDTH, self.SCR_HEIGHT = screen_info[0][0], screen_info[0][1]
-        self.SCREEN = pygame.display.set_mode((self.SCR_WIDTH, self.SCR_HEIGHT)) 
+        self.SCREEN = pygame.display.set_mode((self.SCR_WIDTH, self.SCR_HEIGHT))
+
         self._running = True
 
         self.game_state = "MENU"
@@ -49,13 +50,19 @@ class Game:
                 filename = asset.name[:-4]
                 self.ASSETS[filename.upper()] = pygame.image.load(asset).convert_alpha()
 
+        pygame.display.set_caption("Cronos")
+        pygame.display.set_icon(self.ASSETS["ICN_CRONOS"])
         self.SKILLS_DICT = skills.SkillDict(self.ASSETS)
 
+
+        # NPC
         self.BRIGITTE = person.Brigitte(self)
         self.THOMAS = person.Thomas(self)
         self.HEALER = person.Healer(self)
         self.TRADER = person.Trader(self)
+        self.LAVENDER = person.Lavender(self)
 
+        # Sekcja dotycząca gracza
         self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"], self.ASSETS["CHAR_WHITERED_SNEAKERS"], self.ASSETS["CHAR_RED_FULLCAP"]])
 
         self.PLAYER.read_scale(self.scale)
@@ -65,7 +72,8 @@ class Game:
         self.PLAYER.add_creature(self.spawn_leafwing(5))
         self.PLAYER.add_creature(self.spawn_flametorch(10))
         self.PLAYER.set_designated_creature(0)
-        
+
+        # Sekcja dotycząca ekwipunku
         self.INVENTORY = inventory.Inventory(self)
         
         self.INVENTORY.add_item("Candy", 5)
@@ -76,13 +84,14 @@ class Game:
         self.INVENTORY.add_item("Catcher", 5)
         self.INVENTORY.add_item("Junk", 10)
 
-        self.TEST_ENEMY = self.spawn_leafwing(2)
+        # Sekcja inicjalizująca ekran walki
         self.FIGHTSCREEN = fight.FightScreen(self)
-        self.FIGHTSCREEN.set_enemy(self.TEST_ENEMY)
 
+        # Sekcja inicjalizująca mapę
         self.map_surface = pygame.Surface((1, 1))
         self.map = map.TestMap(self)
 
+        # Sekcja inicjalizująca ekran sklepu
         self.SHOPSCREEN = Shopscreen(self)
 
         count = 0
