@@ -46,8 +46,6 @@ class Teleport(Event):
             game.map = self.dest_map
 
     def check_stepped_on(self, game):
-        # x, y = self.original_center
-        # self.
         if self.rect.colliderect(game.PLAYER.get_rectangle()):
             self.teleport(game)
 
@@ -211,7 +209,7 @@ class Map:
         self.dialogue_card_rect.center = self.game.SCR_WIDTH // 2,  7 * (self.game.SCR_HEIGHT // 8)
 
     def load_map(self, mapname):
-        
+        """Funkcja ta wczytuje mapę z pliku .tmx"""
         if mapname[:-4] != ".tmx":
             mapname += ".tmx"
             
@@ -224,7 +222,6 @@ class Map:
             self.layers.append([])
             
             if isinstance(layer, pytmx.TiledTileLayer):
-                
                 for x, y, gid in layer:
                     image = self.tmx_map_data.get_tile_image_by_gid(gid)
                     if image is not None:
@@ -328,12 +325,12 @@ class Map:
     def add_event(self, tile: Tile, event: Event):
         tile.add_event(event)
 
-    def add_teleport(self, tile: Tile, place_on_map: tuple, mapname):
+    def add_teleport(self, tile: Tile, place_on_map: tuple, mapname, img=None):
         cx, cy = self.get_tile_center(tile)
         px, py = place_on_map
         px = 24 + px * 48
         py = 24 + py * 48
-        event = Teleport((cx, cy), (px, py), mapname)
+        event = Teleport((cx, cy), (px, py), mapname, img=img)
         self.add_event(tile, event)
 
     def add_dialogue(self, tile, img=None, npc=None):
@@ -421,8 +418,7 @@ class TestMap(Map):
     def bake_events(self):
         tile = self.get_tile(0, 0, 19)
         self.add_teleport(tile, (0, 1), TestMap2(self.game))
-        tile = self.get_tile(0, 2, 2)
-        self.add_dialogue(tile, img=self.game.BRIGITTE.get_image(), npc=self.game.BRIGITTE)
+
         tile = self.get_tile(0, 29, 0)
         self.add_cure(tile, img=self.game.HEALER.get_image(), npc=self.game.HEALER)
         for layer in self.layers:
@@ -441,10 +437,9 @@ class TestMap2(Map):
     def bake_events(self):
         tile = self.get_tile(0, 0, 0)
         self.add_teleport(tile, (0, 18), TestMap(self.game))
-        tile = self.get_tile(0, 4, 2)
-        self.add_shop(tile, self.game.TRADER.get_image(), self.game.TRADER)
         tile = self.get_tile(0, 0, 7)
         self.add_teleport(tile, (28, 1), Dockersville(self.game))
+
         self.baked = 1
 
 
@@ -457,6 +452,25 @@ class Dockersville(Map):
     def bake_events(self):
         tile = self.get_tile(0, 29, 1)
         self.add_teleport(tile, (1, 7), TestMap2(self.game))
+        tile = self.get_tile(0, 18, 5)
+        self.add_teleport(tile, (8, 13), House(self.game), self.game.ASSETS["MAP_DOOR"])
         tile = self.get_tile(0, 25, 7)
         self.add_dialogue(tile, self.game.LAVENDER.get_image(), self.game.LAVENDER)
+        self.baked = 1
+
+
+class House(Map):
+
+    def __init__(self, game):
+        super().__init__(game)
+        self.load_map(mapname="house")
+
+    def bake_events(self):
+        tile = self.get_tile(0, 8, 15)
+        self.add_teleport(tile, (18, 6), Dockersville(self.game))
+
+        tile = self.get_tile(0, 7, 3)
+        self.add_dialogue(tile, img=self.game.BRIGITTE.get_image(), npc=self.game.BRIGITTE)
+        tile = self.get_tile(0, 13, 12)
+        self.add_shop(tile, self.game.TRADER.get_image(), self.game.TRADER)
         self.baked = 1

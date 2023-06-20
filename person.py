@@ -106,7 +106,10 @@ class Player(Person):
         self._stop_sprint()
             
     def check_boundaries(self, game):
-        
+
+        if game.map.__class__.__name__ == "House":
+            print(game.map.layers)
+            print(game.map.layers[0])
         for tile in game.map.layers[0]:
             x, y = 0, 0
             if tile.x > x:
