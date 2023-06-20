@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.10.1" name="global_map_tileset" tilewidth="48" tileheight="48" tilecount="26" columns="0">
+<tileset version="1.10" tiledversion="1.10.1" name="global_map_tileset" tilewidth="48" tileheight="48" tilecount="44" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -182,5 +182,131 @@
    <property name="impassable" type="bool" value="false"/>
   </properties>
   <image width="48" height="48" source="../assets/MAP_grass_road_straight_h.png"/>
+ </tile>
+ <tile id="30">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wall_inside_sideview_bottom.png"/>
+ </tile>
+ <tile id="31">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wall_inside_sideview_midtop.png"/>
+ </tile>
+ <tile id="32">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wall_inside_topview_straight_horizontal_1.png"/>
+ </tile>
+ <tile id="33">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wall_inside_topview_straight_horizontal_2.png"/>
+ </tile>
+ <tile id="34">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wall_inside_topview_straight_vertical.png"/>
+ </tile>
+ <tile id="35">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wall_inside_topview_straight_vertical_2.png"/>
+ </tile>
+ <tile id="36">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wall_inside_topview_straight_crossroad_1.png"/>
+ </tile>
+ <tile id="37">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wall_inside_topview_straight_crossroad_2.png"/>
+ </tile>
+ <tile id="38">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wall_inside_topview_straight_crossroad_3.png"/>
+ </tile>
+ <tile id="39">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wall_inside_topview_straight_crossroad_4.png"/>
+ </tile>
+ <tile id="40">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wallpaper_inside_topview_straight_vertical_1.png"/>
+ </tile>
+ <tile id="41">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wallpaper_inside_topview_straight_horizontal_1.png"/>
+ </tile>
+ <tile id="42">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wall_inside_topview_turn_1.png"/>
+ </tile>
+ <tile id="43">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wall_inside_topview_turn_2.png"/>
+ </tile>
+ <tile id="44">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wall_inside_topview_turn_3.png"/>
+ </tile>
+ <tile id="45">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="true"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wall_inside_topview_turn_4.png"/>
+ </tile>
+ <tile id="46">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="false"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wooden_floor.png"/>
+ </tile>
+ <tile id="47">
+  <properties>
+   <property name="danger_zone" type="bool" value="false"/>
+   <property name="impassable" type="bool" value="false"/>
+  </properties>
+  <image width="48" height="48" source="../assets/MAP_wooden_stairs.png"/>
  </tile>
 </tileset>

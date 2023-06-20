@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "Dockersville.tmx",
+    "activeFile": "C:/Users/marci/Documents/GitHub/Cronos/workfiles/House.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -14,6 +14,14 @@
         "#global_tileset": {
             "dynamicWrapping": true
         },
+        "C:/Users/marci/Documents/GitHub/Cronos/workfiles/House.tmx": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 474,
+                "y": 503
+            }
+        },
         "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx": {
             "dynamicWrapping": true,
             "scaleInDock": 1,
@@ -23,16 +31,43 @@
             "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 921,
-                "y": 250
+                "x": 1027,
+                "y": 235
+            }
+        },
+        "House.tmx": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 376,
+                "y": 345
+            }
+        },
+        "codochu.tmx": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 386,
+                "y": 399
+            }
+        },
+        "global_map_tileset.tsx": {
+            "scaleInDock": 1
+        },
+        "house.tmx": {
+            "scale": 1.1033854166666666,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 382.4592872315318,
+                "y": 382.4592872315318
             }
         },
         "testmap.tmx": {
             "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 321,
-                "y": 742
+                "x": 719,
+                "y": 478
             }
         },
         "testmap.tmx#global_tileset": {
@@ -43,29 +78,35 @@
             "scale": 0.75,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 538.6666666666666,
-                "y": 477.33333333333337
+                "x": 477.33333333333326,
+                "y": 478.6666666666666
             }
         }
     },
+    "last.externalTilesetPath": "C:/Users/marci/Documents/GitHub/Cronos/maps",
     "last.imagePath": "C:/Users/marci/Documents/GitHub/Cronos/assets",
+    "map.height": 16,
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 48,
     "map.tileWidth": 48,
-    "map.width": 30,
+    "map.width": 16,
     "openFiles": [
         "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx",
         "Dockersville.tmx",
         "testmap.tmx",
-        "testmap2.tmx"
+        "testmap2.tmx",
+        "C:/Users/marci/Documents/GitHub/Cronos/workfiles/House.tmx"
     ],
     "project": "cronos.tiled_project.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "codochu.tmx",
+        "House.tmx",
         "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx",
-        "testmap2.tmx",
+        "Dockersville.tmx",
         "testmap.tmx",
-        "Dockersville.tmx"
+        "testmap2.tmx",
+        "C:/Users/marci/Documents/GitHub/Cronos/workfiles/House.tmx"
     ],
     "tileset.embedInMap": false,
     "tileset.lastUsedFormat": "tsx",
