@@ -369,7 +369,7 @@ class Lavender(NPC):
 
     def __init__(self, game):
         body_textures = game.ASSETS["CHAR_BROWN_EYES_PERSON"]
-        accessories = [game.ASSETS["CHAR_FISHNETS"], game.ASSETS["CHAR_DARKBLUE_HOODIE"], game.ASSETS["CHAR_DARKBLUE_SKIRT"], game.ASSETS["CHAR_DARKBLUE_SNEAKERS"]]
+        accessories = [game.ASSETS["CHAR_FISHNETS"], game.ASSETS["CHAR_DARKBLUE_HOODIE"], game.ASSETS["CHAR_DARKBLUE_SKIRT"], game.ASSETS["CHAR_DARKBLUE_SNEAKERS"], game.ASSETS["CHAR_PINK_BOBCUT"]]
         super().__init__(body_textures, accessories)
 
         greeting_4 = dialogue.DialogueLine("Sorry, I need to get going now. But I hope we can talk some more later! Cya!", None)

@@ -1,5 +1,6 @@
 import random
 
+
 class Item:
     
     def __init__(self, name, icon, amount=1, price=1, buyable=True):
@@ -50,8 +51,8 @@ class HPRestore(Item):
 
 class SmallSPRestore(Item):
     
-    def __init__(self, icon, amount=1, price=50):
-        super().__init__("Small SP restore", icon, amount)
+    def __init__(self, icon, amount=1):
+        super().__init__("Small SP restore", icon, amount, price=75)
         
     def use(self, target):
         if not target.check_if_down() and target.special_points != target.max_special_points:
@@ -61,8 +62,8 @@ class SmallSPRestore(Item):
 
 class SPRestore(Item):
 
-    def __init__(self, icon, amount=1, price=100):
-        super().__init__("SP Restore", icon, amount)
+    def __init__(self, icon, amount=1):
+        super().__init__("SP Restore", icon, amount, price=125)
 
     def use(self, target):
         if not target.check_if_down() and target.special_points != target.max_special_points:
@@ -103,6 +104,7 @@ class Item_dict:
             "CATCHER": Catcher,
             "JUNK": Junk
         }
+
 
 class Shop_dict:
     def __init__(self, assets):

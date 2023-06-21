@@ -18,7 +18,7 @@ class Shopscreen:
         self.current_item_shop = 0
         self.offset_shop = 0
         self.item_cards = [DynamicItemCard(item, self.game.SCR_WIDTH, self.game.SCR_HEIGHT, self.game.FONT) for item in self.game.PLAYER.items]
-        self.shop_item_cards = [DynamicItemCard(item, self.game.SCR_WIDTH, self.game.SCR_HEIGHT, self.game.FONT) for item in self.buyable_items]
+        self.shop_item_cards = [DynamicItemCard(item, self.game.SCR_WIDTH, self.game.SCR_HEIGHT, self.game.FONT, print_price=True) for item in self.buyable_items]
         self.last_click = time()
         self.cooldown = 0.15
 

@@ -422,9 +422,6 @@ class TestMap(Map):
     def bake_events(self):
         tile = self.get_tile(0, 0, 19)
         self.add_teleport(tile, (0, 1), TestMap2(self.game))
-
-        tile = self.get_tile(0, 29, 0)
-        self.add_cure(tile, img=self.game.HEALER.get_image(), npc=self.game.HEALER)
         for layer in self.layers:
             for tile in layer:
                 if tile.danger_zone:
@@ -467,7 +464,7 @@ class Dockersville(Map):
         tile = self.get_tile(0, 7, 7)
         self.add_dialogue(tile, self.game.LOCKEDDOOR.get_image(), self.game.LOCKEDDOOR)
         tile = self.get_tile(0, 21, 14)
-        self.add_dialogue(tile, self.game.LOCKEDDOOR.get_image(), self.game.LOCKEDDOOR)
+        self.add_teleport(tile, (7, 13), CreatureCenter(self.game), self.game.ASSETS["MAP_DOOR"])
         self.baked = 1
 
 
@@ -485,4 +482,19 @@ class House(Map):
         self.add_dialogue(tile, img=self.game.BRIGITTE.get_image(), npc=self.game.BRIGITTE)
         tile = self.get_tile(0, 13, 12)
         self.add_shop(tile, self.game.TRADER.get_image(), self.game.TRADER)
+        self.baked = 1
+
+
+class CreatureCenter(Map):
+    def __init__(self, game):
+        super().__init__(game)
+        self.load_map("creature_center")
+
+    def bake_events(self):
+        tile = self.get_tile(0, 7, 14)
+        self.add_teleport(tile, (21, 15), Dockersville(self.game))
+        tile = self.get_tile(0, 7, 5)
+        self.add_cure(tile, img=None, npc=self.game.HEALER)
+        tile = self.get_tile(0, 7, 4)
+        self.add_cure(tile, img=self.game.HEALER.get_image(), npc=self.game.HEALER)
         self.baked = 1

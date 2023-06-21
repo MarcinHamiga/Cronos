@@ -83,10 +83,12 @@ class FightScreen:
         if keys[pygame.K_RETURN] and cur_time - self.last_key_press > self.cooldown:
             item_used = self.game.PLAYER.items[self.content_list.current_item]
             if item_used.__class__.__name__ == "Catcher":
+                self.action_log.get_action(f"{item_used.name}", "", self.player_creature, True)
                 if item_used.use(self.enemy_creature):
                     self.enemy_creature.take_damage(999999)
                     self.game.PLAYER.creatures.append(self.enemy_creature)
             else:
+                self.action_log.get_action(f"{item_used.name}", "", self.player_creature, True)
                 item_used.use(self.player_creature)
             self.game.PLAYER.check_inventory()
             self.choosing = False
@@ -351,11 +353,13 @@ class ActionLog:
         self.surface = pygame.Surface((game.SCR_WIDTH - 240, 100))
         self.surface_rect = self.surface.get_rect()
         self.surface.fill((70, 70, 70))
+        self.uses_item = None
 
-    def get_action(self, action, reaction, creature):
+    def get_action(self, action, reaction, creature, uses_item=False):
         self.action = action
         self.reaction = reaction
         self.creature = creature
+        self.uses_item = uses_item
 
     def draw(self):
 
@@ -363,11 +367,14 @@ class ActionLog:
         if self.action is not None:
             action, action_rect = self.game.FONT.render(f"{self.creature.__class__.__name__} uses {self.action}...", size=40)
             action_rect.center = self.surface_rect.w // 2, 25
-            if self.reaction == 0:
-                reaction, reaction_rect = self.game.FONT.render(f"It's ineffective!")
+            if not self.uses_item:
+                if self.reaction == 0:
+                    reaction, reaction_rect = self.game.FONT.render(f"It's ineffective!")
+                else:
+                    reaction, reaction_rect = self.game.FONT.render(f"It deals {self.reaction} dmg!", size=40)
+                reaction_rect.center = self.surface_rect.w // 2, 75
             else:
-                reaction, reaction_rect = self.game.FONT.render(f"It deals {self.reaction} dmg!", size=40)
-            reaction_rect.center = self.surface_rect.w // 2, 75
+                reaction, reaction_rect = self.game.FONT.render(f"")
 
             self.surface.blit(action, action_rect)
             self.surface.blit(reaction, reaction_rect)
