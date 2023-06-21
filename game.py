@@ -1,6 +1,7 @@
 import random
 
 import pygame
+import pygame.freetype
 from pathlib import Path
 from time import time
 
@@ -22,6 +23,7 @@ class Game:
     def __init__(self):
         
         pygame.init()
+        pygame.freetype.init()
         self.CLOCK = pygame.time.Clock()
         screen_info = pygame.display.get_desktop_sizes()
         self.SCR_WIDTH, self.SCR_HEIGHT = screen_info[0][0], screen_info[0][1]
@@ -31,7 +33,6 @@ class Game:
 
         self.game_state = "MENU"
         self.STATE_MANAGER = statemanager.State_manager(self)
-        self.STATE_MANAGER.change_state(3)
 
         self.MENU = Menu(self)
 
@@ -48,7 +49,10 @@ class Game:
         for asset in self.PATH_TO_ASSETS.iterdir():
             if asset.is_file():
                 filename = asset.name[:-4]
-                self.ASSETS[filename.upper()] = pygame.image.load(asset).convert_alpha()
+                try:
+                    self.ASSETS[filename.upper()] = pygame.image.load(asset).convert_alpha()
+                except pygame.error:
+                    continue
 
         pygame.display.set_caption("Cronos")
         pygame.display.set_icon(self.ASSETS["ICN_CRONOS"])
@@ -61,6 +65,7 @@ class Game:
         self.HEALER = person.Healer(self)
         self.TRADER = person.Trader(self)
         self.LAVENDER = person.Lavender(self)
+        self.LOCKEDDOOR = person.LockedDoor(self)
 
         # Sekcja dotycząca gracza
         self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"], self.ASSETS["CHAR_WHITERED_SNEAKERS"], self.ASSETS["CHAR_RED_FULLCAP"]])
@@ -89,14 +94,14 @@ class Game:
 
         # Sekcja inicjalizująca mapę
         self.map_surface = pygame.Surface((1, 1))
-        self.map = map.TestMap(self)
+        self.map = map.Dockersville(self)
 
         # Sekcja inicjalizująca ekran sklepu
         self.SHOPSCREEN = Shopscreen(self)
 
         count = 0
 
-        self.PLAYER.set_pos((48, 192))
+        self.PLAYER.set_pos((360, 456))
 
         self.SETTINGS = menu.Settings(self)
 

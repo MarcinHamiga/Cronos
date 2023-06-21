@@ -59,7 +59,10 @@ class Dialogue(Event):
     def __init__(self, coords, img=None, npc=None):
         super().__init__(coords, img=img)
         self.NPC = npc
-        self.NPC_NAME = self.NPC.__class__.__name__
+        if npc.__class__.__name__.lower() == "lockeddoor":
+            self.NPC_NAME = ""
+        else:
+            self.NPC_NAME = self.NPC.__class__.__name__
         self.current_tree = None
         self.radiant_selected = False
 
@@ -97,6 +100,7 @@ class Dialogue(Event):
 
             content = self.current_tree.get_content()
             content, content_rect = game.FONT.render(content, size=24, fgcolor=(255,255,255))
+            content_rect.center = content_tag_rect.w // 2, content_tag_rect.h // 2
             content_tag.blit(content, content_rect)
 
             game.map.dialogue_card.fill((0, 0, 0))
@@ -140,10 +144,10 @@ class DangerZone(Event):
         self.game.FIGHTSCREEN.set_enemy(enemy)
 
     def check_stepped_on(self, game):
-        roll = randint(1, 1000)
-        if self.rect.colliderect(game.PLAYER.get_rectangle()) and roll <= 5:
+        roll = randint(1, 10000)
+        if self.rect.colliderect(game.PLAYER.get_rectangle()) and roll <= 20:
             self.start_a_fight()
-        if self.rect.colliderect(game.PLAYER.get_rectangle()) and 10 <= roll <= 20:
+        if self.rect.colliderect(game.PLAYER.get_rectangle()) and 100 <= roll <= 200:
             self.game.INVENTORY.add_item("Junk", amount=randint(1, 7))
 
 
@@ -433,13 +437,17 @@ class TestMap2(Map):
     def __init__(self, game):
         super().__init__(game)
         self.load_map("testmap2")
+        self.enemies = [self.game.spawn_aquashade(), self.game.spawn_leafwing()]
     
     def bake_events(self):
         tile = self.get_tile(0, 0, 0)
         self.add_teleport(tile, (0, 18), TestMap(self.game))
         tile = self.get_tile(0, 0, 7)
         self.add_teleport(tile, (28, 1), Dockersville(self.game))
-
+        for layer in self.layers:
+            for tile in layer:
+                if tile.danger_zone:
+                    self.add_dangerzone(tile, self.enemies, self.game, 5, None)
         self.baked = 1
 
 
@@ -456,6 +464,10 @@ class Dockersville(Map):
         self.add_teleport(tile, (8, 13), House(self.game), self.game.ASSETS["MAP_DOOR"])
         tile = self.get_tile(0, 25, 7)
         self.add_dialogue(tile, self.game.LAVENDER.get_image(), self.game.LAVENDER)
+        tile = self.get_tile(0, 7, 7)
+        self.add_dialogue(tile, self.game.LOCKEDDOOR.get_image(), self.game.LOCKEDDOOR)
+        tile = self.get_tile(0, 21, 14)
+        self.add_dialogue(tile, self.game.LOCKEDDOOR.get_image(), self.game.LOCKEDDOOR)
         self.baked = 1
 
 

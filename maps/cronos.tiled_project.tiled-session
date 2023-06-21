@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "C:/Users/marci/Documents/GitHub/Cronos/workfiles/House.tmx",
+    "activeFile": "Dockersville.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -29,10 +29,10 @@
         },
         "Dockersville.tmx": {
             "scale": 1,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 1027,
-                "y": 235
+                "x": 685,
+                "y": 424
             }
         },
         "House.tmx": {
@@ -58,16 +58,16 @@
             "scale": 1.1033854166666666,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 382.4592872315318,
-                "y": 382.4592872315318
+                "x": 87.91125796554161,
+                "y": 214.7934859570451
             }
         },
         "testmap.tmx": {
             "scale": 1,
-            "selectedLayer": 0,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 719,
-                "y": 478
+                "x": 526,
+                "y": 507
             }
         },
         "testmap.tmx#global_tileset": {
@@ -78,8 +78,8 @@
             "scale": 0.75,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 477.33333333333326,
-                "y": 478.6666666666666
+                "x": 257.33333333333326,
+                "y": 477.33333333333337
             }
         }
     },
@@ -95,17 +95,18 @@
         "Dockersville.tmx",
         "testmap.tmx",
         "testmap2.tmx",
-        "C:/Users/marci/Documents/GitHub/Cronos/workfiles/House.tmx"
+        "house.tmx"
     ],
     "project": "cronos.tiled_project.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "Dockersville.tmx",
+        "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx",
+        "house.tmx",
+        "testmap2.tmx",
+        "testmap.tmx",
         "codochu.tmx",
         "House.tmx",
-        "C:/Users/marci/Documents/GitHub/Cronos/workfiles/global_map_tileset.tsx",
-        "Dockersville.tmx",
-        "testmap.tmx",
-        "testmap2.tmx",
         "C:/Users/marci/Documents/GitHub/Cronos/workfiles/House.tmx"
     ],
     "tileset.embedInMap": false,

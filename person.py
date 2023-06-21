@@ -107,9 +107,6 @@ class Player(Person):
             
     def check_boundaries(self, game):
 
-        if game.map.__class__.__name__ == "House":
-            print(game.map.layers)
-            print(game.map.layers[0])
         for tile in game.map.layers[0]:
             x, y = 0, 0
             if tile.x > x:
@@ -404,3 +401,22 @@ class Lavender(NPC):
             return self.DIALOGUE_DICT["GREETING"]
         else:
             return self.DIALOGUE_DICT["BANTER"]
+
+
+class LockedDoor(NPC):
+
+    def __init__(self, game):
+        super().__init__(game.ASSETS["MAP_DOOR"])
+
+        closed_door = dialogue.DialogueLine("It's locked", None)
+        door = dialogue.RadiantTree("Locked", [closed_door])
+
+        self.dialogue_dict = {
+            "CLOSED": door
+        }
+
+    def get_dialogue(self):
+        return self.dialogue_dict["CLOSED"]
+
+    def is_available(self):
+        return self.dialogue_dict["CLOSED"]
