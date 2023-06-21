@@ -13,7 +13,7 @@ class Item:
         self.price = price
 
     def __str__(self):
-        return f"Name: {self.name}, amount: {self.amount}"
+        return str(self.__class__.__name__)
 
     
 class Candy(Item):

@@ -82,7 +82,7 @@ class FightScreen:
 
         if keys[pygame.K_RETURN] and cur_time - self.last_key_press > self.cooldown:
             item_used = self.game.PLAYER.items[self.content_list.current_item]
-            if item_used.__class__.__name__ == "Catcher":
+            if str(item_used) == "Catcher":
                 self.action_log.get_action(f"{item_used.name}", "", self.player_creature, True)
                 if item_used.use(self.enemy_creature):
                     self.enemy_creature.take_damage(999999)
@@ -248,7 +248,7 @@ class PlayerCreatureStats:
     def draw(self):
 
         self.surface.fill((128, 0, 35))
-        crt_name, crt_name_rect = self.game.FONT.render(f"{self.creature.__class__.__name__}", size=40, fgcolor=(255, 255, 255))
+        crt_name, crt_name_rect = self.game.FONT.render(f"{str(self.creature)}", size=40, fgcolor=(255, 255, 255))
         crt_name_rect.center = self.surface_rect.w // 2, 25
         crt_hp, crt_hp_rect = self.game.FONT.render(f"HP {self.creature.get_complete_hp()}", size=36, fgcolor=(255, 255, 255))
         crt_hp_rect.center = self.surface_rect.w // 2, 75
@@ -282,7 +282,7 @@ class EnemyCreatureStats:
     def draw(self):
         if self.creature is not None:
             self.surface.fill((128, 0, 35))
-            crt_name, crt_name_rect = self.game.FONT.render(f"{self.creature.__class__.__name__}", size=40, fgcolor=(255, 255, 255))
+            crt_name, crt_name_rect = self.game.FONT.render(f"{str(self.creature)}", size=40, fgcolor=(255, 255, 255))
             crt_name_rect.center = self.surface_rect.w // 2, 25
             crt_hp, crt_hp_rect = self.game.FONT.render(f"HP {self.creature.get_complete_hp()}", size=36, fgcolor=(255, 255, 255))
             crt_hp_rect.center = self.surface_rect.w // 2, 75
@@ -365,7 +365,7 @@ class ActionLog:
 
         self.surface.fill((70, 70, 70))
         if self.action is not None:
-            action, action_rect = self.game.FONT.render(f"{self.creature.__class__.__name__} uses {self.action}...", size=40)
+            action, action_rect = self.game.FONT.render(f"{str(self.creature)} uses {self.action}...", size=40)
             action_rect.center = self.surface_rect.w // 2, 25
             if not self.uses_item:
                 if self.reaction == 0:

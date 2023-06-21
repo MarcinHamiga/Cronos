@@ -11,6 +11,9 @@ class Skill:
         self.required_level = req_level
         self.element = element
 
+    def __str__(self):
+        return str(self.__class__.__name__)
+
     def get_icon(self):
         return self.icon
 
@@ -142,7 +145,7 @@ class SkillCard:
 
                 self.surface.blit(self.icon, self.icon_rect)
 
-                name, name_rect = font.render(f"Name: {self.skill.__class__.__name__}", fgcolor=(90, 0, 0))
+                name, name_rect = font.render(f"Name: {str(self.skill)}", fgcolor=(90, 0, 0))
                 name_rect.center = 144, 12
 
                 self.surface.blit(name, name_rect)
@@ -165,7 +168,7 @@ class SkillCard:
 
                 self.surface.blit(self.icon, self.icon_rect)
 
-                name, name_rect = font.render(f"Name: {self.skill.__class__.__name__}")
+                name, name_rect = font.render(f"Name: {str(self.skill)}")
                 name_rect.center = 144, 12
 
                 self.surface.blit(name, name_rect)

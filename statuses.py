@@ -1,7 +1,10 @@
 class Status:
     def __init__(self, turns_left):
         self.turns_left = turns_left
-        
+
+    def __str__(self):
+        return str(self.__class__.__name__)
+
     def decrement_turn(self):
         self.turns_left -= 1
         
