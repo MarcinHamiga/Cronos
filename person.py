@@ -106,7 +106,7 @@ class Player(Person):
         self._stop_sprint()
             
     def check_boundaries(self, game):
-        
+
         for tile in game.map.layers[0]:
             x, y = 0, 0
             if tile.x > x:
@@ -369,7 +369,7 @@ class Lavender(NPC):
 
     def __init__(self, game):
         body_textures = game.ASSETS["CHAR_BROWN_EYES_PERSON"]
-        accessories = [game.ASSETS["CHAR_FISHNETS"], game.ASSETS["CHAR_DARKBLUE_HOODIE"], game.ASSETS["CHAR_DARKBLUE_SKIRT"], game.ASSETS["CHAR_DARKBLUE_SNEAKERS"]]
+        accessories = [game.ASSETS["CHAR_FISHNETS"], game.ASSETS["CHAR_DARKBLUE_HOODIE"], game.ASSETS["CHAR_DARKBLUE_SKIRT"], game.ASSETS["CHAR_DARKBLUE_SNEAKERS"], game.ASSETS["CHAR_PINK_BOBCUT"]]
         super().__init__(body_textures, accessories)
 
         greeting_4 = dialogue.DialogueLine("Sorry, I need to get going now. But I hope we can talk some more later! Cya!", None)
@@ -401,3 +401,22 @@ class Lavender(NPC):
             return self.DIALOGUE_DICT["GREETING"]
         else:
             return self.DIALOGUE_DICT["BANTER"]
+
+
+class LockedDoor(NPC):
+
+    def __init__(self, game):
+        super().__init__(game.ASSETS["MAP_DOOR"])
+
+        closed_door = dialogue.DialogueLine("It's locked", None)
+        door = dialogue.RadiantTree("Locked", [closed_door])
+
+        self.dialogue_dict = {
+            "CLOSED": door
+        }
+
+    def get_dialogue(self):
+        return self.dialogue_dict["CLOSED"]
+
+    def is_available(self):
+        return self.dialogue_dict["CLOSED"]

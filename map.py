@@ -46,8 +46,6 @@ class Teleport(Event):
             game.map = self.dest_map
 
     def check_stepped_on(self, game):
-        # x, y = self.original_center
-        # self.
         if self.rect.colliderect(game.PLAYER.get_rectangle()):
             self.teleport(game)
 
@@ -61,7 +59,10 @@ class Dialogue(Event):
     def __init__(self, coords, img=None, npc=None):
         super().__init__(coords, img=img)
         self.NPC = npc
-        self.NPC_NAME = self.NPC.__class__.__name__
+        if npc.__class__.__name__.lower() == "lockeddoor":
+            self.NPC_NAME = ""
+        else:
+            self.NPC_NAME = self.NPC.__class__.__name__
         self.current_tree = None
         self.radiant_selected = False
 
@@ -99,6 +100,7 @@ class Dialogue(Event):
 
             content = self.current_tree.get_content()
             content, content_rect = game.FONT.render(content, size=24, fgcolor=(255,255,255))
+            content_rect.center = content_tag_rect.w // 2, content_tag_rect.h // 2
             content_tag.blit(content, content_rect)
 
             game.map.dialogue_card.fill((0, 0, 0))
@@ -142,10 +144,10 @@ class DangerZone(Event):
         self.game.FIGHTSCREEN.set_enemy(enemy)
 
     def check_stepped_on(self, game):
-        roll = randint(1, 1000)
-        if self.rect.colliderect(game.PLAYER.get_rectangle()) and roll <= 5:
+        roll = randint(1, 10000)
+        if self.rect.colliderect(game.PLAYER.get_rectangle()) and roll <= 20:
             self.start_a_fight()
-        if self.rect.colliderect(game.PLAYER.get_rectangle()) and 10 <= roll <= 20:
+        if self.rect.colliderect(game.PLAYER.get_rectangle()) and 100 <= roll <= 200:
             self.game.INVENTORY.add_item("Junk", amount=randint(1, 7))
 
 
@@ -211,7 +213,7 @@ class Map:
         self.dialogue_card_rect.center = self.game.SCR_WIDTH // 2,  7 * (self.game.SCR_HEIGHT // 8)
 
     def load_map(self, mapname):
-        
+        """Funkcja ta wczytuje mapę z pliku .tmx"""
         if mapname[:-4] != ".tmx":
             mapname += ".tmx"
             
@@ -224,7 +226,6 @@ class Map:
             self.layers.append([])
             
             if isinstance(layer, pytmx.TiledTileLayer):
-                
                 for x, y, gid in layer:
                     image = self.tmx_map_data.get_tile_image_by_gid(gid)
                     if image is not None:
@@ -328,12 +329,12 @@ class Map:
     def add_event(self, tile: Tile, event: Event):
         tile.add_event(event)
 
-    def add_teleport(self, tile: Tile, place_on_map: tuple, mapname):
+    def add_teleport(self, tile: Tile, place_on_map: tuple, mapname, img=None):
         cx, cy = self.get_tile_center(tile)
         px, py = place_on_map
         px = 24 + px * 48
         py = 24 + py * 48
-        event = Teleport((cx, cy), (px, py), mapname)
+        event = Teleport((cx, cy), (px, py), mapname, img=img)
         self.add_event(tile, event)
 
     def add_dialogue(self, tile, img=None, npc=None):
@@ -421,10 +422,6 @@ class TestMap(Map):
     def bake_events(self):
         tile = self.get_tile(0, 0, 19)
         self.add_teleport(tile, (0, 1), TestMap2(self.game))
-        tile = self.get_tile(0, 2, 2)
-        self.add_dialogue(tile, img=self.game.BRIGITTE.get_image(), npc=self.game.BRIGITTE)
-        tile = self.get_tile(0, 29, 0)
-        self.add_cure(tile, img=self.game.HEALER.get_image(), npc=self.game.HEALER)
         for layer in self.layers:
             for tile in layer:
                 if tile.danger_zone:
@@ -437,14 +434,17 @@ class TestMap2(Map):
     def __init__(self, game):
         super().__init__(game)
         self.load_map("testmap2")
+        self.enemies = [self.game.spawn_aquashade(), self.game.spawn_leafwing()]
     
     def bake_events(self):
         tile = self.get_tile(0, 0, 0)
         self.add_teleport(tile, (0, 18), TestMap(self.game))
-        tile = self.get_tile(0, 4, 2)
-        self.add_shop(tile, self.game.TRADER.get_image(), self.game.TRADER)
         tile = self.get_tile(0, 0, 7)
         self.add_teleport(tile, (28, 1), Dockersville(self.game))
+        for layer in self.layers:
+            for tile in layer:
+                if tile.danger_zone:
+                    self.add_dangerzone(tile, self.enemies, self.game, 5, None)
         self.baked = 1
 
 
@@ -457,6 +457,44 @@ class Dockersville(Map):
     def bake_events(self):
         tile = self.get_tile(0, 29, 1)
         self.add_teleport(tile, (1, 7), TestMap2(self.game))
+        tile = self.get_tile(0, 18, 5)
+        self.add_teleport(tile, (8, 13), House(self.game), self.game.ASSETS["MAP_DOOR"])
         tile = self.get_tile(0, 25, 7)
         self.add_dialogue(tile, self.game.LAVENDER.get_image(), self.game.LAVENDER)
+        tile = self.get_tile(0, 7, 7)
+        self.add_dialogue(tile, self.game.LOCKEDDOOR.get_image(), self.game.LOCKEDDOOR)
+        tile = self.get_tile(0, 21, 14)
+        self.add_teleport(tile, (7, 13), CreatureCenter(self.game), self.game.ASSETS["MAP_DOOR"])
+        self.baked = 1
+
+
+class House(Map):
+
+    def __init__(self, game):
+        super().__init__(game)
+        self.load_map(mapname="house")
+
+    def bake_events(self):
+        tile = self.get_tile(0, 8, 15)
+        self.add_teleport(tile, (18, 6), Dockersville(self.game))
+
+        tile = self.get_tile(0, 7, 3)
+        self.add_dialogue(tile, img=self.game.BRIGITTE.get_image(), npc=self.game.BRIGITTE)
+        tile = self.get_tile(0, 13, 12)
+        self.add_shop(tile, self.game.TRADER.get_image(), self.game.TRADER)
+        self.baked = 1
+
+
+class CreatureCenter(Map):
+    def __init__(self, game):
+        super().__init__(game)
+        self.load_map("creature_center")
+
+    def bake_events(self):
+        tile = self.get_tile(0, 7, 14)
+        self.add_teleport(tile, (21, 15), Dockersville(self.game))
+        tile = self.get_tile(0, 7, 5)
+        self.add_cure(tile, img=None, npc=self.game.HEALER)
+        tile = self.get_tile(0, 7, 4)
+        self.add_cure(tile, img=self.game.HEALER.get_image(), npc=self.game.HEALER)
         self.baked = 1

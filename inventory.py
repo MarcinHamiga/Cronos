@@ -55,10 +55,11 @@ class ItemCard:
 # i 1/6 jego wysokości
 class DynamicItemCard:
 
-    def __init__(self, item, scr_width, scr_height, font):
+    def __init__(self, item, scr_width, scr_height, font, print_price=False):
         surf_w, surf_h = scr_width // 2, scr_height // 6
         self.surface = pygame.Surface((surf_w, surf_h))
         self.surface_rect = self.surface.get_rect()
+        self.print_price = print_price
 
         self.item = item
         self.font = font
@@ -78,8 +79,12 @@ class DynamicItemCard:
         else:
             self.surface.fill((128, 0, 35))
 
-        amount, amount_rect = self.font.render(f"Amount: {self.item.amount}", size=self.font_size, fgcolor=(0, 0, 0))
-        amount_rect.center = (self.surface_rect.w + self.icon_rect.w) // 2, self.surface_rect.h // 4 + self.surface_rect.h // 2
+        if self.print_price:
+            amount, amount_rect = self.font.render(f"Price: {self.item.price}", size=self.font_size, fgcolor=(0, 0, 0))
+            amount_rect.center = (self.surface_rect.w + self.icon_rect.w) // 2, self.surface_rect.h // 4 + self.surface_rect.h // 2
+        else:
+            amount, amount_rect = self.font.render(f"Amount: {self.item.amount}", size=self.font_size, fgcolor=(0, 0, 0))
+            amount_rect.center = (self.surface_rect.w + self.icon_rect.w) // 2, self.surface_rect.h // 4 + self.surface_rect.h // 2
 
         self.surface.blit(self.icon, self.icon_rect)
         self.surface.blit(self.name, self.name_rect)
@@ -88,6 +93,7 @@ class DynamicItemCard:
         return self.surface
 
 
+# Działa analogicznie do DynamicItemCard, natomiast zamiast przedmiotu zawiera informacje o Stworku.
 class DynamicCreatureCard:
 
     def __init__(self, creature, scr_width, scr_height, font):
@@ -104,7 +110,7 @@ class DynamicCreatureCard:
         self.image_rect = self.image.get_rect()
         self.image_rect.center = self.image_rect.w // 2, self.image_rect.h // 2
 
-        self.name, self.name_rect = font.render(f"Name: {self.creature.name}", size=32, fgcolor=(0, 0, 0))
+        self.name, self.name_rect = font.render(f"Name: {self.creature.__class__.__name__}", size=32, fgcolor=(0, 0, 0))
         self.name_rect.center = self.surface_rect.w // 2 + self.image_rect.w, self.surface_rect.h // 4
 
     def draw_card(self, is_current):
@@ -123,6 +129,7 @@ class DynamicCreatureCard:
         return self.surface
 
 
+# Ta klasa służy do wyświetlania rozszerzonych informacji na temat aktualnie oglądanego Stworka
 class CreatureStatusCard:
 
     def __init__(self, scr_width, scr_height):
@@ -154,7 +161,8 @@ class CreatureStatusCard:
 
         self.surface.blit(self.image, self.image_rect)
 
-        data, data_rect = font.render(f"Name: {self.creature.name}", size=self.font_size)
+        # Tworzenie obiektów typu Font i "blitowanie" ich na karcie
+        data, data_rect = font.render(f"Name: {self.creature.__class__.__name__}", size=self.font_size)
         data_rect.center = self.free_width // 4 + self.image_rect.w, self.surface_rect.h // 6
 
         self.surface.blit(data, data_rect)
