@@ -356,8 +356,7 @@ class Inventory:
 
         if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and cur_time - self.last_click > self.click_cooldown:
             current_item_idx = self.current_item + self.offset * self.current_item
-            current_creature_idx = self.current_creature + self.creature_offset * self.current_creature
-            self.player.items[current_item_idx].use(self.player.creatures[current_creature_idx])
+            self.player.items[current_item_idx].use(self.player.creatures[self.current_creature])
             self.last_click = cur_time
             if self.player.check_inventory():
                 self.current_item = 0
