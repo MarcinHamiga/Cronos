@@ -47,6 +47,7 @@ class Firebreath(Skill):
         base_damage = self.base_damage + (user.attack // 4)
         return base_damage, int(user.attack * self.dmg_multi)
 
+
 class Firewhip(Skill):
 
     def __init__(self, sp_cost, icon):
@@ -67,6 +68,7 @@ class Firewhip(Skill):
 
     def get_min_max_damage(self, user):
         return 0, int(user.attack * self.dmg_multi)
+
 
 class Whirlwind(Skill):
 
@@ -139,17 +141,25 @@ class SkillCard:
         self.skill = skill
 
     def draw_card(self, font, is_current: bool):
+        """Funkcja ta służy do zarysowywania karty"""
         match is_current:
+            # Jeżeli dana karta jest w danym momencie wybrana w, to jej kolory ulegają zmianie
+            # Stąd rozróżnienie.
             case True:
+                # czyścimy powierzchnię karty wypełniając ją białym kolorem
                 self.surface.fill((255, 255, 255))
 
+                # Rysujemy ikonę na powierzchni karty
                 self.surface.blit(self.icon, self.icon_rect)
 
+                # W tym bloku uzyskujemy tekst zawierający nazwę umiejętności i wyrysowujemy ten tekst
+                # na powierzchni karty
                 name, name_rect = font.render(f"Name: {str(self.skill)}", fgcolor=(90, 0, 0))
                 name_rect.center = 144, 12
 
                 self.surface.blit(name, name_rect)
 
+                # Analogicznie, tutaj uzyskujemy ilość SP potrzebnych do użycia umiejętności
                 cost, cost_rect = font.render(f"Cost: {self.skill.sp_cost}", fgcolor=(0, 0, 0))
                 cost_rect.center = 144, 36
 
@@ -162,7 +172,7 @@ class SkillCard:
                 self.surface.blit(dmg, dmg_rect)
 
                 return self.surface
-
+            # Jeżeli nie, to karta przybiera kolory domyślne
             case False:
                 self.surface.fill((128, 0, 35))
 

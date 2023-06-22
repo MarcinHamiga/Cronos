@@ -356,23 +356,28 @@ class ActionLog:
         self.uses_item = None
 
     def get_action(self, action, reaction, creature, uses_item=False):
+        """Zbiera z odpowiednich miejsc informacje na temat akcji wykonanych przez gracza i przez jego przeciwnika"""
         self.action = action
         self.reaction = reaction
         self.creature = creature
         self.uses_item = uses_item
 
     def draw(self):
-
+        """Funkcja ta wyrysowuje na powierzchni klasy ActionLog wszystkie elementy graficzne tej klasy"""
         self.surface.fill((70, 70, 70))
+
         if self.action is not None:
             action, action_rect = self.game.FONT.render(f"{str(self.creature)} uses {self.action}...", size=40)
             action_rect.center = self.surface_rect.w // 2, 25
+
             if not self.uses_item:
+
                 if self.reaction == 0:
                     reaction, reaction_rect = self.game.FONT.render(f"It's ineffective!")
                 else:
                     reaction, reaction_rect = self.game.FONT.render(f"It deals {self.reaction} dmg!", size=40)
                 reaction_rect.center = self.surface_rect.w // 2, 75
+
             else:
                 reaction, reaction_rect = self.game.FONT.render(f"")
 
@@ -380,10 +385,11 @@ class ActionLog:
             self.surface.blit(reaction, reaction_rect)
 
     def get_surface_rect(self):
+        """Zwraca nam powierzchnię oraz jej prostokąt"""
         return self.surface, self.surface_rect
 
     def clear_log(self):
-
+        """Czyści informacje o tym, co powinno zostać wyświetlone"""
         self.action = None
         self.reaction = None
         self.creature = None
@@ -446,6 +452,7 @@ class ContentList:
                 card_surface_rect.center = card_surface_rect.w // 2, self.game.SCR_HEIGHT - card_surface_rect.h * (3 - x) - 200
 
                 screen.blit(card_surface, card_surface_rect)
+
         except IndexError:
             pass
 
@@ -476,7 +483,9 @@ class ContentList:
         self.item_cards = []
         self.skills = self.fightscreen.player_creature.skills
         self.skill_cards = []
+
         for item in self.items:
             self.item_cards.append(ItemCard(item))
+
         for skill in self.skills:
             self.skill_cards.append(SkillCard(skill, self.fightscreen))
