@@ -24,10 +24,13 @@ class Creature:
         self.hidden_skills = hidden_skills
         self.element = element
 
+    def __str__(self):
+        return f"{self.__class__.__name__}"
+
     def apply_status(self, applied_status):
 
         for status in self._statuses:
-            if status.__class__.__name__ == applied_status.__class__.__name__:
+            if str(status) == str(applied_status):
                 status.extend_status(applied_status.turns_left)
                 return
 
@@ -57,7 +60,7 @@ class Creature:
     def use_skill(self, idx, target):
         skill = self.skills[idx]
         self.special_points -= skill.sp_cost
-        return self.skills[idx].__class__.__name__, self.skills[idx].use(self, target)
+        return str(self.skills[idx]), self.skills[idx].use(self, target)
 
     def add_skill(self, skill):
         self.skills.append(skill)
@@ -170,7 +173,7 @@ class Flametorch(Creature):
             self.level_up()
 
     def __str__(self):
-        return f"Creature: {self.__class__.__name__}"
+        return f"{self.__class__.__name__}"
 
 
 class Leafwing(Creature):
@@ -200,7 +203,7 @@ class Leafwing(Creature):
             self.level_up()
 
     def __str__(self):
-        return f"Creature: {self.__class__.__name__}"
+        return f"{self.__class__.__name__}"
 
 
 class Aquashade(Creature):

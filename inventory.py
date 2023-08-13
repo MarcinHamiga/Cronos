@@ -110,7 +110,7 @@ class DynamicCreatureCard:
         self.image_rect = self.image.get_rect()
         self.image_rect.center = self.image_rect.w // 2, self.image_rect.h // 2
 
-        self.name, self.name_rect = font.render(f"Name: {self.creature.__class__.__name__}", size=32, fgcolor=(0, 0, 0))
+        self.name, self.name_rect = font.render(f"Name: {str(self.creature)}", size=32, fgcolor=(0, 0, 0))
         self.name_rect.center = self.surface_rect.w // 2 + self.image_rect.w, self.surface_rect.h // 4
 
     def draw_card(self, is_current):
@@ -162,7 +162,7 @@ class CreatureStatusCard:
         self.surface.blit(self.image, self.image_rect)
 
         # Tworzenie obiektów typu Font i "blitowanie" ich na karcie
-        data, data_rect = font.render(f"Name: {self.creature.__class__.__name__}", size=self.font_size)
+        data, data_rect = font.render(f"Name: {str(self.creature)}", size=self.font_size)
         data_rect.center = self.free_width // 4 + self.image_rect.w, self.surface_rect.h // 6
 
         self.surface.blit(data, data_rect)
@@ -356,8 +356,7 @@ class Inventory:
 
         if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and cur_time - self.last_click > self.click_cooldown:
             current_item_idx = self.current_item + self.offset * self.current_item
-            current_creature_idx = self.current_creature + self.creature_offset * self.current_creature
-            self.player.items[current_item_idx].use(self.player.creatures[current_creature_idx])
+            self.player.items[current_item_idx].use(self.player.creatures[self.current_creature])
             self.last_click = cur_time
             if self.player.check_inventory():
                 self.current_item = 0
