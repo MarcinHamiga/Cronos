@@ -31,16 +31,16 @@
             "scale": 1,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 688,
-                "y": 372
+                "x": 685,
+                "y": 369
             }
         },
         "Dockersville.tmx": {
             "scale": 1,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 861,
-                "y": 93
+                "x": 858,
+                "y": 90
             }
         },
         "House.tmx": {
@@ -55,8 +55,8 @@
             "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 386,
-                "y": 399
+                "x": 649,
+                "y": 356
             }
         },
         "global_map_tileset.tsx": {
@@ -66,16 +66,16 @@
             "scale": 1.1033854166666666,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 383.3655888600425,
-                "y": 384.7250413028087
+                "x": 379.74038234599954,
+                "y": 381.55298560302106
             }
         },
         "testmap.tmx": {
             "scale": 1,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 1256,
-                "y": 334
+                "x": 1253,
+                "y": 331
             }
         },
         "testmap.tmx#global_tileset": {
@@ -86,8 +86,8 @@
             "scale": 0.75,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 480,
-                "y": 480.6666666666666
+                "x": 475.99999999999994,
+                "y": 477.33333333333337
             }
         }
     },
