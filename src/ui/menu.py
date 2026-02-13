@@ -1,6 +1,7 @@
 import pygame
 from time import time
 
+
 class Button:
 
     def __init__(self, text, w=480, h=240):
@@ -132,4 +133,3 @@ class Settings:
             self.last_click = cur_time
             if self.is_adding:
                 self.is_adding = False
-

@@ -2,7 +2,7 @@ import random
 
 
 class Item:
-    
+
     def __init__(self, name, icon, amount=1, price=1, buyable=True):
         self.name = name
         self.icon = icon
@@ -15,20 +15,18 @@ class Item:
     def __str__(self):
         return str(self.__class__.__name__)
 
-    
+
 class Candy(Item):
-    
+
     def __init__(self, icon, amount=1):
         super().__init__("Candy", icon, amount, price=125)
-    
-    def use(self, target):
-        if target.check_if_down():
-            target.revive()
-            self.amount -= 1
 
-    
+    def use(self, target):
+        pass
+
+
 class SmallHPRestore(Item):
-    
+
     def __init__(self, icon, amount=1):
         super().__init__("Small HP restore", icon, amount, price=50)
 
@@ -50,10 +48,10 @@ class HPRestore(Item):
 
 
 class SmallSPRestore(Item):
-    
+
     def __init__(self, icon, amount=1):
         super().__init__("Small SP restore", icon, amount, price=75)
-        
+
     def use(self, target):
         if not target.check_if_down() and target.special_points != target.max_special_points:
             target.recover_sp(10)
@@ -78,12 +76,6 @@ class Catcher(Item):
 
     def use(self, target):
         self.amount -= 1
-        if int(target.health / target.max_health * 100) < 40:
-            roll = random.randint(0, 100)
-            if roll < 60:
-                return True
-            else:
-                return False
         return False
 
 

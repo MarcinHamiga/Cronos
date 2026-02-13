@@ -2,174 +2,8 @@ import pygame
 import pytmx
 from pathlib import Path
 from time import time
-from random import randint, choice
 
-
-class Event:
-    
-    def __init__(self, coords: tuple, img=None):
-        if img is not None:
-            self.image = img
-            self.rect = self.image.get_rect()
-        else:
-            self.image = None
-            self.rect = pygame.Rect(0, 0, 48, 48)
-
-        x, y = coords
-        self.rect.center = x, y
-        
-    # Wszystkie poniższe funkcje powinny, ale nie muszą zostać przeciążone 
-    def check_stepped_on(self, game):
-        pass
-    
-    def check_interact(self, game, tile):
-        pass
-
-    def draw(self, tile):
-        if self.image is not None:
-            image_rect = self.image.get_rect()
-            image_rect.center = 24, 24
-            tile.image.blit(self.image, image_rect)
-
-
-class Teleport(Event):
-    
-    def __init__(self, coords, place_on_map: tuple, map=None, img=None):
-        super().__init__(coords, img=img)
-        self.dest_map = map
-        self.map_coords = place_on_map
-
-    def teleport(self, game):
-        """Teleportuje gracza na wybrane koordynaty na wybranej mapie"""
-        game.PLAYER.set_pos(self.map_coords)
-        if self.dest_map is not None:
-            game.map = self.dest_map
-
-    def check_stepped_on(self, game):
-        if self.rect.colliderect(game.PLAYER.get_rectangle()):
-            self.teleport(game)
-
-    def check_interact(self, game, tile):
-        if game.map.check_if_looking_at(tile):
-            self.teleport(game)
-     
-            
-class Dialogue(Event):
-
-    def __init__(self, coords, img=None, npc=None):
-        super().__init__(coords, img=img)
-        self.NPC = npc
-        if npc.__class__.__name__.lower() == "lockeddoor":
-            self.NPC_NAME = ""
-        else:
-            self.NPC_NAME = self.NPC.__class__.__name__
-        self.current_tree = None
-        self.radiant_selected = False
-
-    def check_interact(self, game, tile):
-        if game.map.check_if_looking_at(tile):
-            if self.NPC.is_available() is not None:
-                self.dialogue(game)
-            else:
-                pass
-        else:
-            pass
-
-    def dialogue(self, game):
-
-        if self.current_tree is None:
-            self.current_tree = self.NPC.get_dialogue()
-
-        if self.current_tree.__class__.__name__ == "RadiantTree" and not self.radiant_selected:
-            self.current_tree.choose_random()
-            self.radiant_selected = True
-
-        game.map.in_dialogue = True
-
-        if self.current_tree.get_current_line() is not None:
-            game.SCREEN.fill((0, 0, 0))
-            game.map.current_dialogue = self
-            name_tag, name_tag_rect = self.create_name_tag(game)
-
-            content_tag, content_tag_rect = self.create_content_tag(game)
-            content_tag.fill((128, 0, 32))
-
-            npc_name, npc_name_rect = game.FONT.render(self.NPC_NAME, size=36, fgcolor=(255,255,255))
-            npc_name_rect.center = name_tag_rect.w // 2, name_tag_rect.h // 2
-            name_tag.blit(npc_name, npc_name_rect)
-
-            content = self.current_tree.get_content()
-            content, content_rect = game.FONT.render(content, size=24, fgcolor=(255,255,255))
-            content_rect.center = content_tag_rect.w // 2, content_tag_rect.h // 2
-            content_tag.blit(content, content_rect)
-
-            game.map.dialogue_card.fill((0, 0, 0))
-            game.map.dialogue_card.blit(npc_name, npc_name_rect)
-            game.map.dialogue_card.blit(content_tag, content_tag_rect)
-            self.current_tree.go_to_next()
-
-        else:
-            game.map.current_dialogue = None
-            game.map.in_dialogue = False
-            self.current_tree = None
-            self.radiant_selected = False
-
-    def create_name_tag(self, game):
-        name_tag = pygame.Surface((game.map.dialogue_card_rect.w // 6, game.map.dialogue_card_rect.h // 3))
-        name_tag_rect = name_tag.get_rect()
-        name_tag_rect.center = name_tag_rect.w // 2, game.map.dialogue_card_rect.h // 6
-        return name_tag, name_tag_rect
-
-    def create_content_tag(self, game):
-        content_tag = pygame.Surface((game.map.dialogue_card_rect.w, 2 * game.map.dialogue_card_rect.h // 3))
-        content_tag_rect = content_tag.get_rect()
-        content_tag_rect.center = content_tag_rect.w // 2, 2 * game.map.dialogue_card_rect.h // 3
-        return content_tag, content_tag_rect
-
-
-class DangerZone(Event):
-
-    def __init__(self, coords, enemies: list, game, max_level: int, img=None):
-        super().__init__(coords, img)
-        self.enemies = enemies
-        self.game = game
-        self.max_level = max_level
-
-    def start_a_fight(self):
-        enemy = choice(self.enemies)
-        level = randint(1, self.max_level)
-        for x in range(level - 1):
-            enemy.level_up()
-        self.game.STATE_MANAGER.change_state("FIGHT")
-        self.game.FIGHTSCREEN.set_enemy(enemy)
-
-    def check_stepped_on(self, game):
-        roll = randint(1, 10000)
-        if self.rect.colliderect(game.PLAYER.get_rectangle()) and roll <= 20:
-            self.start_a_fight()
-        if self.rect.colliderect(game.PLAYER.get_rectangle()) and 100 <= roll <= 200:
-            self.game.INVENTORY.add_item("Junk", amount=randint(1, 7))
-
-
-class Shop(Dialogue):
-    def __init__(self, coords: tuple, img=None, npc=None):
-        super().__init__(coords, img, npc)
-
-    def dialogue(self, game):
-        super().dialogue(game)
-        if not game.map.in_dialogue:
-            game.STATE_MANAGER.change_state(6)
-            game.SHOPSCREEN.set_for_refresh()
-
-
-class Cure(Dialogue):
-    def __init__(self, coords: tuple, img=None, npc=None):
-        super().__init__(coords, img, npc)
-
-    def dialogue(self, game):
-        super().dialogue(game)
-        for creature in game.PLAYER.creatures:
-            creature.revitalize()
+from .events import Event, Teleport, Dialogue, Shop, Cure
 
 
 class Tile:
@@ -186,7 +20,7 @@ class Tile:
         self.width_pos = ((self.rect.x + 1) - (self.size[0] // 2), self.rect.x + (self.size[0] // 2))
         self.height_pos = ((self.rect.y + 1) - (self.size[1] // 2), self.rect.y + (self.size[1] // 2))
         self.events = []
-        
+
     def add_event(self, event):
         self.events.append(event)
 
@@ -213,18 +47,17 @@ class Map:
         self.dialogue_card_rect.center = self.game.SCR_WIDTH // 2,  7 * (self.game.SCR_HEIGHT // 8)
 
     def load_map(self, mapname):
-        """Funkcja ta wczytuje mapę z pliku .tmx"""
         if mapname[:-4] != ".tmx":
             mapname += ".tmx"
-            
+
         map_path = Path.cwd()
         map_path /= Path(f"maps/{mapname.lower()}")
         self.tmx_map_data = pytmx.load_pygame(map_path)
         layer_num = 0
-        
+
         for layer in self.tmx_map_data:
             self.layers.append([])
-            
+
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, gid in layer:
                     image = self.tmx_map_data.get_tile_image_by_gid(gid)
@@ -236,9 +69,9 @@ class Map:
                         tile = Tile(image, rect, impassable, danger_zone, (self.tmx_map_data.tilewidth,
                                                               self.tmx_map_data.tileheight), x, y, layer_num)
                         self.layers[layer_num].append(tile)
-                        
+
             layer_num += 1
-        
+
     def _handle_input(self, keys_pressed, game):
 
         cur_time = time()
@@ -264,49 +97,38 @@ class Map:
             self.last_press = cur_time
             self.game.func_key_used = cur_time
 
-        # if keys_pressed[pygame.K_f] and cur_time - self.last_press > self.cooldown and cur_time - self.game.func_key_used > self.cooldown:
-        #     self.game.STATE_MANAGER.change_state(5)
-        #     self.last_press = cur_time
-        #     self.game.func_key_used = cur_time
-
     def update(self, keys_pressed, game):
         if self.in_dialogue:
             self.current_dialogue.dialogue(self.game)
         self._handle_input(keys_pressed, game)
 
     def draw_map(self):
-        # Ustawienie warstwy na pierwszą warstwę
         layer_num = 1
-        # Przygotowanie powierzchni
         self.game.map_surface = pygame.Surface((self.tmx_map_data.width * self.tmx_map_data.tilewidth,
                                                 self.tmx_map_data.height * self.tmx_map_data.tileheight))
-        
-        # Pętla wyrysowująca kolejne kafelki na powierzchni
+
         for layer in self.layers:
-            
+
             for tile in layer:
                 self.game.map_surface.blit(tile.image, tile.rect)
                 for event in tile.events:
                     if event.image is not None:
                         self.game.map_surface.blit(event.image, tile.rect)
-                
+
             if layer_num == 1:
                 self.game.PLAYER.draw(self.game.map_surface)
-                
+
             layer_num += 1
-        
-        # Dostosowanie powierzchni do odpowiedniej skali
+
         self.game.map_surface = pygame.transform.scale(self.game.map_surface,
                                                        (self.game.map_surface.get_width() * self.game.scale,
                                                         self.game.map_surface.get_height() * self.game.scale))
 
         pos_x, pos_y = self.game.PLAYER.get_pos()
-        
-        # Obliczenie wymaganego offsetu tak, aby ekran był zawsze wycentrowany 
+
         map_offset_x = (self.game.SCR_WIDTH // 2) - (pos_x * self.game.scale)
         map_offset_y = (self.game.SCR_HEIGHT // 2) - (pos_y * self.game.scale)
-        
-        # Wyrysowanie powierzchni na ekranie
+
         self.game.SCREEN.blit(self.game.map_surface, (map_offset_x, map_offset_y))
 
         if self.in_dialogue:
@@ -354,11 +176,6 @@ class Map:
         event = Cure((cx, cy), img=img, npc=npc)
         self.add_event(tile, event)
         tile.impassable = True
-
-    def add_dangerzone(self, tile, enemies, game, max_level, img=None):
-        cx, cy = self.get_tile_center(tile)
-        event = DangerZone((cx, cy), enemies, game, max_level, img=img)
-        self.add_event(tile, event)
 
     def get_neighbours(self, tile):
         try:
@@ -417,15 +234,10 @@ class TestMap(Map):
     def __init__(self, game):
         super().__init__(game)
         self.load_map("testmap")
-        self.enemies = [self.game.spawn_leafwing(), self.game.spawn_flametorch()]
 
     def bake_events(self):
         tile = self.get_tile(0, 0, 19)
         self.add_teleport(tile, (0, 1), TestMap2(self.game))
-        for layer in self.layers:
-            for tile in layer:
-                if tile.danger_zone:
-                    self.add_dangerzone(tile, self.enemies, self.game, 5, None)
         self.baked = 1
 
 
@@ -434,17 +246,12 @@ class TestMap2(Map):
     def __init__(self, game):
         super().__init__(game)
         self.load_map("testmap2")
-        self.enemies = [self.game.spawn_aquashade(), self.game.spawn_leafwing()]
-    
+
     def bake_events(self):
         tile = self.get_tile(0, 0, 0)
         self.add_teleport(tile, (0, 18), TestMap(self.game))
         tile = self.get_tile(0, 0, 7)
         self.add_teleport(tile, (28, 1), Dockersville(self.game))
-        for layer in self.layers:
-            for tile in layer:
-                if tile.danger_zone:
-                    self.add_dangerzone(tile, self.enemies, self.game, 5, None)
         self.baked = 1
 
 

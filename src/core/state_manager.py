@@ -7,11 +7,9 @@ class State_manager:
             2: "INVENTORY",
             3: "MAP",
             4: "SETTINGS",
-            5: "FIGHT",
-            6: "SHOP"
-
+            5: "SHOP"
         }
-        
+
     def change_state(self, state: str or int):
         if isinstance(state, int):
             self._game.game_state = self._game_states[state]

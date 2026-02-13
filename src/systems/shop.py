@@ -1,7 +1,7 @@
 import pygame
-from inventory import DynamicItemCard
-from copy import deepcopy
 from time import time
+
+from .inventory import DynamicItemCard
 
 
 class Shopscreen:
