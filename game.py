@@ -105,8 +105,6 @@ class Game:
 
         self.SETTINGS = menu.Settings(self)
 
-        self.main()
-
     def main(self):
         
         while self._running:
