@@ -1,6 +1,5 @@
 from random import randint
 import pygame
-import skills
 
 
 class Creature:
@@ -38,11 +37,13 @@ class Creature:
 
     def process_statuses(self):
 
-        for idx, status in enumerate(self._statuses):
+        remaining_statuses = []
+        for status in self._statuses:
             status.take_effect(self)
             status.decrement_turn()
-            if status.turns_left == 0:
-                self._statuses.pop(idx)
+            if status.turns_left > 0:
+                remaining_statuses.append(status)
+        self._statuses = remaining_statuses
 
     def clear_statuses(self):
         self._statuses = []

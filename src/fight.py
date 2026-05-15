@@ -1,8 +1,10 @@
 import pygame
-from time import time
-from inventory import ItemCard
 from random import randint
-from skills import SkillCard
+from time import time
+
+from src.inventory import ItemCard
+from src.skills import SkillCard
+from src.state.game_states import GameStates
 
 class FightScreen:
     def __init__(self, game):
@@ -37,6 +39,20 @@ class FightScreen:
         self.enemy_creature = enemy
         self.enemy_creature_stats.creature = self.enemy_creature
         self.set_enemy_image()
+
+    def reset_battle_state(self):
+        self.enemy_creature = None
+        self.enemy_creature_stats.creature = None
+        self.current_command = 1
+        self.choosing = False
+        self.choosing_items = False
+        self.player_turn = True
+        self.time_of_player_turn = 0
+        self.content_list.reset_positions()
+        self.action_log.clear_log()
+        self.player_creature.clear_statuses()
+        self.enemy_creature_image = None
+        self.enemy_creature_rect = None
 
     def _handle_input(self, keys):
         cur_time = time()
@@ -85,8 +101,12 @@ class FightScreen:
             if str(item_used) == "Catcher":
                 self.action_log.get_action(f"{item_used.name}", "", self.player_creature, True)
                 if item_used.use(self.enemy_creature):
-                    self.enemy_creature.take_damage(999999)
                     self.game.PLAYER.creatures.append(self.enemy_creature)
+                    self.game.PLAYER.check_inventory()
+                    self.game.STATE_MANAGER.change_state(GameStates.MAP)
+                    self.reset_battle_state()
+                    self.last_key_press = cur_time
+                    return
             else:
                 self.action_log.get_action(f"{item_used.name}", "", self.player_creature, True)
                 item_used.use(self.player_creature)
@@ -131,8 +151,8 @@ class FightScreen:
     def try_to_run(self):
         roll = randint(0, 100)
         if roll < 60:
-            self.game.STATE_MANAGER.change_state(3)
-            self.switch_turns()
+            self.game.STATE_MANAGER.change_state(GameStates.MAP)
+            self.reset_battle_state()
         else:
             self.switch_turns()
             return
@@ -143,7 +163,8 @@ class FightScreen:
             self.player_creature_stats.creature = self.player_creature
 
         if self.player_creature.check_if_down():
-            self.game.STATE_MANAGER.change_state(3)
+            self.game.STATE_MANAGER.change_state(GameStates.MAP)
+            self.reset_battle_state()
             return
 
         self._handle_input(keys)
@@ -173,14 +194,11 @@ class FightScreen:
             self.switch_turns()
 
         if self.player_creature.check_if_down() or self.enemy_creature.check_if_down():
-            self.game.STATE_MANAGER.change_state(3)
+            self.game.STATE_MANAGER.change_state(GameStates.MAP)
             if self.enemy_creature.check_if_down():
                 self.player_creature.xp += 5 * self.enemy_creature.level
                 self.player_creature.check_for_level_up()
-            self.enemy_creature = None
-            self.enemy_creature_stats.creature = self.enemy_creature
-            self.action_log.clear_log()
-            self.player_creature.clear_statuses()
+            self.reset_battle_state()
 
     def player_attack(self):
         reaction = self.player_creature.attack_target(self.enemy_creature)
@@ -220,7 +238,8 @@ class FightScreen:
         if self.choosing:
             self.content_list.draw(self.game.SCREEN, self.choosing_items)
 
-        self.game.SCREEN.blit(self.enemy_creature_image, self.enemy_creature_rect)
+        if self.enemy_creature is not None and self.enemy_creature_image is not None:
+            self.game.SCREEN.blit(self.enemy_creature_image, self.enemy_creature_rect)
 
 
 class PlayerCreatureStats:
@@ -426,35 +445,30 @@ class ContentList:
             for item in self.items:
                 self.item_cards.append(ItemCard(item))
 
-        try:
-            for x in range(3):
-                if self.current_item % 3 == x:
-                    card_surface = self.item_cards[x + self.offset * 3].draw_card(self.game.FONT, True)
-                else:
-                    card_surface = self.item_cards[x + self.offset * 3].draw_card(self.game.FONT, False)
+        visible_count = min(3, len(self.item_cards) - self.offset * 3)
+        for x in range(max(visible_count, 0)):
+            if self.current_item % 3 == x:
+                card_surface = self.item_cards[x + self.offset * 3].draw_card(self.game.FONT, True)
+            else:
+                card_surface = self.item_cards[x + self.offset * 3].draw_card(self.game.FONT, False)
 
-                card_surface_rect = card_surface.get_rect()
-                card_surface_rect.center = card_surface_rect.w // 2, self.game.SCR_HEIGHT - card_surface_rect.h * (3 - x) - 240
+            card_surface_rect = card_surface.get_rect()
+            card_surface_rect.center = card_surface_rect.w // 2, self.game.SCR_HEIGHT - card_surface_rect.h * (3 - x) - 240
 
-                screen.blit(card_surface, card_surface_rect)
-        except IndexError:
-            pass
+            screen.blit(card_surface, card_surface_rect)
 
     def draw_skills(self, screen):
-        try:
-            for x in range(3):
-                if self.current_item % 3 == x:
-                    card_surface = self.skill_cards[x + self.offset * 3].draw_card(self.game.FONT, True)
-                else:
-                    card_surface = self.skill_cards[x + self.offset * 3].draw_card(self.game.FONT, False)
+        visible_count = min(3, len(self.skill_cards) - self.offset * 3)
+        for x in range(max(visible_count, 0)):
+            if self.current_item % 3 == x:
+                card_surface = self.skill_cards[x + self.offset * 3].draw_card(self.game.FONT, True)
+            else:
+                card_surface = self.skill_cards[x + self.offset * 3].draw_card(self.game.FONT, False)
 
-                card_surface_rect = card_surface.get_rect()
-                card_surface_rect.center = card_surface_rect.w // 2, self.game.SCR_HEIGHT - card_surface_rect.h * (3 - x) - 200
+            card_surface_rect = card_surface.get_rect()
+            card_surface_rect.center = card_surface_rect.w // 2, self.game.SCR_HEIGHT - card_surface_rect.h * (3 - x) - 200
 
-                screen.blit(card_surface, card_surface_rect)
-
-        except IndexError:
-            pass
+            screen.blit(card_surface, card_surface_rect)
 
     def _scroll_down(self):
         self.offset += 1
@@ -483,6 +497,8 @@ class ContentList:
         self.item_cards = []
         self.skills = self.fightscreen.player_creature.skills
         self.skill_cards = []
+        self.current_item = min(self.current_item, max(len(self.items) - 1, 0))
+        self.offset = self.current_item // 3 if self.items else 0
 
         for item in self.items:
             self.item_cards.append(ItemCard(item))

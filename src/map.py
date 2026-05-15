@@ -1,8 +1,10 @@
 import pygame
 import pytmx
 from pathlib import Path
+from random import choice, randint
 from time import time
-from random import randint, choice
+
+from src.state.game_states import GameStates
 
 
 class Event:
@@ -136,11 +138,8 @@ class DangerZone(Event):
         self.max_level = max_level
 
     def start_a_fight(self):
-        enemy = choice(self.enemies)
-        level = randint(1, self.max_level)
-        for x in range(level - 1):
-            enemy.level_up()
-        self.game.STATE_MANAGER.change_state("FIGHT")
+        enemy = self.game.spawn_creature_like(choice(self.enemies), level=randint(1, self.max_level))
+        self.game.STATE_MANAGER.change_state(GameStates.FIGHT)
         self.game.FIGHTSCREEN.set_enemy(enemy)
 
     def check_stepped_on(self, game):
@@ -158,7 +157,7 @@ class Shop(Dialogue):
     def dialogue(self, game):
         super().dialogue(game)
         if not game.map.in_dialogue:
-            game.STATE_MANAGER.change_state(6)
+            game.STATE_MANAGER.change_state(GameStates.SHOP)
             game.SHOPSCREEN.set_for_refresh()
 
 
@@ -214,11 +213,13 @@ class Map:
 
     def load_map(self, mapname):
         """Funkcja ta wczytuje mapę z pliku .tmx"""
-        if mapname[:-4] != ".tmx":
-            mapname += ".tmx"
-            
+        if mapname.lower().endswith(".tmx"):
+            filename = mapname.lower()
+        else:
+            filename = f"{mapname.lower()}.tmx"
+
         map_path = Path.cwd()
-        map_path /= Path(f"maps/{mapname.lower()}")
+        map_path /= Path(f"maps/{filename}")
         self.tmx_map_data = pytmx.load_pygame(map_path)
         layer_num = 0
         
@@ -255,12 +256,12 @@ class Map:
             self.last_press = cur_time
 
         if keys_pressed[pygame.K_ESCAPE] and cur_time - self.last_press > self.cooldown and cur_time - self.game.func_key_used > self.cooldown:
-            self.game.STATE_MANAGER.change_state(1)
+            self.game.STATE_MANAGER.change_state(GameStates.MENU)
             self.last_press = cur_time
             self.game.func_key_used = cur_time
 
         if keys_pressed[pygame.K_i] and cur_time - self.last_press > self.cooldown and cur_time - self.game.func_key_used > self.cooldown:
-            self.game.STATE_MANAGER.change_state(2)
+            self.game.STATE_MANAGER.change_state(GameStates.INVENTORY)
             self.last_press = cur_time
             self.game.func_key_used = cur_time
 
@@ -321,6 +322,10 @@ class Map:
         return self.layers
 
     def get_tile(self, layer, x, y):
+        if x < 0 or y < 0:
+            return None
+        if x >= self.tmx_map_data.width or y >= self.tmx_map_data.height:
+            return None
         return self.layers[layer][x + self.tmx_map_data.width * y]
 
     def get_tile_center(self, tile):
@@ -361,25 +366,10 @@ class Map:
         self.add_event(tile, event)
 
     def get_neighbours(self, tile):
-        try:
-            top = self.get_tile(tile.layer, tile.x, tile.y - 1)
-        except IndexError:
-            top = None
-
-        try:
-            bottom = self.get_tile(tile.layer, tile.x, tile.y + 1)
-        except IndexError:
-            bottom = None
-
-        try:
-            left = self.get_tile(tile.layer, tile.x - 1, tile.y)
-        except IndexError:
-            left = None
-
-        try:
-            right = self.get_tile(tile.layer, tile.x + 1, tile.y)
-        except IndexError:
-            right = None
+        top = self.get_tile(tile.layer, tile.x, tile.y - 1)
+        bottom = self.get_tile(tile.layer, tile.x, tile.y + 1)
+        left = self.get_tile(tile.layer, tile.x - 1, tile.y)
+        right = self.get_tile(tile.layer, tile.x + 1, tile.y)
 
         return top, bottom, left, right
 

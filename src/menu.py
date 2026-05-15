@@ -1,6 +1,8 @@
 import pygame
 from time import time
 
+from src.state.game_states import GameStates
+
 class Button:
 
     def __init__(self, text, w=480, h=240):
@@ -63,11 +65,11 @@ class Menu:
 
         if keys[pygame.K_RETURN] and cur_time - self.last_click > self.click_cooldown:
             if self.game.MENU.current_button == 0:
-                self.game.STATE_MANAGER.change_state(3)
+                self.game.STATE_MANAGER.change_state(GameStates.MAP)
             if self.game.MENU.current_button == 1:
-                self.game.STATE_MANAGER.change_state("SETTINGS")
+                self.game.STATE_MANAGER.change_state(GameStates.SETTINGS)
             if self.game.MENU.current_button == 2:
-                pygame.quit()
+                self.game.quit()
 
     def draw(self):
         try:

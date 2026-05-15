@@ -1,5 +1,5 @@
-import game
+from src.game import Game
 
-app = game.Game()
 
+app = Game()
 app.main()

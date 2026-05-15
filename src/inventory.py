@@ -1,12 +1,41 @@
-import pygame
 from time import time
 
-import items
+import pygame
+
+from src import items
+
+
+class SelectionWindow:
+    def __init__(self, page_size):
+        self.page_size = page_size
+        self.current_index = 0
+        self.offset = 0
+
+    def move_up(self):
+        if self.current_index > 0:
+            self.current_index -= 1
+            if self.current_index % self.page_size == self.page_size - 1:
+                self.offset -= 1
+
+    def move_down(self, total_items):
+        if self.current_index < total_items - 1:
+            self.current_index += 1
+            if self.current_index % self.page_size == 0:
+                self.offset += 1
+
+    def reset(self):
+        self.current_index = 0
+        self.offset = 0
+
+    def visible_indexes(self, total_items):
+        start = self.offset * self.page_size
+        end = min(start + self.page_size, total_items)
+        return range(start, end)
 
 
 # Ten obiekt typu ItemCard jest statycznych rozmiarów. Istnieje z powodu kodu, który potrzebuje tego typu klasy
 class ItemCard:
-    
+
     def __init__(self, item, w=240, h=48):
 
         if h < 48:
@@ -19,40 +48,29 @@ class ItemCard:
         self.card_height = h
         self.card_surface = pygame.Surface((self.card_width, self.card_height))
 
-
     def draw_card(self, font, is_current: bool):
-        # Wypełnienie tła kolorem bazując na tym, czy dana karta jest w tym momencie
-        # wybrana przez użytkownika 
         if is_current:
-            self.card_surface.fill((180,180,180))
+            self.card_surface.fill((180, 180, 180))
         else:
             self.card_surface.fill((128, 0, 35))
-            
-        # Renderowanie tekstu na podstawie nazwy przedmiotu    
-        item_name, name_rect = font.render(f"{self.item.name}", (255,255,255))
+
+        item_name, name_rect = font.render(f"{self.item.name}", (255, 255, 255))
         name_rect.center = name_rect.w // 2 + 48, 12
-        
-        # Renderowanie tekstu na podstawie ilości przedmiotu
-        item_amount, amount_rect = font.render(f"Amount: {self.item.amount}", (255,255,255))
+
+        item_amount, amount_rect = font.render(f"Amount: {self.item.amount}", (255, 255, 255))
         amount_rect.center = amount_rect.w // 2 + 48, 36
-        
-        # Uzyskanie obrazu ikony przedmiotu oraz wytworzenie na jej podstawie prostokąta oraz
-        # wyrysowanie go na powierzchni karty przedmiotu
+
         if self.item.icon is not None:
             icon_rect = self.item.icon.get_rect()
             icon_rect.center = 24, 24
             self.card_surface.blit(self.item.icon, icon_rect)
-        
-        # Wyrysowanie obu tekstów na karcie przedmiotu
+
         self.card_surface.blit(item_name, name_rect)
         self.card_surface.blit(item_amount, amount_rect)
-        
-        # Zwrócenie kompletnej karty przedmiotu
+
         return self.card_surface
 
 
-# Ten obiekt typu ItemCard skaluje się do rozdzielczości ekranu użytkownika. Zajmuje zawsze 1/2 szerokości ekranu
-# i 1/6 jego wysokości
 class DynamicItemCard:
 
     def __init__(self, item, scr_width, scr_height, font, print_price=False):
@@ -93,7 +111,6 @@ class DynamicItemCard:
         return self.surface
 
 
-# Działa analogicznie do DynamicItemCard, natomiast zamiast przedmiotu zawiera informacje o Stworku.
 class DynamicCreatureCard:
 
     def __init__(self, creature, scr_width, scr_height, font):
@@ -119,7 +136,11 @@ class DynamicCreatureCard:
         else:
             self.surface.fill((128, 0, 35))
 
-        amount, amount_rect = self.font.render(f"Lvl: {self.creature.level}, HP:{self.creature.health}/{self.creature.max_health}", size=32, fgcolor=(0, 0, 0))
+        amount, amount_rect = self.font.render(
+            f"Lvl: {self.creature.level}, HP:{self.creature.health}/{self.creature.max_health}",
+            size=32,
+            fgcolor=(0, 0, 0),
+        )
         amount_rect.center = self.surface_rect.w // 2 + self.image_rect.w, self.surface_rect.h // 4 + self.surface_rect.h // 2
 
         self.surface.blit(self.image, self.image_rect)
@@ -129,7 +150,6 @@ class DynamicCreatureCard:
         return self.surface
 
 
-# Ta klasa służy do wyświetlania rozszerzonych informacji na temat aktualnie oglądanego Stworka
 class CreatureStatusCard:
 
     def __init__(self, scr_width, scr_height):
@@ -142,7 +162,6 @@ class CreatureStatusCard:
         self.image_rect = None
 
         self.font_size = scr_height // 48
-
         self.free_width = None
 
     def set_creature(self, creature, scr_height):
@@ -158,35 +177,26 @@ class CreatureStatusCard:
 
     def draw_card(self, font):
         self.surface.fill((128, 0, 35))
-
         self.surface.blit(self.image, self.image_rect)
 
-        # Tworzenie obiektów typu Font i "blitowanie" ich na karcie
         data, data_rect = font.render(f"Name: {str(self.creature)}", size=self.font_size)
         data_rect.center = self.free_width // 4 + self.image_rect.w, self.surface_rect.h // 6
-
         self.surface.blit(data, data_rect)
 
         data, data_rect = font.render(f"LV: {self.creature.level}", size=self.font_size)
         data_rect.center = self.free_width // 4 + self.image_rect.w + self.free_width // 2, self.surface_rect.h // 6
-
         self.surface.blit(data, data_rect)
 
         data, data_rect = font.render(f"HP: {self.creature.health}/{self.creature.max_health}", size=self.font_size)
         data_rect.center = self.free_width // 4 + self.image_rect.w, self.surface_rect.h // 6 + self.surface_rect.h // 3
-
         self.surface.blit(data, data_rect)
 
         data, data_rect = font.render(f"XP: {self.creature.xp}/{self.creature.required_xp}", size=self.font_size)
         data_rect.center = self.free_width // 4 + self.image_rect.w + self.free_width // 2, self.surface_rect.h // 6 + self.surface_rect.h // 3
-
         self.surface.blit(data, data_rect)
 
         data, data_rect = font.render(f"SP: {self.creature.special_points}/{self.creature.max_special_points}", size=self.font_size)
         data_rect.center = self.free_width // 4 + self.image_rect.w, self.surface_rect.h // 6 + self.surface_rect.h // 3 * 2
-
-        self.surface.blit(data, data_rect)
-
         self.surface.blit(data, data_rect)
 
         return self.surface
@@ -205,12 +215,8 @@ class Inventory:
         self.creature_cards = []
         self.creature_status = CreatureStatusCard(self.game.SCR_WIDTH, self.game.SCR_HEIGHT)
 
-        self.current_item = 0
-        self.offset = 0
-
-        self.current_creature = 0
-        self.creature_offset = 0
-
+        self.item_selection = SelectionWindow(page_size=6)
+        self.creature_selection = SelectionWindow(page_size=3)
         self.choosing_item = True
 
         self.click_cooldown = 0.15
@@ -222,10 +228,24 @@ class Inventory:
         for creature in self.player.creatures:
             self.creature_cards.append(DynamicCreatureCard(creature, self.game.SCR_WIDTH, self.game.SCR_HEIGHT, self.game.FONT))
 
+    @property
+    def current_item(self):
+        return self.item_selection.current_index
+
+    @property
+    def offset(self):
+        return self.item_selection.offset
+
+    @property
+    def current_creature(self):
+        return self.creature_selection.current_index
+
+    @property
+    def creature_offset(self):
+        return self.creature_selection.offset
+
     def check_for_strays(self):
-        for idx, item in enumerate(self.player.items):
-            if item.amount == 0:
-                self.player.items.pop(idx)
+        self.player.items = [item for item in self.player.items if item.amount > 0]
 
     def _check_card_integrity(self):
 
@@ -249,34 +269,22 @@ class Inventory:
         self.game.SCREEN.blit(surface, surface_rect)
 
     def draw_items(self):
-        try:
-            for x in range(6):
-                if self.current_item % 6 == x:
-                    card_surface = self.item_cards[x + self.offset * 6].draw_card(True)
-                else:
-                    card_surface = self.item_cards[x + self.offset * 6].draw_card(False)
-
-                card_surface_rect = card_surface.get_rect()
-                card_surface_rect.center = self.game.SCR_WIDTH // 4, self.game.SCR_HEIGHT // 12 + x * self.game.SCR_HEIGHT // 6
-
-                self.game.SCREEN.blit(card_surface, card_surface_rect)
-        except IndexError:
-            pass
+        visible_indexes = list(self.item_selection.visible_indexes(len(self.item_cards)))
+        for draw_index, item_index in enumerate(visible_indexes):
+            card_surface = self.item_cards[item_index].draw_card(item_index == self.current_item)
+            card_surface_rect = card_surface.get_rect()
+            card_surface_rect.center = self.game.SCR_WIDTH // 4, self.game.SCR_HEIGHT // 12 + draw_index * self.game.SCR_HEIGHT // 6
+            self.game.SCREEN.blit(card_surface, card_surface_rect)
 
     def draw_creatures(self):
-        try:
-            for x in range(3):
-                if self.current_creature % 3 == x:
-                    card_surface = self.creature_cards[x + self.creature_offset * 3].draw_card(True)
-                else:
-                    card_surface = self.creature_cards[x + self.creature_offset * 3].draw_card(False)
-
-                card_surface_rect = card_surface.get_rect()
-                card_surface_rect.center = self.game.SCR_WIDTH // 4 + self.game.SCR_WIDTH // 2, (self.game.SCR_HEIGHT // 2 + self.game.SCR_HEIGHT // 12) + x * self.game.SCR_HEIGHT // 6
-
-                self.game.SCREEN.blit(card_surface, card_surface_rect)
-        except IndexError:
-            pass
+        visible_indexes = list(self.creature_selection.visible_indexes(len(self.creature_cards)))
+        for draw_index, creature_index in enumerate(visible_indexes):
+            card_surface = self.creature_cards[creature_index].draw_card(creature_index == self.current_creature)
+            card_surface_rect = card_surface.get_rect()
+            card_surface_rect.center = self.game.SCR_WIDTH // 4 + self.game.SCR_WIDTH // 2, (
+                self.game.SCR_HEIGHT // 2 + self.game.SCR_HEIGHT // 12
+            ) + draw_index * self.game.SCR_HEIGHT // 6
+            self.game.SCREEN.blit(card_surface, card_surface_rect)
 
     def draw(self):
         self._check_card_integrity()
@@ -285,97 +293,59 @@ class Inventory:
         self.draw_status()
 
     def add_item(self, name, amount=1):
-        """Dodaje wybrany przedmiot do ekwipunku"""
-
-        # Rozpakowuje zwracane przez check_for_item() wartości
         exists, item = self.check_for_item(name)
 
-        # Jeżeli sprawdzenie zwróciło prawdę, to zamiast tworzyć nowy obiekt typu item,
-        # zwyczajnie zwiększamy ilość istniejącego już przedmiotu o zadaną wartość amount
         if exists:
             item.amount += amount
-            amount = 0
             return
-        # W przeciwnym wypadku, dodajemy nowy obiekt typu Item do listy z ustawioną wartością
-        # zmiennej amount na wskazaną przez nas ilość
-        else:
-            prefix = "ITEM_"
-            new_name = ""
-            for char in name:
-                if char == " ":
-                    new_name += "_"
-                else:
-                    new_name += char
-            item = self.item_dict.item_dict[name.upper()](self.game.ASSETS[prefix + new_name.upper()], amount)
-            self.player.items.append(item)
-            # Aby uniknąć problemów, lista kart przedmiotów jest zerowana i zapełniana na nowo, kiedy
-            # w ekwipunku pojawia się całkiem nowy przedmiot
-            self.item_cards = []
 
-            for item in self.player.items:
-                self.item_cards.append(DynamicItemCard(item, self.game.SCR_WIDTH, self.game.SCR_HEIGHT, self.game.FONT))
+        asset_key = f"ITEM_{name.replace(' ', '_').upper()}"
+        item_factory = self.item_dict.item_dict[name.upper()]
+        item = item_factory(self.game.ASSETS[asset_key], amount)
+        self.player.items.append(item)
+        self.item_cards = []
+
+        for item in self.player.items:
+            self.item_cards.append(DynamicItemCard(item, self.game.SCR_WIDTH, self.game.SCR_HEIGHT, self.game.FONT))
 
     def check_for_item(self, name):
-        """Sprawdza czy przedmiot już istnieje w ekwipunku"""
-
-        # Jeżeli gracz posiada jakieś przedmioty, to funkcja iteruje po nich
-        # i porównuje ich nazwę do tej, której szukamy
         if len(self.player.items) != 0:
-
             for item in self.player.items:
-                # Jeżeli przedmiot zostanie odnaleziony, to zwracana jest wartość
-                # True oraz sam przedmiot, aby móc łatwo zmienić wartość jego
-                # parametru amount
-                if item.name == name:
+                if item.name.upper() == name.upper():
                     return True, item
-
-            # Jeżeli poszukiwany przedmiot nie zostanie odnaleziony, to funkcja zwraca wartość
-            # False i None
             return False, None
-
-        # Jeżeli lista jest pusta, to funkcja zwraca wartości domyślne False i None
         else:
             return False, None
 
     def _handle_item_input(self, keys, cur_time):
 
-        if keys[pygame.K_UP] and cur_time - self.last_click > self.click_cooldown and self.current_item > 0:
-            self.current_item -= 1
+        if keys[pygame.K_UP] and cur_time - self.last_click > self.click_cooldown:
+            self.item_selection.move_up()
             self.last_click = cur_time
-            if self.current_item % 6 == 5:
-                self.offset -= 1
 
-        if keys[pygame.K_DOWN] and cur_time - self.last_click > self.click_cooldown and self.current_item < len(self.player.items) - 1:
-            self.current_item += 1
+        if keys[pygame.K_DOWN] and cur_time - self.last_click > self.click_cooldown:
+            self.item_selection.move_down(len(self.player.items))
             self.last_click = cur_time
-            if self.current_item % 6 == 0:
-                self.offset += 1
 
         if keys[pygame.K_RIGHT]:
             self.choosing_item = False
 
-        if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and cur_time - self.last_click > self.click_cooldown:
-            current_item_idx = self.current_item + self.offset * self.current_item
+        if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and cur_time - self.last_click > self.click_cooldown and self.player.items:
+            current_item_idx = self.current_item
             self.player.items[current_item_idx].use(self.player.creatures[self.current_creature])
             self.last_click = cur_time
             if self.player.check_inventory():
-                self.current_item = 0
-                self.offset = 0
+                self.item_selection.reset()
 
     def _handle_creature_input(self, keys, cur_time):
 
-        if keys[pygame.K_UP] and cur_time - self.last_click > self.click_cooldown and self.current_creature > 0:
-            self.current_creature -= 1
+        if keys[pygame.K_UP] and cur_time - self.last_click > self.click_cooldown:
+            self.creature_selection.move_up()
             self.last_click = cur_time
-            if self.current_creature % 3 == 2:
-                self.creature_offset -= 1
 
-        if keys[pygame.K_DOWN] and cur_time - self.last_click > self.click_cooldown and self.current_creature < len(
-                self.player.creatures) - 1:
-            self.current_creature += 1
+        if keys[pygame.K_DOWN] and cur_time - self.last_click > self.click_cooldown:
+            self.creature_selection.move_down(len(self.player.creatures))
             self.last_click = cur_time
-            if self.current_creature % 3 == 0:
-                self.creature_offset += 1
 
         if keys[pygame.K_LEFT]:
             self.choosing_item = True
@@ -392,4 +362,3 @@ class Inventory:
             self._handle_item_input(keys, cur_time)
         else:
             self._handle_creature_input(keys, cur_time)
-

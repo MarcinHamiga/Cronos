@@ -1,27 +1,21 @@
 import random
-
-import pygame
-import pygame.freetype
 from pathlib import Path
 from time import time
 
-# Custom made modules
-import map
-import menu
-import person
-import statemanager
-import inventory
-import creature
-import fight
-import skills
-from menu import Menu
-from shop import Shopscreen
+import pygame
+import pygame.freetype
+
+from src import creature, fight, inventory, map, menu, person, skills
+from src.menu import Menu
+from src.shop import Shopscreen
+from src.state.game_states import GameStates
+from src.state.state_manager import StateManager
 
 
 class Game:
-    
+
     def __init__(self):
-        
+
         pygame.init()
         pygame.freetype.init()
         self.CLOCK = pygame.time.Clock()
@@ -31,10 +25,7 @@ class Game:
 
         self._running = True
 
-        self.game_state = "MENU"
-        self.STATE_MANAGER = statemanager.State_manager(self)
-
-        self.MENU = Menu(self)
+        self.STATE_MANAGER = StateManager(self)
 
         self.FUNC_KEY_COOLDOWN = 0.2
         self.func_key_used = time()
@@ -42,7 +33,7 @@ class Game:
 
         self.scale = 1
 
-        self.FONT = pygame.freetype.Font(Path.cwd() / Path("fonts") / Path ("VCR_OSD_MONO_1.001.ttf"), 16)
+        self.FONT = pygame.freetype.Font(Path.cwd() / Path("fonts") / Path("VCR_OSD_MONO_1.001.ttf"), 16)
         self.ASSETS = {}
         self.PATH_TO_ASSETS = Path(Path.cwd()) / Path("assets")
 
@@ -58,6 +49,7 @@ class Game:
         pygame.display.set_icon(self.ASSETS["ICN_CRONOS"])
         self.SKILLS_DICT = skills.SkillDict(self.ASSETS)
 
+        self.MENU = Menu(self)
 
         # NPC
         self.BRIGITTE = person.Brigitte(self)
@@ -68,7 +60,17 @@ class Game:
         self.LOCKEDDOOR = person.LockedDoor(self)
 
         # Sekcja dotycząca gracza
-        self.PLAYER = person.Player(self.ASSETS["CHAR_BLUE_EYES_PERSON"], self.SCR_WIDTH // 2, self.SCR_HEIGHT // 2, [self.ASSETS["CHAR_JEANS"], self.ASSETS["CHAR_STRIPED_SHIRT"], self.ASSETS["CHAR_WHITERED_SNEAKERS"], self.ASSETS["CHAR_RED_FULLCAP"]])
+        self.PLAYER = person.Player(
+            self.ASSETS["CHAR_BLUE_EYES_PERSON"],
+            self.SCR_WIDTH // 2,
+            self.SCR_HEIGHT // 2,
+            [
+                self.ASSETS["CHAR_JEANS"],
+                self.ASSETS["CHAR_STRIPED_SHIRT"],
+                self.ASSETS["CHAR_WHITERED_SNEAKERS"],
+                self.ASSETS["CHAR_RED_FULLCAP"],
+            ],
+        )
 
         self.PLAYER.read_scale(self.scale)
 
@@ -80,7 +82,7 @@ class Game:
 
         # Sekcja dotycząca ekwipunku
         self.INVENTORY = inventory.Inventory(self)
-        
+
         self.INVENTORY.add_item("Candy", 5)
         self.INVENTORY.add_item("Small HP Restore", 5)
         self.INVENTORY.add_item("Small SP Restore", 5)
@@ -99,56 +101,62 @@ class Game:
         # Sekcja inicjalizująca ekran sklepu
         self.SHOPSCREEN = Shopscreen(self)
 
-        count = 0
-
         self.PLAYER.set_pos((360, 456))
 
         self.SETTINGS = menu.Settings(self)
 
+    @property
+    def game_state(self):
+        return self.STATE_MANAGER.current_state
+
+    def stop(self):
+        self._running = False
+
+    def quit(self):
+        self.stop()
+        pygame.quit()
+
     def main(self):
-        
+
         while self._running:
-            # Handle events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
+                    self.quit()
+
+            if not self._running:
+                break
 
             match self.game_state:
-                
-                case "TEST":
-                    self.map_state()
-                    
-                case "MENU":
+                case GameStates.MENU:
                     self.menu_state()
-                    
-                case "INVENTORY":
+
+                case GameStates.INVENTORY:
                     self.inventory_state()
-                    
-                case "MAP":
+
+                case GameStates.MAP:
                     self.map_state()
 
-                case "FIGHT":
+                case GameStates.FIGHT:
                     if self.FIGHTSCREEN.enemy_creature is None:
                         self.FIGHTSCREEN.set_enemy(self.spawn_flametorch(random.randint(1, 5)))
                     self.fight_state()
 
-                case "SETTINGS":
+                case GameStates.SETTINGS:
                     self.settings_state()
 
-                case "SHOP":
+                case GameStates.SHOP:
                     self.shop_state()
 
                 case _:
                     self.map_state()
-            
+
             self.flip_n_tick()
-    
+
     def map_state(self):
-        
-        # Input
+
         if not self.map.baked:
             self.map.bake_events()
-        
+
         self.current_time = time()
         keys = pygame.key.get_pressed()
 
@@ -156,28 +164,23 @@ class Game:
             self.PLAYER.update(keys, self)
 
         self.map.update(keys, self)
-        
-        # Draw
+
         self.map_surface.fill((0, 0, 0))
         self.SCREEN.fill((0, 0, 0))
         self.map.draw_map()
-            
+
     def inventory_state(self):
-        
-        # Input
+
         self.current_time = time()
-        keys = pygame.key.get_pressed()    
-        
-        if (keys[pygame.K_i] or keys[pygame.K_ESCAPE]) and self.current_time - self.func_key_used > \
-                self.FUNC_KEY_COOLDOWN:
-            self.STATE_MANAGER.change_state(3)
+        keys = pygame.key.get_pressed()
+
+        if (keys[pygame.K_i] or keys[pygame.K_ESCAPE]) and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
+            self.STATE_MANAGER.change_state(GameStates.MAP)
             self.func_key_used = self.current_time
 
         self.INVENTORY.update(keys)
-        
-        # Draw    
-        self.SCREEN.fill((0, 0, 0))
 
+        self.SCREEN.fill((0, 0, 0))
         self.INVENTORY.draw()
 
     def fight_state(self):
@@ -186,15 +189,7 @@ class Game:
         self.current_time = time()
         keys = pygame.key.get_pressed()
 
-        # if keys[pygame.K_f] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
-        #     self.game_state = self.STATE_MANAGER.change_state(3)
-        #     self.func_key_used = self.current_time
-        #     self.FIGHTSCREEN.action_log.clear_log()
-
-        # Input
         self.FIGHTSCREEN.update(keys)
-
-        # Draw
         self.FIGHTSCREEN.draw()
 
     def menu_state(self):
@@ -203,7 +198,6 @@ class Game:
         keys = pygame.key.get_pressed()
 
         self.MENU.update(keys)
-
         self.MENU.draw()
 
     def settings_state(self):
@@ -212,11 +206,10 @@ class Game:
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_ESCAPE] and self.current_time - self.func_key_used > self.FUNC_KEY_COOLDOWN:
-            self.STATE_MANAGER.change_state("MENU")
+            self.STATE_MANAGER.change_state(GameStates.MENU)
             self.func_key_used = self.current_time
 
         self.SETTINGS.update(keys)
-
         self.SETTINGS.draw()
 
     def shop_state(self):
@@ -226,17 +219,19 @@ class Game:
         self.SHOPSCREEN.refresh()
 
         if keys[pygame.K_c] or keys[pygame.K_BACKSPACE]:
-            self.STATE_MANAGER.change_state(3)
+            self.STATE_MANAGER.change_state(GameStates.MAP)
 
         self.SHOPSCREEN.update(keys)
-
         self.SHOPSCREEN.draw()
 
     def flip_n_tick(self, fps=60):
         pygame.display.flip()
         self.CLOCK.tick(fps)
 
-    # Funkcje do zarządzania contentem
+    def spawn_creature_like(self, creature_template, level=1):
+        creature_type = creature_template.__class__.__name__.lower()
+        spawn_method = getattr(self, f"spawn_{creature_type}")
+        return spawn_method(level=level)
 
     def spawn_flametorch(self, level=1, name=""):
         creature_ = creature.Flametorch(1, self.ASSETS["CRT_FLAMETORCH"], name)
@@ -245,7 +240,7 @@ class Game:
         creature_.add_hidden_skill(self.SKILLS_DICT.get_skill("FIREWHIP"))
 
         if level > 1:
-            for x in range(level - 1):
+            for _ in range(level - 1):
                 creature_.level_up()
         return creature_
 
@@ -254,7 +249,7 @@ class Game:
         creature_.add_hidden_skill(self.SKILLS_DICT.get_skill("WHIRLWIND"))
 
         if level > 1:
-            for x in range(level - 1):
+            for _ in range(level - 1):
                 creature_.level_up()
         return creature_
 
@@ -263,8 +258,7 @@ class Game:
         creature_.add_hidden_skill(self.SKILLS_DICT.get_skill("WATERBLAST"))
 
         if level > 1:
-            for x in range(level - 1):
+            for _ in range(level - 1):
                 creature_.level_up()
 
         return creature_
-

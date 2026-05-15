@@ -1,6 +1,6 @@
 import pygame
 
-import dialogue
+from src import dialogue
 
 
 class Person(pygame.sprite.Sprite):
@@ -179,17 +179,21 @@ class Player(Person):
         self.creatures.append(creature)
 
     def set_designated_creature(self, num):
-        if num <= len(self.creatures):
+        if not self.creatures:
+            self.designated_creature = None
+            return
+
+        if 0 <= num < len(self.creatures):
             self.designated_creature = num
         else:
-            self.designated_creature = self.creatures[0]
+            self.designated_creature = 0
 
     def check_inventory(self):
         popped = False
-        for idx, item in enumerate(self.items):
-            if item.amount <= 0:
-                self.items.pop(idx)
-                popped = True
+        filtered_items = [item for item in self.items if item.amount > 0]
+        if len(filtered_items) != len(self.items):
+            popped = True
+        self.items = filtered_items
         return popped
 
 
